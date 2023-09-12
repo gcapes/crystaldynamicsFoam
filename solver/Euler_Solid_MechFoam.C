@@ -47,6 +47,8 @@ Description
 #include "CorrectPhi.H"
 #include "fvcSmooth.H"
 
+#include <Fastor/Fastor.h> 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
