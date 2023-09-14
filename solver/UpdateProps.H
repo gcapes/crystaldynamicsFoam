@@ -39,7 +39,7 @@ exit(0);
 */
 
 
-
+/*
   Fastor::Tensor<double> my_scalar = 2; // this is a scalar (double) with a value of 2
   // output this on the screen
   Fastor::print("my scalar",my_scalar); // print is a built-in Fastor function for printing
@@ -54,7 +54,63 @@ exit(0);
   Fastor::Tensor<int,2,2,2,2,2> array_5d; // this a 5D array of ints with dimension 2x2x2x2x2
   array_5d.iota(1); // fill the 5d_array with sequentially ascending numbers from 1 to 2x2x2x2x2=32
   Fastor::print("my 5D array", array_5d);
+*/
+
+
+  
+
+
+
+
+
+Fastor::Tensor<double,3,3> Id3={{1.0,0.0,0.0},
+                                 {0.0,1.0,0.0},
+                                 {0.0,0.0,1.0}};
+
+
+
+// Id3(0,0)=1.0;
+// Id3(1,1)=1.0;
+// Id3(2,2)=1.0;
+
+print("Identity test: ",Id3);
+
+
+Fastor::Tensor<double,3,3,3,3> Stiffness_matrix(0.0);
+
+  Stiffness_matrix(0,0,0,0)=1.0;
+  Stiffness_matrix(0,0,1,1)=1.0;
+  Stiffness_matrix(0,0,2,2)=1.0;
+  Stiffness_matrix(1,1,0,0)=1.0;
+  Stiffness_matrix(1,1,1,1)=1.0;
+  Stiffness_matrix(1,1,2,2)=1.0;
+  Stiffness_matrix(2,2,0,0)=1.0;
+  Stiffness_matrix(2,2,1,1)=1.0;
+  Stiffness_matrix(2,2,2,2)=1.0;
+
+
+   Fastor::print("TEST: ", Stiffness_matrix);
+
+  Fastor::Tensor<double,9,9> reshaped = Fastor::reshape<9,9>(Stiffness_matrix);
+
+Fastor::print("TEST_reshaped: ", reshaped);
+
+Fastor::Tensor<double,9> flatI = Fastor::flatten(Id3);
+
+Fastor::print("TEST_flatI ", flatI);
+
+
+Fastor::Tensor<double,1,9> testmul= Fastor::matmul(flatI,reshaped);
+
+Fastor::print("RESULT ", testmul);
+
+Fastor::Tensor<double,3,3> niceformat= Fastor::reshape<3,3>(testmul);
+
+Fastor::print("RESULT_nice_format ", niceformat);
+
+
 
 
   exit(0);
+
 }
