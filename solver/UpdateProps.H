@@ -100,7 +100,7 @@ Fastor::Tensor<double,9> flatI = Fastor::flatten(Id3);
 Fastor::print("TEST_flatI ", flatI);
 
 
-Fastor::Tensor<double,1,9> testmul= Fastor::matmul(flatI,reshaped);
+Fastor::Tensor<double,9,1> testmul= Fastor::matmul(reshaped,flatI);//double dot product of stiffness matrix with some rank 2 tensor
 
 Fastor::print("RESULT ", testmul);
 
@@ -110,6 +110,67 @@ Fastor::print("RESULT_nice_format ", niceformat);
 
 
 
+Fastor::Tensor<double,3,3> test1={{10.0,12.0,13.0},
+                                 {14.0,15.0,16.0},
+                                 {17.0,18.0,19.0}};
+
+Fastor::Tensor<double,3,3> test2={{1.0,2.0,3.0},
+                                 {4.0,5.0,6.0},
+                                 {7.0,8.0,9.0}};
+
+Fastor::print(Fastor::matmul(test1,test2));//dot product 
+/*
+enum {i,j,k,l,m,n};
+enum {I,J,K,L,M,N};
+Fastor::Tensor<double,3,3,3> A; 
+Fastor::Tensor<double,3,3,3,3> B;
+// fill A and B
+// A.random(); B.random();
+ 
+Fastor::Tensor<double,3,3,3,3,3> C= Fastor::einsum<Fastor::Index<I,J,K>,Fastor::Index<J,L,M,N>>(A,B);
+
+
+// or simply using constant integer numbers instead of an enum
+// auto C = einsum<Index<0,1,2>,Index<1,3,4,5>>(A,B);
+Fastor::print("TESTING DOT: ",C);
+*/
+
+Fastor::Tensor<double,3,3> Rot_matrix={{1.0,0.0,0.0},
+                                 {0.0,1.0,0.0},
+                                 {0.0,0.0,1.0}};
+
+Fastor::Tensor<double,3,3,3,3> Cprime(0.0);
+
+Fastor::Tensor<double,3,3,3,3> C(0.0);//stiffness tensor in crystal reference
+  C(0,0,0,0)=1.0;
+  C(1,1,1,1)=1.0;
+  C(2,2,2,2)=1.0;
+
+
+for(int i = 0 ; i < 3 ; i++ ){
+  for(int j = 0 ; j < 3 ; j++ ){
+    for(int k = 0 ; k < 3 ; k++ ){
+      for(int l = 0 ;l  < 3 ; l++ ){
+
+        double value =0.0;
+        for(int m = 0 ; m < 3 ; m++ ){
+          for(int n = 0 ; n < 3 ; n++ ){
+            for(int p = 0 ; p < 3 ; p++ ){
+              for(int q = 0 ;q  < 3 ; q++ ){
+
+                    value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*C(m,n,p,q);
+
+                    }
+                  }
+                }
+              }
+
+        Cprime(i,j,k,l)=value;
+      
+      }
+    }
+  }
+}
 
   exit(0);
 
