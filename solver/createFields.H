@@ -31,6 +31,19 @@ volVectorField U
 );
 
 
+// volVectorField D
+// (
+//     IOobject
+//     (
+//         "D",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
+
 label N_Ori=3;
 
 
@@ -87,6 +100,21 @@ dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
                // zeroGradientFvPatchTensorField::typeName
 );
 
+// volTensorField epsilon
+// (
+//     IOobject
+//     (
+//         "epsilon",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("epsilon",dimensionSet(0, 0, 0, 0, 0),tensor::zero)//,
+//                // zeroGradientFvPatchTensorField::typeName
+// );
+
 volTensorField s
 (
     IOobject
@@ -101,6 +129,38 @@ volTensorField s
 dimensionedTensor("s",dimensionSet(1, -1, -2, 0, 0),tensor::zero)//,
                 //zeroGradientFvPatchTensorField::typeName
 );
+
+volVectorField divs
+(
+    IOobject
+    (
+        "divs",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedVector("divs",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
+);
+
+
+// volTensorField testSIG
+// (
+//     IOobject
+//     (
+//         "testSIG",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("testSIG",dimensionSet(1, -1, -2, 0, 0),tensor::zero)//,
+//                 //zeroGradientFvPatchTensorField::typeName
+// );
+
 
 volTensorField dsdt
 (

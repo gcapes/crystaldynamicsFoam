@@ -64,6 +64,21 @@ solvers
     {
         $U;
     }
+    
+        D
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        minIter         1;
+        maxIter         500;//2
+    }
+        DFinal
+    {
+        $D;
+    }
+    
+    
         T
     {
 /*
@@ -102,6 +117,20 @@ solvers
     rhoFinal
     {
         $rho;
+    }
+    
+        s
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0.0;
+    }
+
+    sFinal
+    {
+        $s;
+        relTol          0;
     }
 }
 

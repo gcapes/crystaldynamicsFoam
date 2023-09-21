@@ -6,11 +6,17 @@
 dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
 volTensorField TgradU = (fvc::grad(U)().T());
+TgradU.correctBoundaryConditions();
+// volTensorField TgradD = (fvc::grad(D)().T());
+// TgradD.correctBoundaryConditions();
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU);
 omega_dot.correctBoundaryConditions();
 epsilon_dot = 0.5*(fvc::grad(U)-TgradU) - (1.0/3.0)*(fvc::div(phi))*I;
 epsilon_dot.correctBoundaryConditions();
+
+// epsilon = 0.5*(fvc::grad(D)-TgradD);
+// epsilon.correctBoundaryConditions();
 // dsdt = 2.0*shear_mod*(epsilon_dot/* - epsilon_P_dot*/) - ((s & omega_dot) - (omega_dot & s));
 // dsdt *=0.0;
 dsdt = - ((s & omega_dot) - (omega_dot & s));
@@ -26,37 +32,47 @@ forAll(mesh.C(), cell)
 
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-  double C_11 = 10.0e10;
-  double C_12 = 9.0e10;
-  double C_66 = 8.0e10;
+  double C_11 = 10.0e9;
+  double C_12 = 10.0e9;
+  double C_66 = 10.0e9;
 
 
-  C(0,0,0,0)=C_11;
-  C(1,1,1,1)=C_11;
-  C(2,2,2,2)=C_11;
+  C(0,0,0,0)=11;
+  C(1,1,1,1)=22;
+  C(2,2,2,2)=33;
 
-  C(0,0,1,1)=C_12;
-  C(0,0,2,2)=C_12;
-  C(1,1,2,2)=C_12;
-  C(1,1,0,0)=C_12;
-  C(2,2,0,0)=C_12;
-  C(2,2,1,1)=C_12;
+  C(0,0,1,1)=12;
+  C(0,0,2,2)=13;
+  C(1,1,2,2)=23;
+  C(1,1,0,0)=21;
+  C(2,2,0,0)=31;
+  C(2,2,1,1)=32;
 
-  C(1,2,1,2)=C_66;
-  C(0,2,0,2)=C_66;
-  C(0,1,0,1)=C_66;
+  C(1,2,1,2)=44;
+  C(0,2,0,2)=55;
+  C(0,1,0,1)=66;
 
+  
+
+  //C(2,1,1,2)=3223;
+
+  // C(2,1,2,1)=3232;
+  // C(2,0,2,0)=3131;
+  // C(1,0,1,0)=2121;
 
   //apply the symmetries
   // double ct=0.0;
-  // for(int i = 0 ; i < 3 ; i++ ){
-  //   for(int j = 0 ; j < 3 ; j++ ){
-  //     for(int k = 0 ; k < 3 ; k++ ){
-  //       for(int l = 0 ;l  < 3 ; l++ ){
+  for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+      for(int k = 0 ; k < 3 ; k++ ){
+        for(int l = 0 ;l  < 3 ; l++ ){
 
   //         C(i,j,k,l)=ct;
 
-  // //         if(C(j,i,k,l)==0.0){
+          // if(C(j,i,k,l)==0.0){
+
+            std::string loc = std::to_string(i+1)+ std::to_string(j+1)+ std::to_string(k+1)+ std::to_string(l+1);
+            C(i,j,k,l)=std::stod(loc) ;
   // //                  C(j,i,k,l) =C(i,j,k,l);//ct;
   // //                }
   // //           if(C(i,j,l,k) ==0.0){
@@ -71,16 +87,17 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
   // //           //  C(j,i,l,k) =C(i,j,k,l);//ct;
   // //           // //C(k,l,i,j) =C(i,j,k,l);//ct;
 
-  //          ct += 1.0;
+          //  ct += 1.0;
           
 
-  //        }
-  //     }
-  //   }
-  // }
+        //  }
+      }
+    }
+  }
+  }
   //finish symmetry operations
-//   Fastor::print("C: ",C);
-// exit(0);
+  Fastor::print("C: ",C);
+exit(0);
 //   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
 //  Info<<"epsilon_dot 4: "<<epsilon_dot[cell].component(4)<<endl;
@@ -92,6 +109,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
     for(int j = 0 ; j < 3 ; j++ ){
 
       Fepsilon_dot(i,j)=epsilon_dot[cell].component(count_index);
+      // Fepsilon_dot(i,j)=epsilon[cell].component(count_index);
 
       count_index++;
     }
@@ -122,7 +140,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 // testmul= Fastor::matmul(reshapedC,flatedot);
 
 enum {I,J,K,L};
-Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);//
+Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
 
 
 
@@ -131,6 +149,7 @@ for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
       dsdt_crystal[cell].component(count_index) =sig(i,j);
+      // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
 
@@ -157,141 +176,82 @@ s.correctBoundaryConditions();
 
 
 
+  //   fvVectorMatrix DEqn
+  //   (
+  //       fvm::d2dt2(rho, D) 
+  //     -fvc::div(testSIG)
+  //  //  ==
+  //   //   phaseChange.SU(rho, rhoPhi, U)
+  //   // + fvModels.source(rho, U)
+  //   );
+
+  //   // DEqn.relax();
+
+  //   // fvConstraints.constrain(DEqn);
+
+  //   DEqn.solve();
+
+
+
 // for (label count = 0; count < N_Ori; count++)
 // {}
 
 
+//TESTING AREA
 
-
-  
-
-
-
-
-
-// Fastor::Tensor<double,3,3> Id3={{1.0,0.0,0.0},
-//                                  {0.0,1.0,0.0},
-//                                  {0.0,0.0,1.0}};
-
-
-
-// // Id3(0,0)=1.0;
-// // Id3(1,1)=1.0;
-// // Id3(2,2)=1.0;
-
-// print("Identity test: ",Id3);
-
-
-// Fastor::Tensor<double,3,3,3,3> Stiffness_matrix(0.0);
-
-//   Stiffness_matrix(0,0,0,0)=1.0;
-//   Stiffness_matrix(0,0,1,1)=1.0;
-//   Stiffness_matrix(0,0,2,2)=1.0;
-//   Stiffness_matrix(1,1,0,0)=1.0;
-//   Stiffness_matrix(1,1,1,1)=1.0;
-//   Stiffness_matrix(1,1,2,2)=1.0;
-//   Stiffness_matrix(2,2,0,0)=1.0;
-//   Stiffness_matrix(2,2,1,1)=1.0;
-//   Stiffness_matrix(2,2,2,2)=1.0;
-
-
-//    Fastor::print("TEST: ", Stiffness_matrix);
-
-//   Fastor::Tensor<double,9,9> reshaped = Fastor::reshape<9,9>(Stiffness_matrix);
-
-// Fastor::print("TEST_reshaped: ", reshaped);
-
-// Fastor::Tensor<double,9> flatI = Fastor::flatten(Id3);
-
-// Fastor::print("TEST_flatI ", flatI);
-
-
-// Fastor::Tensor<double,9,1> testmul= Fastor::matmul(reshaped,flatI);//double dot product of stiffness matrix with some rank 2 tensor
-
-// Fastor::print("RESULT ", testmul);
-
-// Fastor::Tensor<double,3,3> niceformat= Fastor::reshape<3,3>(testmul);
-
-// Fastor::print("RESULT_nice_format ", niceformat);
-
-
-
-// Fastor::Tensor<double,3,3> test1={{10.0,12.0,13.0},
-//                                  {14.0,15.0,16.0},
-//                                  {17.0,18.0,19.0}};
-
-// Fastor::Tensor<double,3,3> test2={{1.0,2.0,3.0},
+// Fastor::Tensor<double,3,3> teststrain={{1.0,2.0,3.0},
 //                                  {4.0,5.0,6.0},
 //                                  {7.0,8.0,9.0}};
 
-// Fastor::print(Fastor::matmul(test1,test2));//dot product 
-// /*
+// Fastor::Tensor<double,3,3> sigdiv={{2.0,4.0,6.0},
+//                                  {8.0,10.0,12.0},
+//                                  {14.0,16.0,18.0}};
 
-// Fastor::Tensor<double,3,3> Id3={{1.0,0.0,0.0},
-//                                  {0.0,1.0,0.0},
-//                                  {0.0,0.0,1.0}};
 
 
 
 
 // Fastor::Tensor<double,3,3,3,3> Stiffness_matrix(0.0);
 
-//   Stiffness_matrix(0,0,0,0)=1.0;
-//   Stiffness_matrix(0,0,1,1)=1.0;
-//   Stiffness_matrix(0,0,2,2)=1.0;
-//   Stiffness_matrix(1,1,0,0)=1.0;
-//   Stiffness_matrix(1,1,1,1)=1.0;
-//   Stiffness_matrix(1,1,2,2)=1.0;
-//   Stiffness_matrix(2,2,0,0)=1.0;
-//   Stiffness_matrix(2,2,1,1)=1.0;
-//   Stiffness_matrix(2,2,2,2)=1.0;
+//   // Stiffness_matrix(0,0,0,0)=2.0;
+//   // Stiffness_matrix(0,0,1,1)=0.0;
+//   // Stiffness_matrix(0,0,2,2)=0.0;
+//   // Stiffness_matrix(1,1,0,0)=0.0;
+//   // Stiffness_matrix(1,1,1,1)=2.0;
+//   // Stiffness_matrix(1,1,2,2)=0.0;
+//   // Stiffness_matrix(2,2,0,0)=0.0;
+//   // Stiffness_matrix(2,2,1,1)=0.0;
+//   // Stiffness_matrix(2,2,2,2)=2.0;
+
+//   Stiffness_matrix(0,0,0,0)=2.0;
+//   Stiffness_matrix(0,0,0,1)=3.0;
+//   Stiffness_matrix(0,0,0,2)=4.0;
+//   Stiffness_matrix(0,0,1,0)=5.0;
+//   Stiffness_matrix(0,0,1,1)=6.0;
+//   Stiffness_matrix(0,0,1,2)=7.0;
+//   Stiffness_matrix(0,0,2,0)=8.0;
+//   Stiffness_matrix(0,0,2,1)=9.0;
+//   Stiffness_matrix(0,0,2,2)=10.0;
+
+//   Stiffness_matrix(0,1,0,0)=12.0;
+//   Stiffness_matrix(0,1,0,1)=13.0;
+//   Stiffness_matrix(0,1,0,2)=14.0;
+//   Stiffness_matrix(0,1,1,0)=15.0;
+//   Stiffness_matrix(0,1,1,1)=16.0;
+//   Stiffness_matrix(0,1,1,2)=17.0;
+//   Stiffness_matrix(0,1,2,0)=18.0;
+//   Stiffness_matrix(0,1,2,1)=19.0;
+//   Stiffness_matrix(0,1,2,2)=110.0;
 
 
-// enum {i,j,k,l,m,n};
-// enum {I,J,K,L,M,N};
-// Fastor::Tensor<double,3,3,3> A; 
-// Fastor::Tensor<double,3,3,3,3> B;
-// // fill A and B
-// // A.random(); B.random();
- 
+// enum {I,J,K,L};
+// Fastor::Tensor<double,3,3> TEST_OUT= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Stiffness_matrix,teststrain);//
 
-// Fastor::Tensor<double,3,3> Cout= Fastor::einsum<Fastor::Index<0,1,2,3>,Fastor::Index<0,1>>(Stiffness_matrix,Id3);
+// Fastor::print("TEST_stress", TEST_OUT);
 
-// Fastor::print("TESTING DOT: ",Cout);
 // exit(0);
 
 
-// // or simply using constant integer numbers instead of an enum
-// // auto C = einsum<Index<0,1,2>,Index<1,3,4,5>>(A,B);
-// Fastor::print("TESTING DOT: ",C);
-// */
-
-// Fastor::Tensor<double,3,3> Rot_matrix={{1.0,0.0,0.0},
-//                                  {0.0,1.0,0.0},
-//                                  {0.0,0.0,1.0}};
-
-// Fastor::Tensor<double,3,3,3,3> Cprime(0.0);
-
-// double C_11 = 10.0e10;
-// double C_12 = 9.0e10;
-// double C_66 = 8.0e10;
-
-
-// Fastor::Tensor<double,3,3,3,3> C(0.0);//stiffness tensor in crystal reference
-//   C(0,0,0,0)=C_11;
-//   C(1,1,1,1)=C_11;
-//   C(2,2,2,2)=C_11;
-
-//   C(0,0,1,1)=C_12;
-//   C(0,0,2,2)=C_12;
-//   C(1,1,2,2)=C_12;
-//    C(1,1,0,0)=C_12;
-//    C(2,2,0,0)=C_12;
-//    C(2,2,1,1)=C_12;
-
-//   C(1,2,1,2)=C_66;
-//   C(0,2,0,2)=C_66;
-//   C(0,1,0,1)=C_66;
 
 
 

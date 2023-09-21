@@ -34,9 +34,9 @@ boundaryField
     }
     atmosphere
     {
-//	type            fixedValue;
-//        value           uniform (0.0 0 0);
-	type            zeroGradient;//	type            noSlip;
+	type            fixedValue;
+        value           uniform (0.0 1.0e-4 1.0e-4);
+//	type            zeroGradient;//	type            noSlip;
     }
     defaultFaces
     {

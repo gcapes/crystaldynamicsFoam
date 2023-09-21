@@ -21,8 +21,9 @@ internalField   uniform 0;
 boundaryField
 {
 	frontAndBack{
-        type            fixedFluxPressure;
-        value           uniform 0;
+       // type            fixedFluxPressure;
+       // value           uniform 0;
+        type zeroGradient;
 	}
 
     lowerWall
