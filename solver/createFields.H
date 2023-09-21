@@ -1,5 +1,7 @@
 #include "createRDeltaT.H"
 
+dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
+
 Info<< "Reading field p_rgh\n" << endl;
 volScalarField p_rgh
 (
@@ -28,6 +30,33 @@ volVectorField U
     mesh
 );
 
+
+label N_Ori=3;
+
+
+
+double phi1[N_Ori]={0.0};
+
+double phi2[N_Ori]={0.0};
+
+double phi3[N_Ori]={0.0};
+
+
+phi1[0]=0.0;
+phi2[0]=0.0;
+phi3[0]=0.0;
+
+phi1[1]=0.0;
+phi2[1]=0.0;//0.25*pi.value();
+phi3[1]=0.25*pi.value();
+
+phi1[2]=0.0;
+phi2[2]=0.0;
+phi3[2]=0.125*pi.value();
+
+
+
+
 volTensorField omega_dot
 (
     IOobject
@@ -39,7 +68,8 @@ volTensorField omega_dot
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("omega_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)
+dimensionedTensor("omega_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
+               // zeroGradientFvPatchTensorField::typeName
 );
 
 volTensorField epsilon_dot
@@ -53,7 +83,8 @@ volTensorField epsilon_dot
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)
+dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
+               // zeroGradientFvPatchTensorField::typeName
 );
 
 volTensorField s
@@ -67,7 +98,8 @@ volTensorField s
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("s",dimensionSet(1, -1, -2, 0, 0),tensor::zero)
+dimensionedTensor("s",dimensionSet(1, -1, -2, 0, 0),tensor::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
 );
 
 volTensorField dsdt
@@ -81,87 +113,103 @@ volTensorField dsdt
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("dsdt",dimensionSet(1, -1, -3, 0, 0),tensor::zero)
+dimensionedTensor("dsdt",dimensionSet(1, -1, -3, 0, 0),tensor::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
 );
 
-
+volTensorField dsdt_crystal
+(
+    IOobject
+    (
+        "dsdt_crystal",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("dsdt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
+);
 
 #include "createPhi.H"
 
-Info<< "Constructing compressibleTwoPhaseMixture\n" << endl;
-compressibleTwoPhaseMixture mixture(U, phi);
+
+Info<< "Reading phaseProperties\n" << endl;
+immiscibleIncompressibleTwoPhaseMixture mixture(U, phi);
 
 autoPtr<twoPhaseChangeModel> phaseChangePtr
 (
     twoPhaseChangeModel::New(mixture)
 );
 
-volScalarField& alpha1(mixture.alpha1());
-const volScalarField& rho = mixture.rho();
 
-dimensionedScalar pMin
+// Need to store rho for ddt(rho, U)
+volScalarField rho
 (
-    "pMin",
-    dimPressure,
-    mixture
+    IOobject
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
 );
+// rho.oldTime();
 
-mesh.schemes().setFluxRequired(p_rgh.name());
-mesh.schemes().setFluxRequired(alpha1.name());
-
+// rho=mixture.rho();
 
 #include "readGravitationalAcceleration.H"
 #include "readhRef.H"
 #include "gh.H"
 
 
-pressureReference pressureReference(mixture.p(), p_rgh, pimple.dict(), false);
-
-
-// Mass flux
-// Initialisation does not matter because rhoPhi is reset after the
-// alpha1 solution before it is used in the U equation.
-surfaceScalarField rhoPhi
+volScalarField p
 (
     IOobject
     (
-        "rhoPhi",
+        "p",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    fvc::interpolate(rho)*phi
-);
-
-volScalarField::Internal dgdt
-(
-    IOobject
-    (
-        "dgdt",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
-    alpha1*fvc::div(phi)
+    p_rgh + rho*gh
 );
+
+pressureReference pressureReference(p, p_rgh, pimple.dict());
+
+if (p_rgh.needReference())
+{
+    p += dimensionedScalar
+    (
+        "p",
+        p.dimensions(),
+        pressureReference.refValue()
+      - getRefCellValue(p, pressureReference.refCell())
+    );
+    p_rgh = p - rho*gh;
+}
+
+mesh.schemes().setFluxRequired(p_rgh.name());
+
+volScalarField& alpha1(mixture.alpha1());
+mesh.schemes().setFluxRequired(alpha1.name());
+
 
 #include "createAlphaFluxes.H"
 
-// Construct compressible turbulence model
-compressibleInterPhaseTransportModel turbulence
+// Construct incompressible turbulence model
+incompressibleInterPhaseTransportModel turbulence
 (
-    rho,
     U,
     phi,
-    rhoPhi,
     alphaPhi1,
     mixture
 );
 
-Info<< "Creating field kinetic energy K\n" << endl;
-volScalarField K("K", 0.5*magSqr(U));
 
 #include "createMRF.H"
 #include "createFvModels.H"

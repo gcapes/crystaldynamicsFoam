@@ -4,18 +4,34 @@ phi = mesh.Sf() & Uf();
 
 correctUphiBCs(U, phi, true);
 
-CorrectPhi
-(
-    phi,
-    U,
-    p_rgh,
-    surfaceScalarField("rAUf", fvc::interpolate(rAU())),
-    divU(),
-    pressureReference,
-    pimple
-);
+if (divU.valid())
+{
+    CorrectPhi
+    (
+        phi,
+        U,
+        p_rgh,
+        surfaceScalarField("rAUf", fvc::interpolate(rAU())),
+        divU(),
+        pressureReference,
+        pimple
+    );
+}
+else
+{
+    CorrectPhi
+    (
+        phi,
+        U,
+        p_rgh,
+        surfaceScalarField("rAUf", fvc::interpolate(rAU())),
+        geometricZeroField(),
+        pressureReference,
+        pimple
+    );
+}
 
 #include "continuityErrs.H"
 
-// Make the fluxes relative to the mesh motion
+// Make the flux relative to the mesh motion
 fvc::makeRelative(phi, U);

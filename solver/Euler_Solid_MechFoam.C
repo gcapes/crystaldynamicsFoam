@@ -22,12 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Euler_Solid_MEch
+    interFoam
 
 Description
-    Work In Progress Eulerian Solid Mechanics
-
-    Uses Jaumann's rate to relate shear rate to shear for stress tensor
+    Solver for 2 incompressible, isothermal immiscible fluids using a VOF
+    (volume of fluid) phase-fraction based interface capturing approach,
+    with optional mesh motion and mesh topology changes including adaptive
+    re-meshing.
 
 \*---------------------------------------------------------------------------*/
 
@@ -38,8 +39,9 @@ Description
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
-#include "compressibleInterPhaseTransportModel.H"
+#include "immiscibleIncompressibleTwoPhaseMixture.H"
 #include "noPhaseChange.H"
+#include "incompressibleInterPhaseTransportModel.H"
 #include "pimpleControl.H"
 #include "pressureReference.H"
 #include "fvModels.H"
@@ -62,9 +64,14 @@ int main(int argc, char *argv[])
     #include "createDyMControls.H"
     #include "createFields.H"
     #include "createFieldRefs.H"
-    #include "CourantNo.H"
-    #include "setInitialDeltaT.H"
+    #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
+
+    if (!LTS)
+    {
+        #include "CourantNo.H"
+        #include "setInitialDeltaT.H"
+    }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
@@ -91,9 +98,14 @@ int main(int argc, char *argv[])
         // same divergence
         tmp<volScalarField> divU;
 
-        if (correctPhi && mesh.topoChanged())
+        if
+        (
+            correctPhi
+         && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
+         && mesh.topoChanged()
+        )
         {
-            // Construct and register divU for mapping
+            // Construct and register divU for correctPhi
             divU = new volScalarField
             (
                 "divU0",
@@ -102,7 +114,14 @@ int main(int argc, char *argv[])
         }
 
         // Update the mesh for topology change, mesh to mesh mapping
-        mesh.update();
+        bool topoChanged = mesh.update();
+
+        // Do not apply previous time-step mesh compression flux
+        // if the mesh topology changed
+        if (topoChanged)
+        {
+            talphaPhi1Corr0.clear();
+        }
 
         runTime++;
 
@@ -113,7 +132,12 @@ int main(int argc, char *argv[])
         {
             if (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
             {
-                if (correctPhi && !divU.valid())
+                if
+                (
+                    correctPhi
+                 && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
+                 && !divU.valid()
+                )
                 {
                     // Construct and register divU for correctPhi
                     divU = new volScalarField
@@ -151,33 +175,50 @@ int main(int argc, char *argv[])
 
             fvModels.correct();
 
-            #include "alphaControls.H"
-            #include "compressibleAlphaEqnSubCycle.H"
+            surfaceScalarField rhoPhi
+            (
+                IOobject
+                (
+                    "rhoPhi",
+                    runTime.timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedScalar(dimMass/dimTime, 0)
+            );
 
-            turbulence.correctPhasePhi();
+            // #include "alphaControls.H"
+            // #include "alphaEqnSubCycle.H"
 
+            // turbulence.correctPhasePhi();
+
+            // mixture.correct();
+            
             #include "UpdateProps.H"
 
             #include "UEqn.H"
-           #include "TEqn.H"
+
+            // #include "rhoEqn.H"
+
+            
 
             // --- Pressure corrector loop
-            while (pimple.correct())
-            {
-                #include "pEqn.H"
-            }
+            // while (pimple.correct())
+            // {
+            //     #include "pEqn.H"
+            // }
 
-            if (pimple.turbCorr())
-            {
-                turbulence.correct();
-            }
+            // if (pimple.turbCorr())
+            // {
+            //     turbulence.correct();
+            // }
         }
 
         runTime.write();
 
-        Info<< "ExecutionTime = "
-            << runTime.elapsedCpuTime()
-            << " s\n\n" << endl;
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+            << nl << endl;
     }
 
     Info<< "End\n" << endl;

@@ -55,7 +55,7 @@ Usage
     {
         type    VoFTurbulenceDamping;
 
-        libs    ("libcompressibleVoFTurbulenceDamping.so");
+        libs    ("libVoFTurbulenceDamping.so");
 
         // Interface turbulence damping length scale
         // This is a required input as described in section 3.3 of the paper
@@ -81,9 +81,9 @@ SourceFiles
 namespace Foam
 {
 
-class compressibleTwoPhaseMixture;
+class incompressibleTwoPhaseMixture;
 class interfaceProperties;
-class compressibleMomentumTransportModel;
+class incompressibleMomentumTransportModel;
 
 namespace fv
 {
@@ -109,13 +109,13 @@ class VoFTurbulenceDamping
         dimensionedScalar delta_;
 
         //- Reference to the mixture properties
-        const compressibleTwoPhaseMixture& mixture_;
+        const incompressibleTwoPhaseMixture& mixture_;
 
         //- Reference to the interface properties
         const interfaceProperties& interface_;
 
         //- Reference to the mixture turbulence model
-        const compressibleMomentumTransportModel& turbulence_;
+        const incompressibleMomentumTransportModel& turbulence_;
 
         // Turbulence model coefficients
 
@@ -157,7 +157,6 @@ public:
         //- Add explicit contribution to epsilon or omega equation
         virtual void addSup
         (
-            const volScalarField& rho,
             fvMatrix<scalar>& eqn,
             const word& fieldName
         ) const;
