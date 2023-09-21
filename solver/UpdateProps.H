@@ -97,7 +97,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
   }
   //finish symmetry operations
   Fastor::print("C: ",C);
-exit(0);
+// exit(0);
 //   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
 //  Info<<"epsilon_dot 4: "<<epsilon_dot[cell].component(4)<<endl;
@@ -127,12 +127,12 @@ exit(0);
 // Fastor::print("Fepsilon_dot 1,1: ",Fepsilon_dot(1,1));
 // Fastor::print("Fepsilon_dot 1,2: ",Fepsilon_dot(1,2));
 
-// Fastor::Tensor<double,9,9> reshapedC(0.0) ;
-// reshapedC = Fastor::reshape<9,9>(C);
+Fastor::Tensor<double,9,9> reshapedC(0.0) ;
+reshapedC = Fastor::reshape<9,9>(C);
 
-// Fastor::print("reshapedC: ",reshapedC);
+Fastor::print("reshapedC: ",reshapedC);
 
-// exit(0);
+exit(0);
 // Fastor::Tensor<double,9> flatedot(0.0) ;
 // flatedot= Fastor::flatten(Fepsilon_dot);
 
