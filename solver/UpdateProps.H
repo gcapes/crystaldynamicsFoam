@@ -7,6 +7,7 @@ dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
 volTensorField TgradU = (fvc::grad(U)().T());
 TgradU.correctBoundaryConditions();
+
 // volTensorField TgradD = (fvc::grad(D)().T());
 // TgradD.correctBoundaryConditions();
 
@@ -32,25 +33,44 @@ forAll(mesh.C(), cell)
 
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-  double C_11 = 10.0e9;
-  double C_12 = 10.0e9;
-  double C_66 = 10.0e9;
+  double C11 = 10.0e9;
+  double C12 = 9.0e9;
+  double C44 = 8.0e9;
 
 
-  C(0,0,0,0)=11;
-  C(1,1,1,1)=22;
-  C(2,2,2,2)=33;
+  C(0,0,0,0)=C11;
+  C(1,1,1,1)=C11;
+  C(2,2,2,2)=C11;
 
-  C(0,0,1,1)=12;
-  C(0,0,2,2)=13;
-  C(1,1,2,2)=23;
-  C(1,1,0,0)=21;
-  C(2,2,0,0)=31;
-  C(2,2,1,1)=32;
+  C(1,0,1,0)=C44;
+  C(2,0,2,0)=C44;
+  C(0,0,1,1)=C12;
+  C(1,0,0,1)=C44;
+  C(0,0,2,2)=C12;
+  C(2,0,0,2)=C44;
+  C(0,1,1,0)=C44;
+  C(1,1,0,0)=C12;
+  C(0,1,0,1)=C44;
+  C(2,1,2,1)=C44;
+  C(1,1,2,2)=C12;
+  C(2,1,1,2)=C44;
+  C(0,2,2,0)=C44;
+  C(2,2,0,0)=C12;
+  C(1,2,2,1)=C44;
+  C(2,2,1,1)=C12;
+  C(0,2,0,2)=C44;
+  C(1,2,1,2)=C44;
 
-  C(1,2,1,2)=44;
-  C(0,2,0,2)=55;
-  C(0,1,0,1)=66;
+  // C(0,0,1,1)=12;
+  // C(0,0,2,2)=13;
+  // C(1,1,2,2)=23;
+  // C(1,1,0,0)=21;
+  // C(2,2,0,0)=31;
+  // C(2,2,1,1)=32;
+
+  // C(1,2,1,2)=44;
+  // C(0,2,0,2)=55;
+  // C(0,1,0,1)=66;
 
   
 
@@ -62,41 +82,41 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 
   //apply the symmetries
   // double ct=0.0;
-  for(int i = 0 ; i < 3 ; i++ ){
-    for(int j = 0 ; j < 3 ; j++ ){
-      for(int k = 0 ; k < 3 ; k++ ){
-        for(int l = 0 ;l  < 3 ; l++ ){
+  // for(int i = 0 ; i < 3 ; i++ ){
+  //   for(int j = 0 ; j < 3 ; j++ ){
+  //     for(int k = 0 ; k < 3 ; k++ ){
+  //       for(int l = 0 ;l  < 3 ; l++ ){
 
-  //         C(i,j,k,l)=ct;
+  // //         C(i,j,k,l)=ct;
 
-          // if(C(j,i,k,l)==0.0){
+  //         // if(C(j,i,k,l)==0.0){
 
-            std::string loc = std::to_string(i+1)+ std::to_string(j+1)+ std::to_string(k+1)+ std::to_string(l+1);
-            C(i,j,k,l)=std::stod(loc) ;
-  // //                  C(j,i,k,l) =C(i,j,k,l);//ct;
-  // //                }
-  // //           if(C(i,j,l,k) ==0.0){
-  // //                 C(i,j,l,k)  =C(i,j,k,l);//ct;
-  // //                }
+  //           std::string loc = std::to_string(i+1)+ std::to_string(j+1)+ std::to_string(k+1)+ std::to_string(l+1);
+  //           C(i,j,k,l)=std::stod(loc) ;
+  // // //                  C(j,i,k,l) =C(i,j,k,l);//ct;
+  // // //                }
+  // // //           if(C(i,j,l,k) ==0.0){
+  // // //                 C(i,j,l,k)  =C(i,j,k,l);//ct;
+  // // //                }
 
-  // //           if(C(j,i,l,k)==0.0){
-  // //                 C(j,i,l,k) =C(i,j,k,l);//ct;
-  // //                 }
+  // // //           if(C(j,i,l,k)==0.0){
+  // // //                 C(j,i,l,k) =C(i,j,k,l);//ct;
+  // // //                 }
             
-  // //           // C(i,j,l,k) =C(i,j,k,l);//ct;
-  // //           //  C(j,i,l,k) =C(i,j,k,l);//ct;
-  // //           // //C(k,l,i,j) =C(i,j,k,l);//ct;
+  // // //           // C(i,j,l,k) =C(i,j,k,l);//ct;
+  // // //           //  C(j,i,l,k) =C(i,j,k,l);//ct;
+  // // //           // //C(k,l,i,j) =C(i,j,k,l);//ct;
 
-          //  ct += 1.0;
+  //         //  ct += 1.0;
           
 
-        //  }
-      }
-    }
-  }
-  }
+  //       //  }
+  //     }
+  //   }
+  // }
+  // }
   //finish symmetry operations
-  Fastor::print("C: ",C);
+  // Fastor::print("C: ",C);
 // exit(0);
 //   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
@@ -127,12 +147,12 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 // Fastor::print("Fepsilon_dot 1,1: ",Fepsilon_dot(1,1));
 // Fastor::print("Fepsilon_dot 1,2: ",Fepsilon_dot(1,2));
 
-Fastor::Tensor<double,9,9> reshapedC(0.0) ;
-reshapedC = Fastor::reshape<9,9>(C);
+// Fastor::Tensor<double,9,9> reshapedC(0.0) ;
+// reshapedC = Fastor::reshape<9,9>(C);
 
-Fastor::print("reshapedC: ",reshapedC);
+// Fastor::print("reshapedC: ",reshapedC);
 
-exit(0);
+// exit(0);
 // Fastor::Tensor<double,9> flatedot(0.0) ;
 // flatedot= Fastor::flatten(Fepsilon_dot);
 
