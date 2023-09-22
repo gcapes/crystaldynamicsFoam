@@ -79,8 +79,8 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
   C(1,2,1,2)=C44;
 
 // Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
-//                                  {0.0,2.0,0.0},
-//                                  {0.0,0.0,3.0}};
+//                                  {0.0,1.0,0.0},
+//                                  {0.0,0.0,1.0}};
 
 // C = 8.0e10*Fastor::outer(I2,I2);
 
@@ -111,7 +111,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 
 // Fastor::print("reshapedC: ",reshapedC);
 
-
+// exit(0);
 
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
