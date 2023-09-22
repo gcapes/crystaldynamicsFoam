@@ -15,7 +15,7 @@ TgradU.correctBoundaryConditions();
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU);
 omega_dot.correctBoundaryConditions();
-epsilon_dot = 0.5*(fvc::grad(U)-TgradU) - (1.0/3.0)*(fvc::div(phi))*I;
+epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(phi))*I;
 epsilon_dot.correctBoundaryConditions();
 
 // epsilon = 0.5*(fvc::grad(D)-TgradD);
@@ -50,76 +50,41 @@ forAll(mesh.C(), cell)
 
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-  // double C11 = 10.0e10;
-  // double C12 = 9.0e10;
-  // double C44 = 8.0e10;
+  double C11 = 8.0e10;
+  double C12 = 8.0e10;
+  double C44 = 8.0e10;
 
 
-  // C(0,0,0,0)=C11;
-  // C(1,1,1,1)=C11;
-  // C(2,2,2,2)=C11;
+  C(0,0,0,0)=C11;
+  C(1,1,1,1)=C11;
+  C(2,2,2,2)=C11;
 
-  // C(1,0,1,0)=C44;
-  // C(2,0,2,0)=C44;
-  // C(0,0,1,1)=C12;
-  // C(1,0,0,1)=C44;
-  // C(0,0,2,2)=C12;
-  // C(2,0,0,2)=C44;
-  // C(0,1,1,0)=C44;
-  // C(1,1,0,0)=C12;
-  // C(0,1,0,1)=C44;
-  // C(2,1,2,1)=C44;
-  // C(1,1,2,2)=C12;
-  // C(2,1,1,2)=C44;
-  // C(0,2,2,0)=C44;
-  // C(2,2,0,0)=C12;
-  // C(1,2,2,1)=C44;
-  // C(2,2,1,1)=C12;
-  // C(0,2,0,2)=C44;
-  // C(1,2,1,2)=C44;
+  C(1,0,1,0)=C44;
+  C(2,0,2,0)=C44;
+  C(0,0,1,1)=C12;
+  C(1,0,0,1)=C44;
+  C(0,0,2,2)=C12;
+  C(2,0,0,2)=C44;
+  C(0,1,1,0)=C44;
+  C(1,1,0,0)=C12;
+  C(0,1,0,1)=C44;
+  C(2,1,2,1)=C44;
+  C(1,1,2,2)=C12;
+  C(2,1,1,2)=C44;
+  C(0,2,2,0)=C44;
+  C(2,2,0,0)=C12;
+  C(1,2,2,1)=C44;
+  C(2,2,1,1)=C12;
+  C(0,2,0,2)=C44;
+  C(1,2,1,2)=C44;
 
-Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
-                                 {0.0,2.0,0.0},
-                                 {0.0,0.0,3.0}};
+// Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
+//                                  {0.0,2.0,0.0},
+//                                  {0.0,0.0,3.0}};
 
-C = 8.0e10*Fastor::outer(I2,I2);
+// C = 8.0e10*Fastor::outer(I2,I2);
 
-  //apply the symmetries
-  // double ct=0.0;
-  // for(int i = 0 ; i < 3 ; i++ ){
-  //   for(int j = 0 ; j < 3 ; j++ ){
-  //     for(int k = 0 ; k < 3 ; k++ ){
-  //       for(int l = 0 ;l  < 3 ; l++ ){
 
-  // //         C(i,j,k,l)=ct;
-
-  //         // if(C(j,i,k,l)==0.0){
-
-  //           std::string loc = std::to_string(i+1)+ std::to_string(j+1)+ std::to_string(k+1)+ std::to_string(l+1);
-  //           C(i,j,k,l)=std::stod(loc) ;
-  // // //                  C(j,i,k,l) =C(i,j,k,l);//ct;
-  // // //                }
-  // // //           if(C(i,j,l,k) ==0.0){
-  // // //                 C(i,j,l,k)  =C(i,j,k,l);//ct;
-  // // //                }
-
-  // // //           if(C(j,i,l,k)==0.0){
-  // // //                 C(j,i,l,k) =C(i,j,k,l);//ct;
-  // // //                 }
-            
-  // // //           // C(i,j,l,k) =C(i,j,k,l);//ct;
-  // // //           //  C(j,i,l,k) =C(i,j,k,l);//ct;
-  // // //           // //C(k,l,i,j) =C(i,j,k,l);//ct;
-
-  //         //  ct += 1.0;
-          
-
-  //       //  }
-  //     }
-  //   }
-  // }
-  // }
-  //finish symmetry operations
   // Fastor::print("C: ",C);
 // exit(0);
 //   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
@@ -146,23 +111,18 @@ C = 8.0e10*Fastor::outer(I2,I2);
 
 // Fastor::print("reshapedC: ",reshapedC);
 
-// exit(0);
-// Fastor::Tensor<double,9> flatedot(0.0) ;
-// flatedot= Fastor::flatten(Fepsilon_dot);
 
-// Fastor::Tensor<double,9,1> testmul(0.0);
-// testmul= Fastor::matmul(reshapedC,flatedot);
 
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
 
 
-if(mag(epsilon_dot[cell])>SMALL){
+// if(mag(epsilon_dot[cell])>SMALL){
 
-Fastor::print("edot ",Fepsilon_dot);
-Fastor::print("sig",sig);
+// Fastor::print("edot ",Fepsilon_dot);
+// Fastor::print("sig",sig);
 
-}
+// }
 
 
 count_index=0;

@@ -25,11 +25,11 @@ stopAt          endTime;
 
 endTime         0.1;
 
-deltaT          1.0e-12;
+deltaT          1.0e-16;
 
 writeControl    adjustableRunTime;
 
-writeInterval   1e-8;
+writeInterval   1e-9;
 
 purgeWrite      0;
 
@@ -48,9 +48,9 @@ runTimeModifiable yes;
 adjustTimeStep  yes;
 
 maxCo           0.1;//0.1;
-maxAlphaCo      0.1;
+maxAlphaCo      0.11
 
-maxDeltaT       5e-9;
+maxDeltaT       5e-12;
 
 
 // ************************************************************************* //
