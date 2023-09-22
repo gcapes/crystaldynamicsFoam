@@ -100,6 +100,23 @@ dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
                // zeroGradientFvPatchTensorField::typeName
 );
 
+
+// volTensorField gradU
+// (
+//     IOobject
+//     (
+//         "gradU",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("gradU",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
+//                // zeroGradientFvPatchTensorField::typeName
+// );
+
+
 // volTensorField epsilon
 // (
 //     IOobject

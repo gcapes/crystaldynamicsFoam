@@ -187,6 +187,19 @@ int main(int argc, char *argv[])
                 dimensionedScalar(dimMass/dimTime, 0)
             );
 
+
+            // surfaceTensorField sigf
+            // (
+            //     IOobject
+            //     (
+            //         "sigf",
+            //         runTime.timeName(),
+            //         mesh
+            //     ),
+            //     mesh,
+            //     dimensionedTensor(dimensionSet(1, -1, -3, 0, 0), tensor::zero)
+            // );
+
             // #include "alphaControls.H"
             // #include "alphaEqnSubCycle.H"
 

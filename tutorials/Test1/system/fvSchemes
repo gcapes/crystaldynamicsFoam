@@ -37,6 +37,8 @@ divSchemes
     div(rhoPhi,epsilon1)	Gauss linear;//Gauss vanLeer01;
     div((interpolate(cp)*rhoPhi),T)   Gauss upwind;
     
+    div(U)	Gauss linear;//cubic;
+    
     div(s)	Gauss linear;//cubic;
     div(testSIG)	Gauss linear;//cubic;
     

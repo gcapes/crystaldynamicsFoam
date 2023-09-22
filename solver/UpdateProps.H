@@ -1,7 +1,7 @@
 {
 
-// rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
-// phi=fvc::flux(U);
+rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
+phi=fvc::flux(U);
 
 dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
@@ -10,6 +10,8 @@ TgradU.correctBoundaryConditions();
 
 // volTensorField TgradD = (fvc::grad(D)().T());
 // TgradD.correctBoundaryConditions();
+// gradU = fvc::grad(fvc::interpolate(U));
+
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU);
 omega_dot.correctBoundaryConditions();
@@ -19,66 +21,68 @@ epsilon_dot.correctBoundaryConditions();
 // epsilon = 0.5*(fvc::grad(D)-TgradD);
 // epsilon.correctBoundaryConditions();
 // dsdt = 2.0*shear_mod*(epsilon_dot/* - epsilon_P_dot*/) - ((s & omega_dot) - (omega_dot & s));
-// dsdt *=0.0;
+dsdt *=0.0;
 dsdt = - ((s & omega_dot) - (omega_dot & s));
 
 
-
+// surfaceTensorField epsilon_dotf = fvc::interpolate(epsilon_dot);
 
 dsdt_crystal*=0.0;
 forAll(mesh.C(), cell)
 {
 
+// const labelList& faces = mesh.cells()[cell];
+
+//     forAll( faces, facei )        // loop over all faces in cellID
+//     {
+//         // vector faceINormal = mesh.Sf()[facei] / mesh.magSf()[facei] ; 
+//         // Info << " i = " << facei << ", faceINormal = " << faceINormal << endl ;
+//         Info << " edot surface = " << facei << ": " << epsilon_dotf[facei] << endl ;
+
+
+
+
+
+//     }
+
+
 
 
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-  double C11 = 10.0e9;
-  double C12 = 9.0e9;
-  double C44 = 8.0e9;
+  // double C11 = 10.0e10;
+  // double C12 = 9.0e10;
+  // double C44 = 8.0e10;
 
 
-  C(0,0,0,0)=C11;
-  C(1,1,1,1)=C11;
-  C(2,2,2,2)=C11;
+  // C(0,0,0,0)=C11;
+  // C(1,1,1,1)=C11;
+  // C(2,2,2,2)=C11;
 
-  C(1,0,1,0)=C44;
-  C(2,0,2,0)=C44;
-  C(0,0,1,1)=C12;
-  C(1,0,0,1)=C44;
-  C(0,0,2,2)=C12;
-  C(2,0,0,2)=C44;
-  C(0,1,1,0)=C44;
-  C(1,1,0,0)=C12;
-  C(0,1,0,1)=C44;
-  C(2,1,2,1)=C44;
-  C(1,1,2,2)=C12;
-  C(2,1,1,2)=C44;
-  C(0,2,2,0)=C44;
-  C(2,2,0,0)=C12;
-  C(1,2,2,1)=C44;
-  C(2,2,1,1)=C12;
-  C(0,2,0,2)=C44;
-  C(1,2,1,2)=C44;
+  // C(1,0,1,0)=C44;
+  // C(2,0,2,0)=C44;
+  // C(0,0,1,1)=C12;
+  // C(1,0,0,1)=C44;
+  // C(0,0,2,2)=C12;
+  // C(2,0,0,2)=C44;
+  // C(0,1,1,0)=C44;
+  // C(1,1,0,0)=C12;
+  // C(0,1,0,1)=C44;
+  // C(2,1,2,1)=C44;
+  // C(1,1,2,2)=C12;
+  // C(2,1,1,2)=C44;
+  // C(0,2,2,0)=C44;
+  // C(2,2,0,0)=C12;
+  // C(1,2,2,1)=C44;
+  // C(2,2,1,1)=C12;
+  // C(0,2,0,2)=C44;
+  // C(1,2,1,2)=C44;
 
-  // C(0,0,1,1)=12;
-  // C(0,0,2,2)=13;
-  // C(1,1,2,2)=23;
-  // C(1,1,0,0)=21;
-  // C(2,2,0,0)=31;
-  // C(2,2,1,1)=32;
+Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
+                                 {0.0,2.0,0.0},
+                                 {0.0,0.0,3.0}};
 
-  // C(1,2,1,2)=44;
-  // C(0,2,0,2)=55;
-  // C(0,1,0,1)=66;
-
-  
-
-  //C(2,1,1,2)=3223;
-
-  // C(2,1,2,1)=3232;
-  // C(2,0,2,0)=3131;
-  // C(1,0,1,0)=2121;
+C = 8.0e10*Fastor::outer(I2,I2);
 
   //apply the symmetries
   // double ct=0.0;
@@ -136,16 +140,6 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
   }
 
 
-  
-
-// Fepsilon_dot(0) = epsilon_dot[cell].component(0);
-// Fepsilon_dot(1) = epsilon_dot[cell].component(4);
-// Fepsilon_dot(2) = epsilon_dot[cell].component(8);
-
-
-// Fastor::print("Fepsilon_dot 1,1: ",Fepsilon_dot);
-// Fastor::print("Fepsilon_dot 1,1: ",Fepsilon_dot(1,1));
-// Fastor::print("Fepsilon_dot 1,2: ",Fepsilon_dot(1,2));
 
 // Fastor::Tensor<double,9,9> reshapedC(0.0) ;
 // reshapedC = Fastor::reshape<9,9>(C);
@@ -162,6 +156,13 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
 
+
+if(mag(epsilon_dot[cell])>SMALL){
+
+Fastor::print("edot ",Fepsilon_dot);
+Fastor::print("sig",sig);
+
+}
 
 
 count_index=0;
@@ -180,7 +181,8 @@ for(int i = 0 ; i < 3 ; i++ ){
 dsdt_crystal.correctBoundaryConditions();
 dsdt+=dsdt_crystal;
 
-
+// dsdt_crystal.write();
+// exit(0);
 
 
 dsdt.correctBoundaryConditions();
@@ -193,6 +195,7 @@ s=s + runTime.deltaT()*(dsdt);
     // );
 
 s.correctBoundaryConditions();
+
 
 
 
@@ -262,6 +265,16 @@ s.correctBoundaryConditions();
 //   Stiffness_matrix(0,1,2,0)=18.0;
 //   Stiffness_matrix(0,1,2,1)=19.0;
 //   Stiffness_matrix(0,1,2,2)=110.0;
+
+//   Stiffness_matrix(2,2,0,0)=12.0;
+//   Stiffness_matrix(2,2,0,1)=13.0;
+//   Stiffness_matrix(2,2,0,2)=14.0;
+//   Stiffness_matrix(2,2,1,0)=15.0;
+//   Stiffness_matrix(2,2,1,1)=16.0;
+//   Stiffness_matrix(2,2,1,2)=17.0;
+//   Stiffness_matrix(2,2,2,0)=18.0;
+//   Stiffness_matrix(2,2,2,1)=19.0;
+//   Stiffness_matrix(2,2,2,2)=110.0;
 
 
 // enum {I,J,K,L};
