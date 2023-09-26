@@ -5,18 +5,18 @@ phi=fvc::flux(U);
 
 dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
-volTensorField TgradU = (fvc::grad(U)().T());
-TgradU.correctBoundaryConditions();
+volTensorField TgradU(fvc::grad(U)().T());
+TgradU.correctBoundaryConditions(); // already called by line above
 
 // volTensorField TgradD = (fvc::grad(D)().T());
 // TgradD.correctBoundaryConditions();
 // gradU = fvc::grad(fvc::interpolate(U));
 
 
-omega_dot = 0.5*(fvc::grad(U)-TgradU);
-omega_dot.correctBoundaryConditions();
-epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(phi))*I;
-epsilon_dot.correctBoundaryConditions();
+omega_dot = 0.5*(fvc::grad(U)-TgradU); // this is the "symm" function, i.e. symm(gradU)
+omega_dot.correctBoundaryConditions(); // already called by line above
+epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
+epsilon_dot.correctBoundaryConditions(); // already called by line above
 
 // epsilon = 0.5*(fvc::grad(D)-TgradD);
 // epsilon.correctBoundaryConditions();
@@ -48,6 +48,8 @@ forAll(mesh.C(), cell)
 
 
 
+    // C seems to be constant within this forAll loop; if so, this should be
+    // created once outside this loop
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
   double C11 = 8.0e10;

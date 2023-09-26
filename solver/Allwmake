@@ -8,6 +8,6 @@ wmake $targetType incompressibleInterPhaseTransportModel
 wmake $targetType VoFTurbulenceDamping
 
 wmake $targetType
-wmake $targetType interMixingFoam
+#wmake $targetType interMixingFoam
 
 #------------------------------------------------------------------------------

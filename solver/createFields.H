@@ -44,9 +44,7 @@ volVectorField U
 //     mesh
 // );
 
-label N_Ori=3;
-
-
+const label N_Ori=3;
 
 double phi1[N_Ori]={0.0};
 
