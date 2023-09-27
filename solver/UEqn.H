@@ -5,6 +5,8 @@
     // surfaceTensorField sf("sf", fvc::interpolate(s));
     // volVectorField YT = fvc::div(sf);
 
+// surfaceScalarField rhoUf("rhoUf", fvc::interpolate(rho*U));
+
     divs = fvc::div(s);
 
 

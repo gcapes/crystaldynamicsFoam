@@ -40,7 +40,7 @@ boundaryField
     }
     atmosphere
     {
-    type            noSlip;
+    type            slip;
     
   /*  
 type pressureInletOutletVelocity;

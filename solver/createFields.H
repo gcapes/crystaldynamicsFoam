@@ -76,7 +76,7 @@ volTensorField omega_dot
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
         mesh,
 dimensionedTensor("omega_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
@@ -91,7 +91,7 @@ volTensorField epsilon_dot
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
         mesh,
 dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
@@ -188,8 +188,8 @@ volTensorField dsdt
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("dsdt",dimensionSet(1, -1, -3, 0, 0),tensor::zero)//,
-                //zeroGradientFvPatchTensorField::typeName
+dimensionedTensor("dsdt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
+                zeroGradientFvPatchTensorField::typeName
 );
 
 volTensorField dsdt_crystal
@@ -203,8 +203,8 @@ volTensorField dsdt_crystal
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("dsdt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero)//,
-                //zeroGradientFvPatchTensorField::typeName
+dimensionedTensor("dsdt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
+                zeroGradientFvPatchTensorField::typeName
 );
 
 #include "createPhi.H"
