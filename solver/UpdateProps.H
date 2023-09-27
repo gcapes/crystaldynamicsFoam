@@ -15,123 +15,102 @@ TgradU.correctBoundaryConditions(); // already called by line above
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU); // this is the "symm" function, i.e. symm(gradU)
 omega_dot.correctBoundaryConditions(); // already called by line above
-epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
+epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(U))*I; // this looks like dev(gradU)
 epsilon_dot.correctBoundaryConditions(); // already called by line above
 
 // epsilon = 0.5*(fvc::grad(D)-TgradD);
 // epsilon.correctBoundaryConditions();
-// dsdt = 2.0*shear_mod*(epsilon_dot/* - epsilon_P_dot*/) - ((s & omega_dot) - (omega_dot & s));
-dsdt *=0.0;
-dsdt = - ((s & omega_dot) - (omega_dot & s));
+dsdt = 2.0*shear_mod*(epsilon_dot/* - epsilon_P_dot*/);// - ((s & omega_dot) - (omega_dot & s));
+// dsdt *=0.0;
+// dsdt = - ((s & omega_dot) - (omega_dot & s));
 
 
-// surfaceTensorField epsilon_dotf = fvc::interpolate(epsilon_dot);
 
-dsdt_crystal*=0.0;
 forAll(mesh.C(), cell)
 {
 
-// const labelList& faces = mesh.cells()[cell];
+// Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
-//     forAll( faces, facei )        // loop over all faces in cellID
-//     {
-//         // vector faceINormal = mesh.Sf()[facei] / mesh.magSf()[facei] ; 
-//         // Info << " i = " << facei << ", faceINormal = " << faceINormal << endl ;
-//         Info << " edot surface = " << facei << ": " << epsilon_dotf[facei] << endl ;
-
-
-
-
-
-//     }
-
-
-
-
-    // C seems to be constant within this forAll loop; if so, this should be
-    // created once outside this loop
 Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-  double C11 = 8.0e10;
-  double C12 = 8.0e10;
-  double C44 = 8.0e10;
+C(0,0,0,0) = 8.0e10;
+C(0,1,0,1) = 8.0e10;
+C(0,2,0,2) = 8.0e10;
+
+C(1,0,1,0) = 8.0e10;
+C(1,1,1,1) = 8.0e10;
+C(1,2,1,2) = 8.0e10;
+
+C(2,0,2,0) = 8.0e10;
+C(2,1,2,1) = 8.0e10;
+C(2,2,2,2) = 8.0e10;
 
 
-  C(0,0,0,0)=C11;
-  C(1,1,1,1)=C11;
-  C(2,2,2,2)=C11;
 
-  C(1,0,1,0)=C44;
-  C(2,0,2,0)=C44;
-  C(0,0,1,1)=C12;
-  C(1,0,0,1)=C44;
-  C(0,0,2,2)=C12;
-  C(2,0,0,2)=C44;
-  C(0,1,1,0)=C44;
-  C(1,1,0,0)=C12;
-  C(0,1,0,1)=C44;
-  C(2,1,2,1)=C44;
-  C(1,1,2,2)=C12;
-  C(2,1,1,2)=C44;
-  C(0,2,2,0)=C44;
-  C(2,2,0,0)=C12;
-  C(1,2,2,1)=C44;
-  C(2,2,1,1)=C12;
-  C(0,2,0,2)=C44;
-  C(1,2,1,2)=C44;
+  // C(0,0,0,0)=8.0e10;
+  // C(1,1,1,1)=8.0e10;
+  // C(2,2,2,2)=8.0e10;
 
-// Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
-//                                  {0.0,1.0,0.0},
-//                                  {0.0,0.0,1.0}};
-
-// C = 8.0e10*Fastor::outer(I2,I2);
-
-
-  // Fastor::print("C: ",C);
-// exit(0);
-//   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
-
-//  Info<<"epsilon_dot 4: "<<epsilon_dot[cell].component(4)<<endl;
-//  Info<<"epsilon_dot 5: "<<epsilon_dot[cell].component(5)<<endl;
+  // C(1,0,1,0)=8.0e10;
+  // C(2,0,2,0)=8.0e10;
+  // C(0,0,1,1)=8.0e10;
+  // C(1,0,0,1)=8.0e10;
+  // C(0,0,2,2)=8.0e10;
+  // C(2,0,0,2)=8.0e10;
+  // C(0,1,1,0)=8.0e10;
+  // C(1,1,0,0)=8.0e10;
+  // C(0,1,0,1)=8.0e10;
+  // C(2,1,2,1)=8.0e10;
+  // C(1,1,2,2)=8.0e10;
+  // C(2,1,1,2)=8.0e10;
+  // C(0,2,2,0)=8.0e10;
+  // C(2,2,0,0)=8.0e10;
+  // C(1,2,2,1)=8.0e10;
+  // C(2,2,1,1)=8.0e10;
+  // C(0,2,0,2)=8.0e10;
+  // C(1,2,1,2)=8.0e10;
 
   Fastor::Tensor<double,3,3> Fepsilon_dot(0.0);
   int count_index=0;
   for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
-
+        // Info<<i<<","<<j<<endl;
       Fepsilon_dot(i,j)=epsilon_dot[cell].component(count_index);
-      // Fepsilon_dot(i,j)=epsilon[cell].component(count_index);
 
       count_index++;
     }
   }
 
+// Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
+// Fastor::print("epsilon_dot:", Fepsilon_dot);
 
-// Fastor::Tensor<double,9,9> reshapedC(0.0) ;
-// reshapedC = Fastor::reshape<9,9>(C);
-
-// Fastor::print("reshapedC: ",reshapedC);
-
-// exit(0);
 
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
 
 
-// if(mag(epsilon_dot[cell])>SMALL){
+// Fastor::print("sig:", sig);
 
-// Fastor::print("edot ",Fepsilon_dot);
-// Fastor::print("sig",sig);
 
-// }
+//dsdt[cell] = epsilon_dot[cell]*shear_mod.value();
 
+
+// dsdt[cell].component(0) = sig(0,0);
+// dsdt[cell].component(1) = sig(0,1);
+// dsdt[cell].component(2) = sig(0,2);
+// dsdt[cell].component(3) = sig(1,0);
+// dsdt[cell].component(4) = sig(1,1);
+// dsdt[cell].component(5) = sig(1,2);
+// dsdt[cell].component(6) = sig(2,0);
+// dsdt[cell].component(7) = sig(2,1);
+// dsdt[cell].component(8) = sig(2,2);
 
 count_index=0;
 for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
-      dsdt_crystal[cell].component(count_index) =sig(i,j);
+      dsdt[cell].component(count_index) =sig(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
@@ -140,8 +119,144 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 
 }
-dsdt_crystal.correctBoundaryConditions();
-dsdt+=dsdt_crystal;
+
+
+
+
+
+
+// surfaceTensorField epsilon_dotf = fvc::interpolate(epsilon_dot);
+
+// dsdt_crystal*=0.0;
+// forAll(mesh.C(), cell)
+// {
+
+// // const labelList& faces = mesh.cells()[cell];
+
+// //     forAll( faces, facei )        // loop over all faces in cellID
+// //     {
+// //         // vector faceINormal = mesh.Sf()[facei] / mesh.magSf()[facei] ; 
+// //         // Info << " i = " << facei << ", faceINormal = " << faceINormal << endl ;
+// //         Info << " edot surface = " << facei << ": " << epsilon_dotf[facei] << endl ;
+
+
+
+
+
+// //     }
+
+
+
+
+//     // C seems to be constant within this forAll loop; if so, this should be
+//     // created once outside this loop
+// Fastor::Tensor<double,3,3,3,3> C(0.0);
+
+//   double C11 = 8.0e10;
+//   double C12 = 8.0e10;
+//   double C44 = 8.0e10;
+
+// //Cubic
+// /*
+//   C(0,0,0,0)=C11;
+//   C(1,1,1,1)=C11;
+//   C(2,2,2,2)=C11;
+
+//   C(1,0,1,0)=C44;
+//   C(2,0,2,0)=C44;
+//   C(0,0,1,1)=C12;
+//   C(1,0,0,1)=C44;
+//   C(0,0,2,2)=C12;
+//   C(2,0,0,2)=C44;
+//   C(0,1,1,0)=C44;
+//   C(1,1,0,0)=C12;
+//   C(0,1,0,1)=C44;
+//   C(2,1,2,1)=C44;
+//   C(1,1,2,2)=C12;
+//   C(2,1,1,2)=C44;
+//   C(0,2,2,0)=C44;
+//   C(2,2,0,0)=C12;
+//   C(1,2,2,1)=C44;
+//   C(2,2,1,1)=C12;
+//   C(0,2,0,2)=C44;
+//   C(1,2,1,2)=C44;
+//   */
+// //Cubic
+
+// C(0,0,0,0) = 8.0e10;
+// C(0,1,0,1) = 8.0e10;
+// C(0,2,0,2) = 8.0e10;
+
+// C(1,0,1,0) = 8.0e10;
+// C(1,1,1,1) = 8.0e10;
+// C(1,2,1,2) = 8.0e10;
+
+// C(2,0,2,0) = 8.0e10;
+// C(2,1,2,1) = 8.0e10;
+// C(2,2,2,2) = 8.0e10;
+
+// // Fastor::Tensor<double,3,3> I2={{1.0,0.0,0.0},
+// //                                  {0.0,1.0,0.0},
+// //                                  {0.0,0.0,1.0}};
+
+// // C = 8.0e10*Fastor::outer(I2,I2);
+
+
+//   // Fastor::print("C: ",C);
+// // exit(0);
+// //   Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
+
+// //  Info<<"epsilon_dot 4: "<<epsilon_dot[cell].component(4)<<endl;
+// //  Info<<"epsilon_dot 5: "<<epsilon_dot[cell].component(5)<<endl;
+
+//   Fastor::Tensor<double,3,3> Fepsilon_dot(0.0);
+//   int count_index=0;
+//   for(int i = 0 ; i < 3 ; i++ ){
+//     for(int j = 0 ; j < 3 ; j++ ){
+
+//       Fepsilon_dot(i,j)=epsilon_dot[cell].component(count_index);
+//       // Fepsilon_dot(i,j)=epsilon[cell].component(count_index);
+
+//       count_index++;
+//     }
+//   }
+
+
+
+// // Fastor::Tensor<double,9,9> reshapedC(0.0) ;
+// // reshapedC = Fastor::reshape<9,9>(C);
+
+// // Fastor::print("reshapedC: ",reshapedC);
+
+
+
+// enum {I,J,K,L};
+// Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
+
+
+// // if(mag(epsilon_dot[cell])>SMALL){
+
+// // Fastor::print("edot ",Fepsilon_dot);
+// // Fastor::print("sig",sig);
+// // exit(0);
+// // }
+
+
+// count_index=0;
+// for(int i = 0 ; i < 3 ; i++ ){
+//     for(int j = 0 ; j < 3 ; j++ ){
+
+//       dsdt_crystal[cell].component(count_index) =sig(i,j);
+//       // testSIG[cell].component(count_index) =sig(i,j);
+//   count_index++;
+//     }
+
+// }
+
+
+// }
+// dsdt_crystal.correctBoundaryConditions();
+// dsdt+=dsdt_crystal;
 
 // dsdt_crystal.write();
 // exit(0);

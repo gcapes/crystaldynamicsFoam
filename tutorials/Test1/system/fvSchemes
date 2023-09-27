@@ -52,7 +52,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         linear;
+    default         cubic;
 }
 
 snGradSchemes
