@@ -44,7 +44,44 @@ volVectorField U
 //     mesh
 // );
 
-const label N_Ori=3;
+
+
+const label N_Ori=4;
+
+
+
+
+PtrList<volScalarField> PopBal(N_Ori);		//pointer to phase fields
+
+
+for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+{
+
+    word name_ni ("n." + name(count));
+
+    PopBal.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ni,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("ni",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+
+
 
 double phi1[N_Ori]={0.0};
 
@@ -57,14 +94,47 @@ phi1[0]=0.0;
 phi2[0]=0.0;
 phi3[0]=0.0;
 
-phi1[1]=0.0;
-phi2[1]=0.0;//0.25*pi.value();
-phi3[1]=0.25*pi.value();
+phi1[1]=0.25*pi.value();
+phi2[1]=0.0;
+phi3[1]=0.0;
 
-phi1[2]=0.0;
+phi1[2]=0.125*pi.value();
 phi2[2]=0.0;
-phi3[2]=0.125*pi.value();
+phi3[2]=0.0;
 
+
+
+tensor rot[N_Ori]={tensor::zero};
+
+for (label i = 0; i < N_Ori; i++)
+{
+
+
+ tensor temprot(
+    Foam::cos(phi2[i])*Foam::cos(phi3[i]), 
+    (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2), 
+    (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))+(Foam::sin(phi1[i])*Foam::sin(phi3[i])),//Foam::sin(phi2)*Foam::sin(phi3),
+   
+    Foam::cos(phi2[i])*Foam::sin(phi3[i]), 
+    (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])), 
+    (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))-(Foam::sin(phi1[i])*Foam::cos(phi3[i])),
+    
+    -Foam::sin(phi2[i]), 
+    Foam::sin(phi1[i])*Foam::cos(phi2[i]), 
+    Foam::cos(phi1[i])*Foam::cos(phi2[i])
+);//https://en.wikipedia.org/wiki/Rotation_matrix - 
+//"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
+
+rot[i]=temprot;
+
+
+
+}
+
+
+// Info<<"TEST: "<<rot[1]<<endl;
+// Info<<"TEST: "<<rot[1].component(4)<<endl;
+// exit(0);
 
 
 
