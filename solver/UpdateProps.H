@@ -33,50 +33,65 @@ forAll(mesh.C(), cell)
 
 // Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
-Fastor::Tensor<double,3,3,3,3> C(0.0);
+// Fastor::Tensor<double,3,3,3,3> C(0.0);
 
-// C(0,0,0,0) = 8.0e10;
-// C(0,1,0,1) = 8.0e10;
-// C(0,2,0,2) = 8.0e10;
+// // C(0,0,0,0) = 8.0e10;
+// // C(0,1,0,1) = 8.0e10;
+// // C(0,2,0,2) = 8.0e10;
 
-// C(1,0,1,0) = 8.0e10;
-// C(1,1,1,1) = 8.0e10;
-// C(1,2,1,2) = 8.0e10;
+// // C(1,0,1,0) = 8.0e10;
+// // C(1,1,1,1) = 8.0e10;
+// // C(1,2,1,2) = 8.0e10;
 
-// C(2,0,2,0) = 8.0e10;
-// C(2,1,2,1) = 8.0e10;
-// C(2,2,2,2) = 8.0e10;
+// // C(2,0,2,0) = 8.0e10;
+// // C(2,1,2,1) = 8.0e10;
+// // C(2,2,2,2) = 8.0e10;
 
 
 
-  double C11 = 261e9;
-  double C12 = 151e9;
-  double C44 = 132e9;
+//   double C11 = 261e9;
+//   double C12 = 151e9;
+//   double C44 = 132e9;
 
-//Cubic
+// //Cubic
 
-  C(0,0,0,0)=C11;
-  C(1,1,1,1)=C11;
-  C(2,2,2,2)=C11;
+//   C(0,0,0,0)=C11;
+//   C(1,1,1,1)=C11;
+//   C(2,2,2,2)=C11;
 
-  C(1,0,1,0)=C44;
-  C(2,0,2,0)=C44;
-  C(0,0,1,1)=C12;
-  C(1,0,0,1)=C44;
-  C(0,0,2,2)=C12;
-  C(2,0,0,2)=C44;
-  C(0,1,1,0)=C44;
-  C(1,1,0,0)=C12;
-  C(0,1,0,1)=C44;
-  C(2,1,2,1)=C44;
-  C(1,1,2,2)=C12;
-  C(2,1,1,2)=C44;
-  C(0,2,2,0)=C44;
-  C(2,2,0,0)=C12;
-  C(1,2,2,1)=C44;
-  C(2,2,1,1)=C12;
-  C(0,2,0,2)=C44;
-  C(1,2,1,2)=C44;
+//   C(1,0,1,0)=C44;
+//   C(2,0,2,0)=C44;
+//   C(0,0,1,1)=C12;
+//   C(1,0,0,1)=C44;
+//   C(0,0,2,2)=C12;
+//   C(2,0,0,2)=C44;
+//   C(0,1,1,0)=C44;
+//   C(1,1,0,0)=C12;
+//   C(0,1,0,1)=C44;
+//   C(2,1,2,1)=C44;
+//   C(1,1,2,2)=C12;
+//   C(2,1,1,2)=C44;
+//   C(0,2,2,0)=C44;
+//   C(2,2,0,0)=C12;
+//   C(1,2,2,1)=C44;
+//   C(2,2,1,1)=C12;
+//   C(0,2,0,2)=C44;
+//   C(1,2,1,2)=C44;
+
+
+
+Fastor::Tensor<double,3,3,3,3> Cprime(0.0);
+
+// // Info<<"hang: "<<cell<<endl;
+for (label h = 0; h < N_Ori; h++)
+{
+
+Cprime += PopBal[h][cell]*Cprime2[h];
+
+}
+
+// Cprime = Cprime2[0];
+
 
   Fastor::Tensor<double,3,3> Fepsilon_dot(0.0);
   int count_index=0;
@@ -95,7 +110,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);
 
 
 enum {I,J,K,L};
-Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(C,Fepsilon_dot);////Double contraction
+Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot);////Double contraction
 
 
 // Fastor::print("sig:", sig);

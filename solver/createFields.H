@@ -126,9 +126,6 @@ for (label i = 0; i < N_Ori; i++)
 //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
 rot[i]=temprot;
-
-
-
 }
 
 
@@ -136,6 +133,116 @@ rot[i]=temprot;
 // Info<<"TEST: "<<rot[1].component(4)<<endl;
 // exit(0);
 
+
+
+Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
+
+
+
+
+  double C11 = 261e9;
+  double C12 = 151e9;
+  double C44 = 132e9;
+
+//Cubic
+
+  C(0,0,0,0)=C11;
+  C(1,1,1,1)=C11;
+  C(2,2,2,2)=C11;
+
+  C(1,0,1,0)=C44;
+  C(2,0,2,0)=C44;
+  C(0,0,1,1)=C12;
+  C(1,0,0,1)=C44;
+  C(0,0,2,2)=C12;
+  C(2,0,0,2)=C44;
+  C(0,1,1,0)=C44;
+  C(1,1,0,0)=C12;
+  C(0,1,0,1)=C44;
+  C(2,1,2,1)=C44;
+  C(1,1,2,2)=C12;
+  C(2,1,1,2)=C44;
+  C(0,2,2,0)=C44;
+  C(2,2,0,0)=C12;
+  C(1,2,2,1)=C44;
+  C(2,2,1,1)=C12;
+  C(0,2,0,2)=C44;
+  C(1,2,1,2)=C44;
+
+
+
+
+Fastor::Tensor<double,3,3,3,3> Cprime2[4];//array of tensor objects
+
+
+
+for (label h = 0; h < N_Ori; h++)
+{
+
+Fastor::Tensor<double,3,3,3,3> Cprime_temp(0.0);
+
+  Fastor::Tensor<double,3,3> Rot_matrix(0.0);
+
+  Rot_matrix(0,0)=rot[h].component(0);
+  Rot_matrix(0,1)=rot[h].component(1);
+  Rot_matrix(0,2)=rot[h].component(2);
+  Rot_matrix(1,0)=rot[h].component(3);
+  Rot_matrix(1,1)=rot[h].component(4);
+  Rot_matrix(1,2)=rot[h].component(5);
+  Rot_matrix(2,0)=rot[h].component(6);
+  Rot_matrix(2,1)=rot[h].component(7);
+  Rot_matrix(2,2)=rot[h].component(8);
+
+
+  // Rotate To Global needReference
+  for(int i = 0 ; i < 3 ; i++ ){
+  for(int j = 0 ; j < 3 ; j++ ){
+    for(int k = 0 ; k < 3 ; k++ ){
+      for(int l = 0 ;l  < 3 ; l++ ){
+        
+
+        double value =0.0;
+        for(int m = 0 ; m < 3 ; m++ ){
+          for(int n = 0 ; n < 3 ; n++ ){
+            for(int p = 0 ; p < 3 ; p++ ){
+              for(int q = 0 ;q  < 3 ; q++ ){
+
+                    value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*C(m,n,p,q);
+
+                    }
+                  }
+                }
+              }
+
+              // value*=PopBal[h][cell];
+
+        Cprime_temp(i,j,k,l)=value;
+      
+      }
+    }
+  }
+}
+
+// if(i==0){
+//     Cprime_temp(0,0,0,0)=2.35;
+// }
+// if(i==1){
+//     Cprime_temp(0,0,0,0)=247.65;
+// }
+
+
+Cprime2[h]=Cprime_temp;
+}
+
+//Cprime2[N_Ori] now has all the grain elasticity tensors
+
+
+// Fastor::print("Test1",Cprime2[0](0,0,0,0));
+// Fastor::print("Test1",Cprime2[1](0,0,0,0));
+// Fastor::print("Test1",Cprime2[0](0,0,0,1));
+// Fastor::print("Test1",Cprime2[2](0,0,0,0));
+
+// exit(0);
 
 
 volTensorField omega_dot
