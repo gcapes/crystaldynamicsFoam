@@ -166,7 +166,7 @@ s=s + runTime.deltaT()*(dsdt);
 s.correctBoundaryConditions();
 
 
-
+D = D+ runTime.deltaT()*(U);
 
   //   fvVectorMatrix DEqn
   //   (

@@ -30,17 +30,18 @@ boundaryField
     uniformValue table
     (
         (0 (0 0 0))
-        (10.0e-8 (0 0 1e-8))
-        (20.0e-8 (0 0 1e-8))
-        (30e-8 (0 0 -1e-8))
-        (40e-8 (0 0 -1e-8))
+        (10.0e-8 (0 1e2 0))
+        (20.0e-8 (0 1e2 0))
+        (30e-8 (0 -1e2 0))
+        (40e-8 (0 -1e2 0))
         (50e-8 (0 0 0))
     );
 
     }
     atmosphere
     {
-    type            slip;
+    type            noSlip;
+//    type            slip;
     
   /*  
 type pressureInletOutletVelocity;

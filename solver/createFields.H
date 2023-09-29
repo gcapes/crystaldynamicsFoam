@@ -31,18 +31,19 @@ volVectorField U
 );
 
 
-// volVectorField D
-// (
-//     IOobject
-//     (
-//         "D",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::MUST_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh
-// );
+volVectorField D
+(
+    IOobject
+    (
+        "D",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
+);
 
 
 
@@ -94,11 +95,11 @@ phi1[0]=0.0;
 phi2[0]=0.0;
 phi3[0]=0.0;
 
-phi1[1]=0.25*pi.value();
+phi1[1]=2.0*pi.value();
 phi2[1]=0.0;
 phi3[1]=0.0;
 
-phi1[2]=0.125*pi.value();
+phi1[2]=2.0*pi.value();
 phi2[2]=0.0;
 phi3[2]=0.0;
 
@@ -140,9 +141,9 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
 
 
 
-  double C11 = 261e9;
-  double C12 = 151e9;
-  double C44 = 132e9;
+  double C11 = 107.3e9;
+  double C12 = 60.9e9;
+  double C44 = 128.3e9;
 
 //Cubic
 
@@ -268,7 +269,7 @@ volTensorField epsilon_dot
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
         mesh,
 dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,

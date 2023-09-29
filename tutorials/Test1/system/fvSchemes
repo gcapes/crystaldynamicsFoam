@@ -14,10 +14,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-d2dt2Schemes
- {
-    default         Euler; 
- }
  
 ddtSchemes
 {
@@ -52,7 +48,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         cubic;
+    default         cubic;//cubic;
 }
 
 snGradSchemes
