@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         Gauss linear;//cellMDLimited Gauss linear 0.5;//
 }
 
 divSchemes
@@ -35,8 +35,8 @@ divSchemes
     
     div(U)	Gauss linear;//cubic;
     
-    div(s)	Gauss linear;//cubic;
-    div(testSIG)	Gauss linear;//cubic;
+    div(s)	Gauss linear;
+    //div(testSIG)	Gauss linear;//cubic;
     
     div(interpolate(U),rho)	Gauss linear;
 }
@@ -48,7 +48,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         cubic;//cubic;
+    default         linear;//cubic;
 }
 
 snGradSchemes

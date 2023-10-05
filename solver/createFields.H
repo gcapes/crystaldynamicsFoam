@@ -46,6 +46,22 @@ volVectorField D
 );
 
 
+volScalarField damping
+(
+    IOobject
+    (
+        "damping",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("damping",dimensionSet(1,-3,-1,0,0),1e12)
+);
+
+
+
 
 const label N_Ori=4;
 
@@ -95,7 +111,7 @@ phi1[0]=0.0;
 phi2[0]=0.0;
 phi3[0]=0.0;
 
-phi1[1]=2.0*pi.value();
+phi1[1]=1.0*pi.value();
 phi2[1]=0.0;
 phi3[1]=0.0;
 

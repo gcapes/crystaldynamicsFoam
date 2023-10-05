@@ -130,50 +130,50 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            if (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
-            {
-                if
-                (
-                    correctPhi
-                 && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
-                 && !divU.valid()
-                )
-                {
-                    // Construct and register divU for correctPhi
-                    divU = new volScalarField
-                    (
-                        "divU0",
-                        fvc::div(fvc::absolute(phi, U))
-                    );
-                }
+            // if (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
+            // {
+            //     if
+            //     (
+            //         correctPhi
+            //      && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
+            //      && !divU.valid()
+            //     )
+            //     {
+            //         // Construct and register divU for correctPhi
+            //         divU = new volScalarField
+            //         (
+            //             "divU0",
+            //             fvc::div(fvc::absolute(phi, U))
+            //         );
+            //     }
 
-                // Move the mesh
-                mesh.move();
+            //     // Move the mesh
+            //     mesh.move();
 
-                if (mesh.changing())
-                {
-                    gh = (g & mesh.C()) - ghRef;
-                    ghf = (g & mesh.Cf()) - ghRef;
+            //     if (mesh.changing())
+            //     {
+            //         gh = (g & mesh.C()) - ghRef;
+            //         ghf = (g & mesh.Cf()) - ghRef;
 
-                    MRF.update();
+            //         MRF.update();
 
-                    if (correctPhi)
-                    {
-                        #include "correctPhi.H"
-                    }
+            //         if (correctPhi)
+            //         {
+            //             #include "correctPhi.H"
+            //         }
 
-                    mixture.correct();
+            //         mixture.correct();
 
-                    if (checkMeshCourantNo)
-                    {
-                        #include "meshCourantNo.H"
-                    }
-                }
+            //         if (checkMeshCourantNo)
+            //         {
+            //             #include "meshCourantNo.H"
+            //         }
+            //     }
 
-                divU.clear();
-            }
+            //     divU.clear();
+            // }
 
-            fvModels.correct();
+            // fvModels.correct();
 
             surfaceScalarField rhoPhi
             (

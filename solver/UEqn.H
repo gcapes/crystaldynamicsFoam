@@ -3,11 +3,16 @@
     // fvc::interpolate(s);
 
     // surfaceTensorField sf("sf", fvc::interpolate(s));
-    // volVectorField YT = fvc::div(sf);
+    // // volVectorField YT = 
+    // fvc::div(sf);
+
+    // Info<<"TEST"<<fvc::div(sf)<<endl;
 
 // surfaceScalarField rhoUf("rhoUf", fvc::interpolate(rho*U));
 
     divs = fvc::div(s);
+
+    // damping = ;
 
 
     fvVectorMatrix UEqn
@@ -16,7 +21,8 @@
       // + MRF.DDt(rho, U)
       //+ turbulence.divDevTau(rho, U)
       -fvc::div(s)
-   //  ==
+    // ==
+    // -fvm::Sp(damping, U)
     //   phaseChange.SU(rho, rhoPhi, U)
     // + fvModels.source(rho, U)
     );
@@ -27,21 +33,21 @@
 
     UEqn.solve();
 
-    if (pimple.momentumPredictor())
-    {
-        solve
-        (
-            UEqn
-         ==
-            fvc::reconstruct
-            (
-                (
-                    mixture.surfaceTensionForce()
-                  - ghf*fvc::snGrad(rho)
-                  - fvc::snGrad(p_rgh)
-                ) * mesh.magSf()
-            )
-        );
+    // if (pimple.momentumPredictor())
+    // {
+    //     solve
+    //     (
+    //         UEqn
+    //      ==
+    //         fvc::reconstruct
+    //         (
+    //             (
+    //                 mixture.surfaceTensionForce()
+    //               - ghf*fvc::snGrad(rho)
+    //               - fvc::snGrad(p_rgh)
+    //             ) * mesh.magSf()
+    //         )
+    //     );
 
-        fvConstraints.constrain(U);
-    }
+    //     fvConstraints.constrain(U);
+    // }
