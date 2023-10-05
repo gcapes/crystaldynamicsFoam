@@ -33,8 +33,8 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "interfaceCompression.H"
-#include "CMULES.H"
+// #include "interfaceCompression.H"
+// #include "CMULES.H"
 #include "EulerDdtScheme.H"
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
     #include "createDyMControls.H"
     #include "createFields.H"
-    #include "createFieldRefs.H"
-    #include "initCorrectPhi.H"
-    #include "createUfIfPresent.H"
+    // #include "createFieldRefs.H"
+    // #include "initCorrectPhi.H"
+    // #include "createUfIfPresent.H"
 
     if (!LTS)
     {
@@ -80,48 +80,48 @@ int main(int argc, char *argv[])
     {
         #include "readDyMControls.H"
 
-        if (LTS)
-        {
-            #include "setRDeltaT.H"
-        }
-        else
-        {
+        // if (LTS)
+        // {
+        //     #include "setRDeltaT.H"
+        // }
+        // else
+        // {
             #include "CourantNo.H"
             #include "alphaCourantNo.H"
             #include "setDeltaT.H"
-        }
+        // }
 
-        fvModels.preUpdateMesh();
+        // fvModels.preUpdateMesh();
 
         // Store divU from the previous mesh so that it can be mapped
         // and used in correctPhi to ensure the corrected phi has the
         // same divergence
-        tmp<volScalarField> divU;
+        // tmp<volScalarField> divU;
 
-        if
-        (
-            correctPhi
-         && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
-         && mesh.topoChanged()
-        )
-        {
-            // Construct and register divU for correctPhi
-            divU = new volScalarField
-            (
-                "divU0",
-                fvc::div(fvc::absolute(phi, U))
-            );
-        }
+        // if
+        // (
+        //     correctPhi
+        //  && !isType<twoPhaseChangeModels::noPhaseChange>(phaseChange)
+        //  && mesh.topoChanged()
+        // )
+        // {
+        //     // Construct and register divU for correctPhi
+        //     divU = new volScalarField
+        //     (
+        //         "divU0",
+        //         fvc::div(fvc::absolute(phi, U))
+        //     );
+        // }
 
-        // Update the mesh for topology change, mesh to mesh mapping
-        bool topoChanged = mesh.update();
+        // // Update the mesh for topology change, mesh to mesh mapping
+        // bool topoChanged = mesh.update();
 
-        // Do not apply previous time-step mesh compression flux
-        // if the mesh topology changed
-        if (topoChanged)
-        {
-            talphaPhi1Corr0.clear();
-        }
+        // // Do not apply previous time-step mesh compression flux
+        // // if the mesh topology changed
+        // if (topoChanged)
+        // {
+        //     talphaPhi1Corr0.clear();
+        // }
 
         runTime++;
 

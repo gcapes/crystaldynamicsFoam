@@ -46,19 +46,19 @@ volVectorField D
 );
 
 
-volScalarField damping
-(
-    IOobject
-    (
-        "damping",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("damping",dimensionSet(1,-3,-1,0,0),1e12)
-);
+// volScalarField damping
+// (
+//     IOobject
+//     (
+//         "damping",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("damping",dimensionSet(1,-3,-1,0,0),1e12)
+// );
 
 
 
@@ -261,7 +261,6 @@ Cprime2[h]=Cprime_temp;
 
 // exit(0);
 
-
 volTensorField omega_dot
 (
     IOobject
@@ -289,6 +288,21 @@ volTensorField epsilon_dot
     ),
         mesh,
 dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
+               // zeroGradientFvPatchTensorField::typeName
+);
+
+volTensorField epsilon_P_dot
+(
+    IOobject
+    (
+        "epsilon_P_dot",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("epsilon_P_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
                // zeroGradientFvPatchTensorField::typeName
 );
 
@@ -430,54 +444,54 @@ volScalarField rho
 
 // rho=mixture.rho();
 
-#include "readGravitationalAcceleration.H"
-#include "readhRef.H"
-#include "gh.H"
+// #include "readGravitationalAcceleration.H"
+// #include "readhRef.H"
+// #include "gh.H"
 
 
-volScalarField p
-(
-    IOobject
-    (
-        "p",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    p_rgh + rho*gh
-);
+// volScalarField p
+// (
+//     IOobject
+//     (
+//         "p",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     p_rgh + rho*gh
+// );
 
-pressureReference pressureReference(p, p_rgh, pimple.dict());
+// pressureReference pressureReference(p, p_rgh, pimple.dict());
 
-if (p_rgh.needReference())
-{
-    p += dimensionedScalar
-    (
-        "p",
-        p.dimensions(),
-        pressureReference.refValue()
-      - getRefCellValue(p, pressureReference.refCell())
-    );
-    p_rgh = p - rho*gh;
-}
+// if (p_rgh.needReference())
+// {
+//     p += dimensionedScalar
+//     (
+//         "p",
+//         p.dimensions(),
+//         pressureReference.refValue()
+//       - getRefCellValue(p, pressureReference.refCell())
+//     );
+//     p_rgh = p - rho*gh;
+// }
 
-mesh.schemes().setFluxRequired(p_rgh.name());
+// mesh.schemes().setFluxRequired(p_rgh.name());
 
-volScalarField& alpha1(mixture.alpha1());
-mesh.schemes().setFluxRequired(alpha1.name());
+// volScalarField& alpha1(mixture.alpha1());
+// mesh.schemes().setFluxRequired(alpha1.name());
 
 
-#include "createAlphaFluxes.H"
+// #include "createAlphaFluxes.H"
 
-// Construct incompressible turbulence model
-incompressibleInterPhaseTransportModel turbulence
-(
-    U,
-    phi,
-    alphaPhi1,
-    mixture
-);
+// // Construct incompressible turbulence model
+// incompressibleInterPhaseTransportModel turbulence
+// (
+//     U,
+//     phi,
+//     alphaPhi1,
+//     mixture
+// );
 
 
 #include "createMRF.H"

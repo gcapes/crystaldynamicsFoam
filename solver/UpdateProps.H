@@ -5,14 +5,18 @@
 rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
 
 
-dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
+// dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
 volTensorField TgradU(fvc::grad(U)().T());
 TgradU.correctBoundaryConditions(); // already called by line above
 
+
+
 // volTensorField TgradD = (fvc::grad(D)().T());
 // TgradD.correctBoundaryConditions();
 // gradU = fvc::grad(fvc::interpolate(U));
+
+// gradU=fvc::grad(U);
 
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU); // this is the "symm" function, i.e. symm(gradU)
