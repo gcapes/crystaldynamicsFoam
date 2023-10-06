@@ -22,14 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    interFoam
+    Eulerian_Solid_MechFoam
 
 Description
-    Solver for 2 incompressible, isothermal immiscible fluids using a VOF
-    (volume of fluid) phase-fraction based interface capturing approach,
-    with optional mesh motion and mesh topology changes including adaptive
-    re-meshing.
+    
 
+Authors
+    Tom Flint
+    Pratheek Shanthraj
+    Philip Cardiff
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
