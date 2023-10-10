@@ -10,7 +10,7 @@
 
 // surfaceScalarField rhoUf("rhoUf", fvc::interpolate(rho*U));
 
-    divs = fvc::div(s);
+    divsigma = fvc::div(sigma);
 
     // damping = ;
 
@@ -20,7 +20,7 @@
         fvm::ddt(rho, U) + fvm::div(rhoPhi, U)
       // + MRF.DDt(rho, U)
       //+ turbulence.divDevTau(rho, U)
-      -fvc::div(s)
+      -fvc::div(sigma)
     // ==
     // -fvm::Sp(damping, U)
     //   phaseChange.SU(rho, rhoPhi, U)

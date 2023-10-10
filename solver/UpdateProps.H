@@ -5,7 +5,6 @@
 rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
 
 
-// dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
 volTensorField TgradU(fvc::grad(U)().T());
 TgradU.correctBoundaryConditions(); // already called by line above
@@ -28,12 +27,21 @@ epsilon_dot.correctBoundaryConditions(); // already called by line above
 // epsilon.correctBoundaryConditions();
 // dsdt = 2.0*shear_mod*(epsilon_dot/* - epsilon_P_dot*/);// - ((s & omega_dot) - (omega_dot & s));
 // dsdt *=0.0;
-dsdt = - ((s & omega_dot) - (omega_dot & s));
+dsigmadt = - ((sigma & omega_dot) - (omega_dot & sigma));
 
-dsdt_crystal*=0.0;
+dsigmadt_crystal*=0.0;
+
+
+
+sigma && sigma;// double dot product
+
+
+
 
 forAll(mesh.C(), cell)
 {
+
+
 
 // Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
@@ -57,30 +65,6 @@ forAll(mesh.C(), cell)
 //   double C12 = 151e9;
 //   double C44 = 132e9;
 
-// //Cubic
-
-//   C(0,0,0,0)=C11;
-//   C(1,1,1,1)=C11;
-//   C(2,2,2,2)=C11;
-
-//   C(1,0,1,0)=C44;
-//   C(2,0,2,0)=C44;
-//   C(0,0,1,1)=C12;
-//   C(1,0,0,1)=C44;
-//   C(0,0,2,2)=C12;
-//   C(2,0,0,2)=C44;
-//   C(0,1,1,0)=C44;
-//   C(1,1,0,0)=C12;
-//   C(0,1,0,1)=C44;
-//   C(2,1,2,1)=C44;
-//   C(1,1,2,2)=C12;
-//   C(2,1,1,2)=C44;
-//   C(0,2,2,0)=C44;
-//   C(2,2,0,0)=C12;
-//   C(1,2,2,1)=C44;
-//   C(2,2,1,1)=C12;
-//   C(0,2,0,2)=C44;
-//   C(1,2,1,2)=C44;
 
 
 
@@ -96,17 +80,84 @@ Cprime += PopBal[h][cell]*Cprime2[h];
 
 // Cprime = Cprime2[0];
 
-
+  Fastor::Tensor<double,3,3> Fsigma(0.0);
   Fastor::Tensor<double,3,3> Fepsilon_dot(0.0);
   int count_index=0;
   for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
         // Info<<i<<","<<j<<endl;
       Fepsilon_dot(i,j)=epsilon_dot[cell].component(count_index);
+      Fsigma(i,j) = sigma[cell].component(count_index);
 
       count_index++;
     }
   }
+
+
+
+Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
+
+{
+
+
+double m = 1.0;
+double epsilon_P_dot_zero = 1e-3;
+double sigma_Y = 1e9;
+
+  Fastor::Tensor<double,3,3> sigma_D(0.0);
+
+  
+
+  double pressure=0.0;
+  double sigma_VM=0.0;
+
+  double epsilon_dot_P_VM=0.0;
+
+  for(int i = 0 ; i < 3 ; i++ ){
+   pressure-=Fsigma(i,i)/3.0; //trace(sigma)/3////
+
+  }
+
+
+
+  for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+
+      sigma_D(i,j) = Fsigma(i,j)+pressure;
+
+    sigma_VM += sigma_D(i,j)*sigma_D(i,j);
+
+
+    }
+  }
+sigma_VM=Foam::sqrt(sigma_VM/2.0);
+
+
+epsilon_dot_P_VM=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
+
+//epsilon_dot_P_VM will need to be integrated dt, and the accumilated rate convected once we have hardening
+
+// epsilon_P_dot_zero = constant, inpyut parameter.
+// sigma_Y= constant, inpyut parameter. // will update later
+// m= constant, inpyut parameter.
+
+
+for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+// Info<<"H1: "<<sigma_VM<<endl;
+if(sigma_VM>SMALL){
+        Fepsilon_P_dot(i,j)=epsilon_dot_P_VM*sigma_D(i,j)/sigma_VM;
+        }
+// Info<<"H1"<<endl;
+
+    }
+  }
+
+
+
+}
+
+// exit(0);
 
 // Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
 
@@ -114,30 +165,15 @@ Cprime += PopBal[h][cell]*Cprime2[h];
 
 
 enum {I,J,K,L};
-Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot);////Double contraction
+Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot-Fepsilon_P_dot);////Double contraction
 
 
-// Fastor::print("sig:", sig);
-
-
-//dsdt[cell] = epsilon_dot[cell]*shear_mod.value();
-
-
-// dsdt[cell].component(0) = sig(0,0);
-// dsdt[cell].component(1) = sig(0,1);
-// dsdt[cell].component(2) = sig(0,2);
-// dsdt[cell].component(3) = sig(1,0);
-// dsdt[cell].component(4) = sig(1,1);
-// dsdt[cell].component(5) = sig(1,2);
-// dsdt[cell].component(6) = sig(2,0);
-// dsdt[cell].component(7) = sig(2,1);
-// dsdt[cell].component(8) = sig(2,2);
 
 count_index=0;
 for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
-      dsdt_crystal[cell].component(count_index) =sig(i,j);
+      dsigmadt_crystal[cell].component(count_index) =sig(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
@@ -151,15 +187,15 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 
 
-dsdt_crystal.correctBoundaryConditions();
-dsdt+=dsdt_crystal;
+dsigmadt_crystal.correctBoundaryConditions();
+dsigmadt+=dsigmadt_crystal;
 
 // dsdt_crystal.write();
 // exit(0);
 
 
-dsdt.correctBoundaryConditions();
-s=s + runTime.deltaT()*(dsdt);
+dsigmadt.correctBoundaryConditions();
+sigma=sigma + runTime.deltaT()*(dsigmadt);
 
     // solve
     // (
@@ -167,7 +203,7 @@ s=s + runTime.deltaT()*(dsdt);
     //     dsdt
     // );
 
-s.correctBoundaryConditions();
+sigma.correctBoundaryConditions();
 
 
 D = D+ runTime.deltaT()*(U);

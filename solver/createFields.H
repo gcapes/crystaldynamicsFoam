@@ -338,33 +338,33 @@ dimensionedTensor("epsilon_P_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
 //                // zeroGradientFvPatchTensorField::typeName
 // );
 
-volTensorField s
+volTensorField sigma
 (
     IOobject
     (
-        "s",
+        "sigma",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("s",dimensionSet(1, -1, -2, 0, 0),tensor::zero)//,
+dimensionedTensor("sigma",dimensionSet(1, -1, -2, 0, 0),tensor::zero)//,
                 //zeroGradientFvPatchTensorField::typeName
 );
 
-volVectorField divs
+volVectorField divsigma
 (
     IOobject
     (
-        "divs",
+        "divsigma",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedVector("divs",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
+dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
                 //zeroGradientFvPatchTensorField::typeName
 );
 
@@ -385,33 +385,33 @@ dimensionedVector("divs",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
 // );
 
 
-volTensorField dsdt
+volTensorField dsigmadt
 (
     IOobject
     (
-        "dsdt",
+        "dsigmadt",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("dsdt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
+dimensionedTensor("dsigmadt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
                 zeroGradientFvPatchTensorField::typeName
 );
 
-volTensorField dsdt_crystal
+volTensorField dsigmadt_crystal
 (
     IOobject
     (
-        "dsdt_crystal",
+        "dsigmadt_crystal",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
         mesh,
-dimensionedTensor("dsdt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
+dimensionedTensor("dsigmadt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
                 zeroGradientFvPatchTensorField::typeName
 );
 

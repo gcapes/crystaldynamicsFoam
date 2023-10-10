@@ -35,7 +35,7 @@ divSchemes
     
     div(U)	Gauss linear;//cubic;
     
-    div(s)	Gauss linear;
+    div(sigma)	Gauss linear;
     //div(testSIG)	Gauss linear;//cubic;
     
     div(interpolate(U),rho)	Gauss linear;
