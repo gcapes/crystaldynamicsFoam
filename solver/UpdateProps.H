@@ -37,7 +37,7 @@ epsilon_P_dot*=0.0;
 
 sigma && sigma;// double dot product
 
-
+// Info<<"HERE2"<<endl;
 
 
 forAll(mesh.C(), cell)
@@ -185,7 +185,7 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 }
 
-
+// Info<<"HERE"<<endl;
 
 
 

@@ -81,7 +81,7 @@ surfaceScalarField rhoPhi
 
 
 
-const label N_Ori=4;
+const label N_Ori=20;
 
 
 
@@ -136,6 +136,10 @@ phi3[1]=0.0;
 phi1[2]=2.0*pi.value();
 phi2[2]=0.0;
 phi3[2]=0.0;
+
+phi1[11]=0.25*pi.value();
+phi2[11]=0.0;
+phi3[11]=0.0;
 
 
 
@@ -207,7 +211,7 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
 
 
 
-Fastor::Tensor<double,3,3,3,3> Cprime2[4];//array of tensor objects
+Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
 
 
 
@@ -268,7 +272,7 @@ Fastor::Tensor<double,3,3,3,3> Cprime_temp(0.0);
 
 Cprime2[h]=Cprime_temp;
 }
-
+// Info<<"HERE5"<<endl;
 //Cprime2[N_Ori] now has all the grain elasticity tensors
 
 
