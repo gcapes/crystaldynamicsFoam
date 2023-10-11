@@ -1,20 +1,20 @@
-#include "createRDeltaT.H"
+/*Info<< "Reading physicalProperties\n" << endl;
 
-dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
-
-Info<< "Reading field p_rgh\n" << endl;
-volScalarField p_rgh
+IOdictionary physicalProperties
 (
     IOobject
     (
-        "p_rgh",
-        runTime.timeName(),
+        "physicalProperties",
+        runTime.constant(),
         mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
 );
+*/
+dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
+
+
 
 Info<< "Reading field U\n" << endl;
 volVectorField U
@@ -29,7 +29,6 @@ volVectorField U
     ),
     mesh
 );
-
 
 volVectorField D
 (
@@ -46,19 +45,38 @@ volVectorField D
 );
 
 
-// volScalarField damping
-// (
-//     IOobject
-//     (
-//         "damping",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh,
-//     dimensionedScalar("damping",dimensionSet(1,-3,-1,0,0),1e12)
-// );
+volScalarField rho
+(
+    IOobject
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),8000.0)
+);
+
+
+surfaceScalarField rhoPhi
+            (
+                IOobject
+                (
+                    "rhoPhi",
+                    runTime.timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedScalar(dimMass/dimTime, 0)
+            );
+
+
+
+
+
+
 
 
 
@@ -417,83 +435,9 @@ dimensionedTensor("dsigmadt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero)
 
 #include "createPhi.H"
 
-
-Info<< "Reading phaseProperties\n" << endl;
-immiscibleIncompressibleTwoPhaseMixture mixture(U, phi);
-
-autoPtr<twoPhaseChangeModel> phaseChangePtr
-(
-    twoPhaseChangeModel::New(mixture)
-);
-
-
-// Need to store rho for ddt(rho, U)
-volScalarField rho
-(
-    IOobject
-    (
-        "rho",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-// rho.oldTime();
-
-// rho=mixture.rho();
-
-// #include "readGravitationalAcceleration.H"
-// #include "readhRef.H"
-// #include "gh.H"
-
-
-// volScalarField p
-// (
-//     IOobject
-//     (
-//         "p",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     p_rgh + rho*gh
-// );
-
-// pressureReference pressureReference(p, p_rgh, pimple.dict());
-
-// if (p_rgh.needReference())
-// {
-//     p += dimensionedScalar
-//     (
-//         "p",
-//         p.dimensions(),
-//         pressureReference.refValue()
-//       - getRefCellValue(p, pressureReference.refCell())
-//     );
-//     p_rgh = p - rho*gh;
-// }
-
-// mesh.schemes().setFluxRequired(p_rgh.name());
-
-// volScalarField& alpha1(mixture.alpha1());
-// mesh.schemes().setFluxRequired(alpha1.name());
-
-
-// #include "createAlphaFluxes.H"
-
-// // Construct incompressible turbulence model
-// incompressibleInterPhaseTransportModel turbulence
-// (
-//     U,
-//     phi,
-//     alphaPhi1,
-//     mixture
-// );
-
-
-#include "createMRF.H"
-#include "createFvModels.H"
-#include "createFvConstraints.H"
+/*
+label pRefCell = 0;
+scalar pRefValue = 0.0;
+setRefCell(p, mesh.solution().dict().subDict("PISO"), pRefCell, pRefValue);
+mesh.schemes().setFluxRequired(p.name());
+*/

@@ -1,5 +1,6 @@
 {
 
+
 // phi=fvc::flux(U);
 
 rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
@@ -31,6 +32,7 @@ dsigmadt = - ((sigma & omega_dot) - (omega_dot & sigma));
 
 dsigmadt_crystal*=0.0;
 
+epsilon_P_dot*=0.0;
 
 
 sigma && sigma;// double dot product
@@ -149,7 +151,6 @@ if(sigma_VM>SMALL){
         Fepsilon_P_dot(i,j)=epsilon_dot_P_VM*sigma_D(i,j)/sigma_VM;
         }
 // Info<<"H1"<<endl;
-
     }
   }
 
@@ -174,6 +175,7 @@ for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
       dsigmadt_crystal[cell].component(count_index) =sig(i,j);
+      epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
@@ -325,3 +327,4 @@ D = D+ runTime.deltaT()*(U);
   // exit(0);
 
 }
+

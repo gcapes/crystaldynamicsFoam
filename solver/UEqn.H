@@ -1,4 +1,4 @@
-    MRF.correctBoundaryVelocity(U);
+   // MRF.correctBoundaryVelocity(U);
 
     // fvc::interpolate(s);
 
@@ -17,37 +17,17 @@
 
     fvVectorMatrix UEqn
     (
-        fvm::ddt(rho, U) + fvm::div(rhoPhi, U)
-      // + MRF.DDt(rho, U)
-      //+ turbulence.divDevTau(rho, U)
+        fvm::ddt(rho, U) 
+        + fvm::div(rhoPhi, U)
       -fvc::div(sigma)
     // ==
-    // -fvm::Sp(damping, U)
-    //   phaseChange.SU(rho, rhoPhi, U)
-    // + fvModels.source(rho, U)
+
     );
 
     UEqn.relax();
 
-    fvConstraints.constrain(UEqn);
 
     UEqn.solve();
 
-    // if (pimple.momentumPredictor())
-    // {
-    //     solve
-    //     (
-    //         UEqn
-    //      ==
-    //         fvc::reconstruct
-    //         (
-    //             (
-    //                 mixture.surfaceTensionForce()
-    //               - ghf*fvc::snGrad(rho)
-    //               - fvc::snGrad(p_rgh)
-    //             ) * mesh.magSf()
-    //         )
-    //     );
 
-    //     fvConstraints.constrain(U);
-    // }
+
