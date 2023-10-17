@@ -24,14 +24,6 @@ boundaryField
 type fixedGradient;
 gradient uniform -50.0;
 	}
-	leftWall
-	{
-	type            zeroGradient;
-	}
-	rightWall
-	{
-	type            zeroGradient;
-	}
 
     lowerWall
     {

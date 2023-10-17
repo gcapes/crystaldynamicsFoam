@@ -1,11 +1,11 @@
 {
 
 
-// phi=fvc::flux(U);
+phi=fvc::flux(U);
 
 rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
 
-
+// divU=fvc::div(U);
 
 volTensorField TgradU(fvc::grad(U)().T());
 TgradU.correctBoundaryConditions(); // already called by line above
@@ -34,8 +34,12 @@ dsigmadt_crystal*=0.0;
 
 epsilon_P_dot*=0.0;
 
+p*=0.0;
 
-sigma && sigma;// double dot product
+// p=tr(sigma);
+
+
+// sigma && sigma;// double dot product
 
 // Info<<"HERE2"<<endl;
 
@@ -103,8 +107,12 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 
 
 double m = 1.0;
-double epsilon_P_dot_zero = 1e-3;
+double epsilon_P_dot_zero = 1e-5;
 double sigma_Y = 1e9;
+
+
+
+
 
   Fastor::Tensor<double,3,3> sigma_D(0.0);
 
@@ -112,13 +120,13 @@ double sigma_Y = 1e9;
 
   double pressure=0.0;
   double sigma_VM=0.0;
-
   double epsilon_dot_P_VM=0.0;
 
   for(int i = 0 ; i < 3 ; i++ ){
    pressure-=Fsigma(i,i)/3.0; //trace(sigma)/3////
 
   }
+   p[cell]=-pressure;
 
 
 
@@ -197,18 +205,18 @@ dsigmadt+=dsigmadt_crystal;
 
 
 dsigmadt.correctBoundaryConditions();
-sigma=sigma + runTime.deltaT()*(dsigmadt);
+// sigma=sigma + runTime.deltaT()*(dsigmadt);
 
-    // solve
-    // (
-    //     fvm::ddt(s) ==
-    //     dsdt
-    // );
+//     // solve
+//     // (
+//     //     fvm::ddt(s) ==
+//     //     dsdt
+//     // );
 
-sigma.correctBoundaryConditions();
+// sigma.correctBoundaryConditions();
 
 
-D = D+ runTime.deltaT()*(U);
+// D = D+ runTime.deltaT()*(U);
 
   //   fvVectorMatrix DEqn
   //   (

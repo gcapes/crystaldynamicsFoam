@@ -29,5 +29,5 @@
 
     UEqn.solve();
 
-
+    K = 0.5*magSqr(U);
 

@@ -26,17 +26,20 @@ boundaryField
 	}
     lowerWall
     {
+    
     type uniformFixedValue;
     uniformValue table
     (
         (0 (0 0 0))
-        (10.0e-8 (0 1e2 0))
-        (20.0e-8 (0 1e2 0))
-        (30e-8 (0 -1e2 0))
-        (40e-8 (0 -1e2 0))
-        (50e-8 (0 0 0))
+        (50.0e-8 (0 1e3 0))
+        (100.0e-8 (0 -1e3 0))
+        (150e-8 (0 0 0))
     );
 
+/*
+        type            fixedValue;
+        value           uniform (0 100 0);
+*/
     }
     atmosphere
     {

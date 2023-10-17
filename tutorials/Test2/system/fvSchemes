@@ -14,10 +14,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-d2dt2Schemes
- {
-    default         Euler; 
- }
  
 ddtSchemes
 {
@@ -26,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         Gauss linear;//cellMDLimited Gauss linear 0.5;//
 }
 
 divSchemes
@@ -39,10 +35,14 @@ divSchemes
     
     div(U)	Gauss linear;//cubic;
     
-    div(s)	Gauss linear;//cubic;
-    div(testSIG)	Gauss linear;//cubic;
+    div(sigma)	Gauss linear;
+    //div(testSIG)	Gauss linear;//cubic;
     
     div(interpolate(U),rho)	Gauss linear;
+    
+    div(rhoPhi,K)	Gauss linear;
+    div((Cv*rhoPhi),T)	Gauss linear;
+    div((sigma&U))	Gauss linear;
 }
 
 laplacianSchemes
@@ -52,7 +52,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         cubic;
+    default         linear;//cubic;
 }
 
 snGradSchemes

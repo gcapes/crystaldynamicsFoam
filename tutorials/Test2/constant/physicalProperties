@@ -10,23 +10,14 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      physicalProperties.air;
+    object      physicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-viscosityModel  constant;
 
-nu              0.5e-05;
+Cv	500;
 
-rho             1.78;
+kappa	20.0;
 
-
-    Tsolidus    1.0;
-    Tliquidus   10.0;
-    LatentHeat  1;
-    beta    4.0e-5;
-    
-    poly_kappa   (0.4 0.0 0 0 0 0 0 0);
-    poly_cp   (520 0.0 0 0 0 0 0 0);
 
 // ************************************************************************* //

@@ -39,6 +39,10 @@ divSchemes
     //div(testSIG)	Gauss linear;//cubic;
     
     div(interpolate(U),rho)	Gauss linear;
+    
+    div(rhoPhi,K)	Gauss linear;
+    div((Cv*rhoPhi),T)	Gauss linear;
+    div((sigma&U))	Gauss linear;
 }
 
 laplacianSchemes

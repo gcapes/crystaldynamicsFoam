@@ -85,22 +85,52 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.userTimeName() << nl << endl;
 
         // --- Pressure-velocity PIMPLE corrector loop
+        
+
+        
+
+
+
+sigma.correctBoundaryConditions();
+
         while (pimple.loop())
         {
          
 
-
-
-   
             #include "UpdateProps.H"
+            
+   
+            
 
             #include "UEqn.H"
 
-            // #include "rhoEqn.H"
+            // #include "TEqn.H"
 
             
 
+            // #include "rhoEqn.H"
+
+        //     while (pimple.correct())
+        //     {
+        //     // phi=fvc::flux(U);
+        //     // rhoPhi = fvc::interpolate(rho)*fvc::flux(U);  
+        //     if (pimple.finalNonOrthogonalIter())
+        // {
+        // sigma=sigma + runTime.deltaT()*(dsigmadt);
+        // D = D+ runTime.deltaT()*(U);
+        // }
+
+        //     }
+
         }
+        sigma=sigma + runTime.deltaT()*(dsigmadt);
+        D = D+ runTime.deltaT()*(U);
+
+        #include "TEqn.H"
+
+
+sigma.correctBoundaryConditions();
+        
 
         runTime.write();
 

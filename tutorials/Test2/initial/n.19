@@ -8,24 +8,39 @@
 FoamFile
 {
     format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      physicalProperties.water;
+    class       volScalarField;
+    location    "0.9";
+    object      n.19;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-viscosityModel  constant;
+dimensions      [0 0 0 0 0 0 0];
 
-nu              5e-07;
+internalField   uniform 0;
 
-rho             8000;
-
-	Tsolidus 1658;
-	Tliquidus 1723;
-    LatentHeat 2.7e5;
-    beta    5.0e-6;
-    poly_kappa   (25 0.0 0 0 0 0 0 0);
-    poly_cp   (700 0.0 0 0 0 0 0 0);
+boundaryField
+{
+    lowerWall
+    {
+        type            zeroGradient;
+    }
+    atmosphere
+    {
+        type            zeroGradient;
+    }
+    rightWall
+    {
+        type            empty;
+    }
+    leftWall
+    {
+        type            empty;
+    }
+    frontAndBack
+    {
+        type            zeroGradient;
+    }
+}
 
 
 // ************************************************************************* //

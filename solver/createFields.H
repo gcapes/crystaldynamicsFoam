@@ -1,4 +1,4 @@
-/*Info<< "Reading physicalProperties\n" << endl;
+Info<< "Reading physicalProperties\n" << endl;
 
 IOdictionary physicalProperties
 (
@@ -11,8 +11,13 @@ IOdictionary physicalProperties
         IOobject::NO_WRITE
     )
 );
-*/
+
 dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
+
+
+
+dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.lookup("Cv"));
+dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
 
 
 
@@ -44,6 +49,33 @@ volVectorField D
     dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
 );
 
+Info<< "Reading field Temperature\n" << endl;
+volScalarField T
+(
+    IOobject
+    (
+        "T",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+volScalarField K
+(
+    IOobject
+    (
+        "K",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("K",dimensionSet(0, 2, -2, 0, 0),0.0)
+);
 
 volScalarField rho
 (
@@ -56,7 +88,23 @@ volScalarField rho
         IOobject::AUTO_WRITE
     ),
     mesh,
-    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),8000.0)
+    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),8000.0),
+                zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField p
+(
+    IOobject
+    (
+        "p",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("p",dimensionSet(1, -1, -2, 0, 0),0.0),
+                zeroGradientFvPatchScalarField::typeName
 );
 
 
@@ -74,7 +122,20 @@ surfaceScalarField rhoPhi
 
 
 
-
+// volScalarField divU
+// (
+//     IOobject
+//     (
+//         "divU",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("divU",dimensionSet(0, 0, -1, 0, 0),0.0),
+//                 zeroGradientFvPatchScalarField::typeName
+// );
 
 
 
