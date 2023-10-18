@@ -12,6 +12,25 @@ IOdictionary physicalProperties
     )
 );
 
+IOdictionary solutionDict
+(
+    IOobject
+    (
+        "fvSolution",
+        runTime.system(), //folder where the fvSolution file is located
+        runTime,
+        IOobject::MUST_READ
+    )
+);
+
+dictionary& PimpleDICT = solutionDict.subDict("PIMPLE");
+
+int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+
+// Info<<"TREST: "<<n_sub_steps<<endl;
+
+// exit(0);
+
 dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
 
 

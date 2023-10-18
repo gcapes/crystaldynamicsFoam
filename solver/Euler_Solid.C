@@ -123,13 +123,10 @@ sigma.correctBoundaryConditions();
         //     }
 
         }
-        sigma=sigma + runTime.deltaT()*(dsigmadt);
-        D = D+ runTime.deltaT()*(U);
+
 
         #include "TEqn.H"
 
-
-sigma.correctBoundaryConditions();
         
 
         runTime.write();

@@ -152,20 +152,11 @@ solvers
     }
 }
 
-MELTING
-{
-    minTempCorrector 1;
-    maxTempCorrector 150;
-    epsilonTolerance 1e-6;
-    epsilonRelaxation 0.95;
-    
-    damperSwitch true;//false;//true;
-}
 
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    3;
+    nOuterCorrectors    5;
     nCorrectors         3;
     nNonOrthogonalCorrectors 0;
     

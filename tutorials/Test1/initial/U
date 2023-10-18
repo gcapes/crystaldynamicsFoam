@@ -22,7 +22,8 @@ internalField   uniform (0 0 0);
 boundaryField
 {
 	frontAndBack{
-            type            zeroGradient;
+//            type            zeroGradient;
+type            slip;
 	}
     lowerWall
     {
@@ -31,9 +32,10 @@ boundaryField
     uniformValue table
     (
         (0 (0 0 0))
-        (50.0e-8 (0 1e3 0))
-        (100.0e-8 (0 -1e3 0))
+        (50.0e-8 (0 1e2 0))
+        (100.0e-8 (0 0 0))
         (150e-8 (0 0 0))
+        (200e-8 (0 0 0))
     );
 
 /*

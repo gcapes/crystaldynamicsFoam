@@ -205,7 +205,7 @@ dsigmadt+=dsigmadt_crystal;
 
 
 dsigmadt.correctBoundaryConditions();
-// sigma=sigma + runTime.deltaT()*(dsigmadt);
+sigma=sigma + (1.0/n_sub_steps)*runTime.deltaT()*(dsigmadt);
 
 //     // solve
 //     // (
@@ -216,8 +216,13 @@ dsigmadt.correctBoundaryConditions();
 // sigma.correctBoundaryConditions();
 
 
-// D = D+ runTime.deltaT()*(U);
+D = D+ (1.0/n_sub_steps)*runTime.deltaT()*(U);
 
+// Foam::label Foam::pimpleLoop::nCorrPimple() const;
+
+
+
+// Info<<"ncorr"<<nCorrPIMPLE_<<endl;
   //   fvVectorMatrix DEqn
   //   (
   //       fvm::d2dt2(rho, D) 
