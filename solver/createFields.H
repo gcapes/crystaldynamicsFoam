@@ -37,6 +37,7 @@ dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::
 
 dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.lookup("Cv"));
 dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
+dimensionedScalar rho_0("rho_0",dimensionSet(1, -3, 0, 0, 0),physicalProperties.lookup("rho_0"));
 
 
 
@@ -96,6 +97,36 @@ volScalarField K
     dimensionedScalar("K",dimensionSet(0, 2, -2, 0, 0),0.0)
 );
 
+
+// volScalarField trsig
+// (
+//     IOobject
+//     (
+//         "trsig",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("trsig",dimensionSet(1, -1, -3, 0, 0),0.0)
+// );
+
+// volScalarField tredot
+// (
+//     IOobject
+//     (
+//         "tredot",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("tredot",dimensionSet(0, 0, -1, 0, 0),0.0)
+// );
+
+
 volScalarField rho
 (
     IOobject
@@ -103,11 +134,11 @@ volScalarField rho
         "rho",
         runTime.timeName(),
         mesh,
-        IOobject::NO_READ,
+        IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
     mesh,
-    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),8000.0),
+    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),rho_0.value()),
                 zeroGradientFvPatchScalarField::typeName
 );
 
@@ -289,7 +320,21 @@ Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
   C(1,2,1,2)=C44;
 
 
+/*
+//ISOTROPIC
 
+C(0,0,0,0) = C11;
+C(0,1,0,1) = C11;
+C(0,2,0,2) = C11;
+
+C(1,0,1,0) = C11;
+C(1,1,1,1) = C11;
+C(1,2,1,2) = C11;
+
+C(2,0,2,0) = C11;
+C(2,1,2,1) = C11;
+C(2,2,2,2) = C11;
+*/
 
 Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
 

@@ -42,6 +42,7 @@ divSchemes
     div(rhoPhi,K)	Gauss upwind;//Gauss linear;
     div((Cv*rhoPhi),T)	Gauss upwind;//Gauss linear;
     div((sigma&U))	Gauss linear;
+    div(phi,rho)	Gauss linear;
 }
 
 laplacianSchemes

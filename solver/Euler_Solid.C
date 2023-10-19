@@ -108,7 +108,7 @@ sigma.correctBoundaryConditions();
 
             
 
-            // #include "rhoEqn.H"
+            #include "rhoEqn.H"
 
         //     while (pimple.correct())
         //     {

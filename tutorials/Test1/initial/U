@@ -24,6 +24,9 @@ boundaryField
 	frontAndBack{
 //            type            zeroGradient;
 type            slip;
+
+       // type            fixedValue;
+       // value           uniform (0 0 0);
 	}
     lowerWall
     {
@@ -34,7 +37,7 @@ type            slip;
         (0 (0 0 0))
         (50.0e-8 (0 1e2 0))
         (100.0e-8 (0 0 0))
-        (150e-8 (0 0 0))
+        (150e-8 (0 -1e2 0))
         (200e-8 (0 0 0))
     );
 
@@ -45,8 +48,11 @@ type            slip;
     }
     atmosphere
     {
-    type            noSlip;
-//    type            slip;
+//    type            noSlip;
+    type            slip;
+
+//        type            fixedValue;
+//        value           uniform (0 -5 0);
     
   /*  
 type pressureInletOutletVelocity;

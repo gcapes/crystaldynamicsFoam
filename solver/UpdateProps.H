@@ -18,11 +18,19 @@ TgradU.correctBoundaryConditions(); // already called by line above
 
 // gradU=fvc::grad(U);
 
+// tensor Ident(1,0,0,0,1,0,0,0,1);
 
 omega_dot = 0.5*(fvc::grad(U)-TgradU); // this is the "symm" function, i.e. symm(gradU)
 omega_dot.correctBoundaryConditions(); // already called by line above
-epsilon_dot = 0.5*(fvc::grad(U)+TgradU) - (1.0/3.0)*(fvc::div(U))*I; // this looks like dev(gradU)
+epsilon_dot = 0.5*(fvc::grad(U)+TgradU) ;//- (1.0/3.0)*(fvc::div(phi))*Ident; // this looks like dev(gradU)
 epsilon_dot.correctBoundaryConditions(); // already called by line above
+
+// Info<<I<<endl;
+
+// Info<<"IM"<<Ident<<endl;
+
+// tredot = tr(epsilon_dot);
+
 
 // epsilon = 0.5*(fvc::grad(D)-TgradD);
 // epsilon.correctBoundaryConditions();
@@ -37,6 +45,8 @@ epsilon_P_dot*=0.0;
 p*=0.0;
 
 // p=tr(sigma);
+
+
 
 
 // sigma && sigma;// double dot product
@@ -133,8 +143,9 @@ double sigma_Y = 1e9;
   for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
+      if(i==j){
       sigma_D(i,j) = Fsigma(i,j)+pressure;
-
+      }
     sigma_VM += sigma_D(i,j)*sigma_D(i,j);
 
 
@@ -203,6 +214,8 @@ dsigmadt+=dsigmadt_crystal;
 // dsdt_crystal.write();
 // exit(0);
 
+// Info<<tr(dsigmadt)<<endl;
+// trsig = tr(dsigmadt);
 
 dsigmadt.correctBoundaryConditions();
 sigma=sigma + (1.0/n_sub_steps)*runTime.deltaT()*(dsigmadt);
