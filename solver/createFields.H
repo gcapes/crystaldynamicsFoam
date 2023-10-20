@@ -453,6 +453,51 @@ dimensionedTensor("epsilon_P_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
                // zeroGradientFvPatchTensorField::typeName
 );
 
+volScalarField epsilon_dot_P_VM
+(
+    IOobject
+    (
+        "epsilon_dot_P_VM",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedScalar("epsilon_dot_P_VM",dimensionSet(0, 0, -1, 0, 0),0.0),
+               zeroGradientFvPatchTensorField::typeName
+);
+
+volScalarField Acc_Strain
+(
+    IOobject
+    (
+        "Acc_Strain",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedScalar("Acc_Strain",dimensionSet(0, 0, 0, 0, 0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+);
+
+
+volScalarField TESD
+(
+    IOobject
+    (
+        "TESD",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedScalar("TESD",dimensionSet(0, 0, -1, 0, 0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+);
 
 // volTensorField gradU
 // (
@@ -547,20 +592,20 @@ dimensionedTensor("dsigmadt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
                 zeroGradientFvPatchTensorField::typeName
 );
 
-volTensorField dsigmadt_crystal
-(
-    IOobject
-    (
-        "dsigmadt_crystal",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("dsigmadt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+// volTensorField dsigmadt_crystal
+// (
+//     IOobject
+//     (
+//         "dsigmadt_crystal",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("dsigmadt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
+//                 zeroGradientFvPatchTensorField::typeName
+// );
 
 #include "createPhi.H"
 

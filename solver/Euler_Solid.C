@@ -103,26 +103,27 @@ sigma.correctBoundaryConditions();
             
 
             #include "UEqn.H"
+            #include "rhoEqn.H"
 
             // #include "TEqn.H"
 
             
 
-            #include "rhoEqn.H"
+            
 
         //     while (pimple.correct())
         //     {
-        //     // phi=fvc::flux(U);
-        //     // rhoPhi = fvc::interpolate(rho)*fvc::flux(U);  
-        //     if (pimple.finalNonOrthogonalIter())
-        // {
-        // sigma=sigma + runTime.deltaT()*(dsigmadt);
-        // D = D+ runTime.deltaT()*(U);
-        // }
+
+        //     // if (pimple.finalNonOrthogonalIter())
+        // // {
+        //     // #include "rhoEqn.H"
+        // // }
 
         //     }
 
         }
+
+        
 
 
         #include "TEqn.H"

@@ -137,6 +137,28 @@ solvers
         $rho;
     }
     
+    
+                Acc_Strain
+    {
+/*
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        minIter         1;
+        maxIter         500;//2
+*/
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-9;
+        relTol          0.0;
+    }
+
+    Acc_StrainFinal
+    {
+        $Acc_Strain;
+    }
+    
+    
         sigma
     {
         solver          PCG;

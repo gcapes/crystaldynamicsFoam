@@ -28,6 +28,7 @@
 
 
     UEqn.solve();
+    U.correctBoundaryConditions();
 
     K = 0.5*magSqr(U);
 

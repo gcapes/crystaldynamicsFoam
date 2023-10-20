@@ -43,6 +43,8 @@ divSchemes
     div((Cv*rhoPhi),T)	Gauss upwind;//Gauss linear;
     div((sigma&U))	Gauss linear;
     div(phi,rho)	Gauss linear;
+    
+    div(phi,Acc_Strain)	Gauss linear;
 }
 
 laplacianSchemes

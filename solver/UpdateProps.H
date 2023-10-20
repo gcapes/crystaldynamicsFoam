@@ -38,7 +38,7 @@ epsilon_dot.correctBoundaryConditions(); // already called by line above
 // dsdt *=0.0;
 dsigmadt = - ((sigma & omega_dot) - (omega_dot & sigma));
 
-dsigmadt_crystal*=0.0;
+// dsigmadt_crystal*=0.0;
 
 epsilon_P_dot*=0.0;
 
@@ -130,7 +130,8 @@ double sigma_Y = 1e9;
 
   double pressure=0.0;
   double sigma_VM=0.0;
-  double epsilon_dot_P_VM=0.0;
+  // double epsilon_dot_P_VM=0.0;
+  // epsilon_dot_P_VM[cell] = 0.0;
 
   for(int i = 0 ; i < 3 ; i++ ){
    pressure-=Fsigma(i,i)/3.0; //trace(sigma)/3////
@@ -154,7 +155,7 @@ double sigma_Y = 1e9;
 sigma_VM=Foam::sqrt(sigma_VM/2.0);
 
 
-epsilon_dot_P_VM=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
+epsilon_dot_P_VM[cell]=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
 
 //epsilon_dot_P_VM will need to be integrated dt, and the accumilated rate convected once we have hardening
 
@@ -167,7 +168,7 @@ for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 // Info<<"H1: "<<sigma_VM<<endl;
 if(sigma_VM>SMALL){
-        Fepsilon_P_dot(i,j)=epsilon_dot_P_VM*sigma_D(i,j)/sigma_VM;
+        Fepsilon_P_dot(i,j)=epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
         }
 // Info<<"H1"<<endl;
     }
@@ -193,7 +194,7 @@ count_index=0;
 for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
-      dsigmadt_crystal[cell].component(count_index) =sig(i,j);
+      dsigmadt/*_crystal*/[cell].component(count_index) +=sig(i,j);
       epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
@@ -204,12 +205,13 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 }
 
+dsigmadt.correctBoundaryConditions();
 // Info<<"HERE"<<endl;
 
 
 
-dsigmadt_crystal.correctBoundaryConditions();
-dsigmadt+=dsigmadt_crystal;
+// dsigmadt_crystal.correctBoundaryConditions();
+// dsigmadt+=dsigmadt_crystal;
 
 // dsdt_crystal.write();
 // exit(0);
@@ -217,44 +219,78 @@ dsigmadt+=dsigmadt_crystal;
 // Info<<tr(dsigmadt)<<endl;
 // trsig = tr(dsigmadt);
 
-dsigmadt.correctBoundaryConditions();
+
 sigma=sigma + (1.0/n_sub_steps)*runTime.deltaT()*(dsigmadt);
+sigma.correctBoundaryConditions();
 
-//     // solve
-//     // (
-//     //     fvm::ddt(s) ==
-//     //     dsdt
-//     // );
+epsilon_dot_P_VM.correctBoundaryConditions();
+// Acc_Strain = Acc_Strain + (1.0/n_sub_steps)*runTime.deltaT()*(epsilon_dot_P_VM);
+Acc_Strain.correctBoundaryConditions();
 
-// sigma.correctBoundaryConditions();
+
+
 
 
 D = D+ (1.0/n_sub_steps)*runTime.deltaT()*(U);
-
+D.correctBoundaryConditions();
 // Foam::label Foam::pimpleLoop::nCorrPimple() const;
 
 
 
-// Info<<"ncorr"<<nCorrPIMPLE_<<endl;
-  //   fvVectorMatrix DEqn
-  //   (
-  //       fvm::d2dt2(rho, D) 
-  //     -fvc::div(testSIG)
-  //  //  ==
-  //   //   phaseChange.SU(rho, rhoPhi, U)
-  //   // + fvModels.source(rho, U)
-  //   );
-
-  //   // DEqn.relax();
-
-  //   // fvConstraints.constrain(DEqn);
-
-  //   DEqn.solve();
 
 
 
-// for (label count = 0; count < N_Ori; count++)
-// {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //TESTING AREA
