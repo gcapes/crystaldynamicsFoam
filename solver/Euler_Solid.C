@@ -128,6 +128,24 @@ sigma.correctBoundaryConditions();
 
         #include "TEqn.H"
 
+// forAll(mesh.C(), cell)
+// {
+//         if(Hardening){
+
+//   double log_term = 0.0;
+//   if(epsilon_dot_P_VM[cell]>SMALL){
+//     log_term=Foam::log(epsilon_dot_P_VM[cell]);
+//   }
+
+// sigma_Y[cell]=(sigma_Y_0.value()+(K_0*Foam::pow(Acc_Strain[cell],K_n)));//*(K_B*Foam::exp(-(K_Beta_0-K_Beta_1*log_term)*T[cell]));
+// // Info<<sigma_Y[cell]<<endl;
+
+
+// }
+// else{
+//   sigma_Y[cell]=sigma_Y_0.value();
+// }
+// }
         
 
         runTime.write();

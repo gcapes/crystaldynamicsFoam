@@ -116,9 +116,9 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 {
 
 
-double m = 1.0;
-double epsilon_P_dot_zero = 1e-5;
-double sigma_Y = 1e9;
+// double m = 1.0;
+// double epsilon_P_dot_zero = 1e-5;
+// double sigma_Y = 240e6;//1e9;
 
 
 
@@ -129,7 +129,9 @@ double sigma_Y = 1e9;
   
 
   double pressure=0.0;
-  double sigma_VM=0.0;
+  double sigma_VM=0.0;//von mises,J2
+  double e_dot_DDP_s = 0.0; //double inner product of e_dot and deviatoric part of stress
+  double s_DDP_s = 0.0; //double inner product of deviatoric part of stress and deviatoric part of stress
   // double epsilon_dot_P_VM=0.0;
   // epsilon_dot_P_VM[cell] = 0.0;
 
@@ -143,19 +145,71 @@ double sigma_Y = 1e9;
 
   for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
-
+      sigma_D(i,j) = Fsigma(i,j);
       if(i==j){
       sigma_D(i,j) = Fsigma(i,j)+pressure;
       }
     sigma_VM += sigma_D(i,j)*sigma_D(i,j);
+    s_DDP_s += sigma_D(i,j)*sigma_D(i,j);
+    e_dot_DDP_s += Fepsilon_dot(i,j)*sigma_D(i,j);
 
 
     }
   }
-sigma_VM=Foam::sqrt(sigma_VM/2.0);
+sigma_VM=Foam::sqrt(sigma_VM*(3.0/2.0));
+
+// Info<<sigma_VM<<"\t"<<(Foam::pow(sigma_Y,2.0)/3.0)<<endl;
 
 
-epsilon_dot_P_VM[cell]=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
+for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+
+if(sigma_VM>=(sigma_Y[cell]) && (e_dot_DDP_s > SMALL)){
+  // Info<<"here"<<endl;
+        Fepsilon_P_dot(i,j)= (e_dot_DDP_s/s_DDP_s)*sigma_D(i,j); //epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
+        }
+        else{
+          Fepsilon_P_dot(i,j)=0.0;
+        }
+
+        /* Pratheeks plasticity implementation
+        if(sigma_VM>SMALL){
+        Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m)*sigma_D(i,j)/sigma_VM;
+        }
+        */
+
+    }
+  }
+
+double eps_P_dot_DDP_eps_P_dot = 0.0;
+for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+      eps_P_dot_DDP_eps_P_dot+= Fepsilon_P_dot(i,j)*Fepsilon_P_dot(i,j);
+    }
+}
+
+eps_P_dot_DDP_eps_P_dot*=(2.0/3.0);
+
+epsilon_dot_P_VM[cell]=Foam::sqrt(eps_P_dot_DDP_eps_P_dot);
+
+if(Hardening){
+
+  double log_term = 0.0;
+  if(epsilon_dot_P_VM[cell]>SMALL){
+    log_term=Foam::log(epsilon_dot_P_VM[cell]);
+  }
+
+sigma_Y[cell]=(sigma_Y_0.value()+(K_0*Foam::pow(max(Acc_Strain[cell],0.0),K_n)))*(K_B*Foam::exp(-(K_Beta_0-K_Beta_1*log_term)*T[cell]));
+
+}
+else{
+  sigma_Y[cell]=sigma_Y_0.value();
+}
+// Info<<"sig_y: "<<sigma_Y[cell]<<" Acc_strain: "<<Acc_Strain[cell]<<endl;
+
+// epsilon_dot_P_VM[cell]=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
+
+
 
 //epsilon_dot_P_VM will need to be integrated dt, and the accumilated rate convected once we have hardening
 
@@ -164,15 +218,15 @@ epsilon_dot_P_VM[cell]=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
 // m= constant, inpyut parameter.
 
 
-for(int i = 0 ; i < 3 ; i++ ){
-    for(int j = 0 ; j < 3 ; j++ ){
-// Info<<"H1: "<<sigma_VM<<endl;
-if(sigma_VM>SMALL){
-        Fepsilon_P_dot(i,j)=epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
-        }
-// Info<<"H1"<<endl;
-    }
-  }
+// for(int i = 0 ; i < 3 ; i++ ){
+//     for(int j = 0 ; j < 3 ; j++ ){
+// // Info<<"H1: "<<sigma_VM<<endl;
+// if(sigma_VM>SMALL){
+//         Fepsilon_P_dot(i,j)=epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
+//         }
+// // Info<<"H1"<<endl;
+//     }
+//   }
 
 
 

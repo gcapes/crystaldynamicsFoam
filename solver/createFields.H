@@ -39,6 +39,25 @@ dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.looku
 dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
 dimensionedScalar rho_0("rho_0",dimensionSet(1, -3, 0, 0, 0),physicalProperties.lookup("rho_0"));
 
+const Switch Hardening(physicalProperties.lookupOrDefault<Switch>("Hardening", false));
+
+// if(Hardening){
+
+scalar K_0(physicalProperties.lookupOrDefault<scalar>("K_0", 0.0));   
+scalar K_n(physicalProperties.lookupOrDefault<scalar>("K_n", 0.0));   
+scalar K_B(physicalProperties.lookupOrDefault<scalar>("K_B", 0.0));   
+scalar K_Beta_0(physicalProperties.lookupOrDefault<scalar>("K_Beta_0", 0.0));   
+scalar K_Beta_1(physicalProperties.lookupOrDefault<scalar>("K_Beta_1", 0.0));    
+
+// dimensionedScalar K_0("K_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("K_0"));
+// dimensionedScalar K_n("K_n",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_n"));
+// dimensionedScalar K_B("K_B",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_B"));
+// dimensionedScalar K_Beta_0("K_Beta_0",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_0"));
+// dimensionedScalar K_Beta_1("K_Beta_1",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_1"));
+
+// }
+
+dimensionedScalar sigma_Y_0("sigma_Y_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("sigma_Y_0"));
 
 
 Info<< "Reading field U\n" << endl;
@@ -188,7 +207,19 @@ surfaceScalarField rhoPhi
 // );
 
 
-
+volScalarField Sum_Phases
+(
+    IOobject
+    (
+        "Sum_Phases",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("Sum_Phases",dimensionSet(0, 0, 0, 0, 0),0.0)
+);
 
 
 
@@ -529,6 +560,21 @@ dimensionedScalar("TESD",dimensionSet(0, 0, -1, 0, 0),0.0),
 // dimensionedTensor("epsilon",dimensionSet(0, 0, 0, 0, 0),tensor::zero)//,
 //                // zeroGradientFvPatchTensorField::typeName
 // );
+
+volScalarField sigma_Y
+(
+    IOobject
+    (
+        "sigma_Y",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedScalar("sigma_Y",dimensionSet(1, -1, -2, 0, 0),sigma_Y_0.value()),
+                zeroGradientFvPatchScalarField::typeName
+);
 
 volTensorField sigma
 (

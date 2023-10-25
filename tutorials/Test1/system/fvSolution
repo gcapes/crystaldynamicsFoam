@@ -172,6 +172,25 @@ solvers
         $sigma;
         relTol          0;
     }
+    
+        "n.*"
+    {
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+
+    }
+
+    "(n.*)Final"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+    }
+    
 }
 
 
