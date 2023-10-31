@@ -32,9 +32,31 @@
 
         AdvAccStrainEqn.solve();
         // Acc_Strain.correctBoundaryConditions();
-
-
+        
 Acc_Strain=max(Acc_Strain,0.0);
+
+
+
+
+        fvTensorMatrix  OmegaTotEqn
+        (
+            fvm::ddt(omega_tot)
+            + fvm::div(phi, omega_tot)
+            ==
+            omega_dot
+
+        );
+
+        OmegaTotEqn.relax();
+
+        OmegaTotEqn.solve();
+        // Acc_Strain.correctBoundaryConditions();
+
+
+
+
+
+        
 
 
 Sum_Phases*=0.0;

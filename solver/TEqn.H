@@ -7,7 +7,11 @@
 
     const volVectorField SigU(sigma & U);
 
-    const volScalarField DP(sigma && fvc::grad(U));
+    // const volScalarField 
+    // DP = (sigma && fvc::grad(U));
+    // DP.correctBoundaryConditions();
+
+    // DP2 = fvc::div(SigU);
 
 
 

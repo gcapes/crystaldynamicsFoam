@@ -145,6 +145,50 @@ volScalarField K
 //     dimensionedScalar("tredot",dimensionSet(0, 0, -1, 0, 0),0.0)
 // );
 
+// volVectorField TESTADV
+// (
+//     IOobject
+//     (
+//         "TESTADV",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedVector("TESTADV",dimensionSet(1, -2, -2, 0, 0),vector::zero),
+//                 zeroGradientFvPatchVectorField::typeName
+// );
+
+// volScalarField DP
+// (
+//     IOobject
+//     (
+//         "DP",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("DP",dimensionSet(1, -1, -3, 0, 0),0.0),
+//                 zeroGradientFvPatchScalarField::typeName
+// );
+
+// volScalarField DP2
+// (
+//     IOobject
+//     (
+//         "DP2",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("DP2",dimensionSet(1, -1, -3, 0, 0),0.0),
+//                 zeroGradientFvPatchScalarField::typeName
+// );
 
 volScalarField rho
 (
@@ -223,7 +267,83 @@ volScalarField Sum_Phases
 
 
 
-const label N_Ori=20;
+// const label N_Ori=20;
+
+IOdictionary GrainProperties
+(
+    IOobject
+    (
+        "GrainProperties",    // dictionary name
+        runTime.constant(),     // dict is found in "constant"
+        mesh,                   // registry for the dict
+        IOobject::MUST_READ,    // must exist, otherwise failure
+        IOobject::NO_WRITE      // dict is only read by the solver
+    )
+);
+
+
+label N_Ori(readLabel(GrainProperties.lookup("N_Phases")));
+Info<<"Number of Phase Field Order Parameters: "<<N_Ori<<endl;
+
+
+
+
+  // Ready to read in multiple stiffness matrices
+
+label N_Mats(readLabel(GrainProperties.lookup("N_Materials")));
+Info<<"Number of Materials: "<<N_Mats<<endl;
+
+
+labelList Phase2Material(N_Ori,0);
+
+GrainProperties.lookup("Phase2Material") >> Phase2Material;
+
+for(label c=0; c<N_Ori; c++)
+{
+    Info<<"Phase["<<c<<"] = Material["<<Phase2Material[c]<<"]"<<endl;
+}
+
+
+Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
+
+
+
+
+for(label i = 0; i < N_Mats; i++)
+{
+
+    word Mat_dict ("Material." + name(i));
+    dictionary Mat = GrainProperties.subDict(Mat_dict);
+
+    Fastor::Tensor<double,3,3,3,3> Cprime_temp_Read(0.0);
+
+    for(int m = 0 ; m < 3 ; m++ ){
+          for(int n = 0 ; n < 3 ; n++ ){
+            for(int p = 0 ; p < 3 ; p++ ){
+              for(int q = 0 ;q  < 3 ; q++ ){
+
+                word Cijkl ("C" + name(m)+ name(n)+ name(p)+ name(q));
+
+                Cprime_temp_Read(m,n,p,q)= Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+
+
+              }
+            }
+          }
+    }
+
+Cprime2[i] = Cprime_temp_Read;
+
+}
+
+// Fastor::print(Cprime2[0]);
+
+// Fastor::print(Cprime2[1]);
+
+// exit(0);
+
+
+
 
 
 
@@ -271,7 +391,7 @@ phi1[0]=0.0;
 phi2[0]=0.0;
 phi3[0]=0.0;
 
-phi1[1]=1.0*pi.value();
+phi1[1]=2.0*pi.value();
 phi2[1]=0.0;
 phi3[1]=0.0;
 
@@ -285,29 +405,29 @@ phi3[11]=0.0;
 
 
 
-tensor rot[N_Ori]={tensor::zero};
+// tensor rot[N_Ori]={tensor::zero};
 
-for (label i = 0; i < N_Ori; i++)
-{
+// for (label i = 0; i < N_Ori; i++)
+// {
 
 
- tensor temprot(
-    Foam::cos(phi2[i])*Foam::cos(phi3[i]), 
-    (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2), 
-    (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))+(Foam::sin(phi1[i])*Foam::sin(phi3[i])),//Foam::sin(phi2)*Foam::sin(phi3),
+//  tensor temprot(
+//     Foam::cos(phi2[i])*Foam::cos(phi3[i]), 
+//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2), 
+//     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))+(Foam::sin(phi1[i])*Foam::sin(phi3[i])),//Foam::sin(phi2)*Foam::sin(phi3),
    
-    Foam::cos(phi2[i])*Foam::sin(phi3[i]), 
-    (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])), 
-    (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))-(Foam::sin(phi1[i])*Foam::cos(phi3[i])),
+//     Foam::cos(phi2[i])*Foam::sin(phi3[i]), 
+//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])), 
+//     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))-(Foam::sin(phi1[i])*Foam::cos(phi3[i])),
     
-    -Foam::sin(phi2[i]), 
-    Foam::sin(phi1[i])*Foam::cos(phi2[i]), 
-    Foam::cos(phi1[i])*Foam::cos(phi2[i])
-);//https://en.wikipedia.org/wiki/Rotation_matrix - 
-//"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
+//     -Foam::sin(phi2[i]), 
+//     Foam::sin(phi1[i])*Foam::cos(phi2[i]), 
+//     Foam::cos(phi1[i])*Foam::cos(phi2[i])
+// );//https://en.wikipedia.org/wiki/Rotation_matrix - 
+// //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
-rot[i]=temprot;
-}
+// rot[i]=temprot;
+// }
 
 
 // Info<<"TEST: "<<rot[1]<<endl;
@@ -367,67 +487,67 @@ C(2,1,2,1) = C11;
 C(2,2,2,2) = C11;
 */
 
-Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
+// Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
 
 
 
-for (label h = 0; h < N_Ori; h++)
-{
+// for (label h = 0; h < N_Ori; h++)
+// {
 
-Fastor::Tensor<double,3,3,3,3> Cprime_temp(0.0);
+// Fastor::Tensor<double,3,3,3,3> Cprime_temp(0.0);
 
-  Fastor::Tensor<double,3,3> Rot_matrix(0.0);
+//   Fastor::Tensor<double,3,3> Rot_matrix(0.0);
 
-  Rot_matrix(0,0)=rot[h].component(0);
-  Rot_matrix(0,1)=rot[h].component(1);
-  Rot_matrix(0,2)=rot[h].component(2);
-  Rot_matrix(1,0)=rot[h].component(3);
-  Rot_matrix(1,1)=rot[h].component(4);
-  Rot_matrix(1,2)=rot[h].component(5);
-  Rot_matrix(2,0)=rot[h].component(6);
-  Rot_matrix(2,1)=rot[h].component(7);
-  Rot_matrix(2,2)=rot[h].component(8);
+//   Rot_matrix(0,0)=rot[h].component(0);
+//   Rot_matrix(0,1)=rot[h].component(1);
+//   Rot_matrix(0,2)=rot[h].component(2);
+//   Rot_matrix(1,0)=rot[h].component(3);
+//   Rot_matrix(1,1)=rot[h].component(4);
+//   Rot_matrix(1,2)=rot[h].component(5);
+//   Rot_matrix(2,0)=rot[h].component(6);
+//   Rot_matrix(2,1)=rot[h].component(7);
+//   Rot_matrix(2,2)=rot[h].component(8);
 
 
-  // Rotate To Global needReference
-  for(int i = 0 ; i < 3 ; i++ ){
-  for(int j = 0 ; j < 3 ; j++ ){
-    for(int k = 0 ; k < 3 ; k++ ){
-      for(int l = 0 ;l  < 3 ; l++ ){
+//   // Rotate To Global needReference
+//   for(int i = 0 ; i < 3 ; i++ ){
+//   for(int j = 0 ; j < 3 ; j++ ){
+//     for(int k = 0 ; k < 3 ; k++ ){
+//       for(int l = 0 ;l  < 3 ; l++ ){
         
 
-        double value =0.0;
-        for(int m = 0 ; m < 3 ; m++ ){
-          for(int n = 0 ; n < 3 ; n++ ){
-            for(int p = 0 ; p < 3 ; p++ ){
-              for(int q = 0 ;q  < 3 ; q++ ){
+//         double value =0.0;
+//         for(int m = 0 ; m < 3 ; m++ ){
+//           for(int n = 0 ; n < 3 ; n++ ){
+//             for(int p = 0 ; p < 3 ; p++ ){
+//               for(int q = 0 ;q  < 3 ; q++ ){
 
-                    value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*C(m,n,p,q);
+//                     value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*C(m,n,p,q);
 
-                    }
-                  }
-                }
-              }
+//                     }
+//                   }
+//                 }
+//               }
 
-              // value*=PopBal[h][cell];
+//               // value*=PopBal[h][cell];
 
-        Cprime_temp(i,j,k,l)=value;
+//         Cprime_temp(i,j,k,l)=value;
       
-      }
-    }
-  }
-}
-
-// if(i==0){
-//     Cprime_temp(0,0,0,0)=2.35;
-// }
-// if(i==1){
-//     Cprime_temp(0,0,0,0)=247.65;
+//       }
+//     }
+//   }
 // }
 
+// // if(i==0){
+// //     Cprime_temp(0,0,0,0)=2.35;
+// // }
+// // if(i==1){
+// //     Cprime_temp(0,0,0,0)=247.65;
+// // }
 
-Cprime2[h]=Cprime_temp;
-}
+
+// Cprime2[h]=Cprime_temp;
+// }
 // Info<<"HERE5"<<endl;
 //Cprime2[N_Ori] now has all the grain elasticity tensors
 
@@ -438,6 +558,45 @@ Cprime2[h]=Cprime_temp;
 // Fastor::print("Test1",Cprime2[2](0,0,0,0));
 
 // exit(0);
+
+
+
+// volTensorField Global_Orientation_Tensor
+// (
+//     IOobject
+//     (
+//         "Global_Orientation_Tensor",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("Global_Orientation_Tensor",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
+//                zeroGradientFvPatchTensorField::typeName
+// );
+
+
+
+
+
+// exit(0);
+
+// volScalarField detRM
+// (
+//     IOobject
+//     (
+//         "detRM",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedScalar("detRM",dimensionSet(0, 0, 0, 0, 0),0.0),
+//                zeroGradientFvPatchTensorField::typeName
+// );
+
 
 volTensorField omega_dot
 (
@@ -467,6 +626,21 @@ volTensorField epsilon_dot
         mesh,
 dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
                // zeroGradientFvPatchTensorField::typeName
+);
+
+volTensorField omega_tot
+(
+    IOobject
+    (
+        "omega_tot",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("omega_tot",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
+               zeroGradientFvPatchTensorField::typeName
 );
 
 volTensorField epsilon_P_dot
@@ -603,6 +777,22 @@ volVectorField divsigma
     ),
         mesh,
 dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
+);
+
+
+volVectorField Euler_Angles
+(
+    IOobject
+    (
+        "Euler_Angles",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
                 //zeroGradientFvPatchTensorField::typeName
 );
 

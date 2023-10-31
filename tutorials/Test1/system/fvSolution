@@ -158,6 +158,49 @@ solvers
         $Acc_Strain;
     }
     
+  
+                  omega_tot
+    {
+/*
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        minIter         1;
+        maxIter         500;//2
+*/
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-9;
+        relTol          0.0;
+    }
+
+    omega_totFinal
+    {
+        $omega_tot;
+    }
+    
+    
+    
+     Global_Orientation_Tensor
+    {
+/*
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        minIter         1;
+        maxIter         500;//2
+*/
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-9;
+        relTol          0.0;
+    }
+
+    Global_Orientation_TensorFinal
+    {
+        $Global_Orientation_Tensor;
+    }
+    
     
         sigma
     {

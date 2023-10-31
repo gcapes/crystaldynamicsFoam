@@ -14,6 +14,8 @@
 
     // damping = ;
 
+    // TESTADV = fvc::div(rhoPhi, U);
+
 
     fvVectorMatrix UEqn
     (

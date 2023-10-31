@@ -47,6 +47,10 @@ divSchemes
     div(phi,Acc_Strain)	Gauss linear;
     
     "div\(phi,n.*\)"	Gauss linear;
+    
+    div(phi,omega_tot)	Gauss linear;
+    
+    div(phi,Global_Orientation_Tensor)	Gauss linear;
 }
 
 laplacianSchemes
