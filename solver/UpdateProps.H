@@ -27,6 +27,7 @@ epsilon_P_dot*=0.0;
 p*=0.0;
 
 Euler_Angles*=0.0;
+epsilon_dot_P_VM*=0.0;
 
 
 forAll(mesh.C(), cell)
@@ -137,8 +138,8 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 {
 
 
-// double m = 1.0;
-// double epsilon_P_dot_zero = 1e-5;
+double m = 1.0;
+double epsilon_P_dot_zero = 1e-5;
 // double sigma_Y = 240e6;//1e9;
 
 
@@ -212,11 +213,11 @@ if(sigma_VM>=(sigma_Y[cell]) && (e_dot_DDP_s > SMALL)){
           Fepsilon_P_dot(i,j)=0.0;
         }
 
-        /* Pratheeks plasticity implementation
-        if(sigma_VM>SMALL){
-        Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m)*sigma_D(i,j)/sigma_VM;
-        }
-        */
+        // // Pratheeks plasticity implementation
+        // if(sigma_VM>sigma_Y[cell]){
+        // Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y[cell]),m)*sigma_D(i,j)/sigma_VM;
+        // }
+        
 
     }
   }
@@ -260,11 +261,6 @@ epsilon_dot_P_VM[cell]=Foam::sqrt(eps_P_dot_DDP_eps_P_dot);
 
 }
 
-// exit(0);
-
-// Info<<"epsilon_dot: "<<epsilon_dot[cell]<<endl;
-
-// Fastor::print("epsilon_dot:", Fepsilon_dot);
 
 
 enum {I,J,K,L};
