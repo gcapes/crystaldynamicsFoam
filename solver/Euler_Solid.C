@@ -46,6 +46,7 @@ Authors
 
 
 #include <Fastor/Fastor.h> 
+#include <random>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

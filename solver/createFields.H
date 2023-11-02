@@ -378,7 +378,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 
 
 
-
+Random randObj2(clock::getTime());
 
 double phi1[N_Ori]={0.0};
 
@@ -387,21 +387,30 @@ double phi2[N_Ori]={0.0};
 double phi3[N_Ori]={0.0};
 
 
-phi1[0]=0.0;
-phi2[0]=0.0;
-phi3[0]=0.0;
+for(label count_j = 0; count_j < N_Ori; count_j++){
 
-phi1[1]=2.0*pi.value();
-phi2[1]=0.0;
-phi3[1]=0.0;
+phi1[count_j]=randObj2.scalar01()*2.0*pi.value();
+phi2[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
+phi3[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
 
-phi1[2]=2.0*pi.value();
-phi2[2]=0.0;
-phi3[2]=0.0;
+}
 
-phi1[11]=0.25*pi.value();
-phi2[11]=0.0;
-phi3[11]=0.0;
+
+// phi1[0]=0.0;
+// phi2[0]=0.0;
+// phi3[0]=0.0;
+
+// phi1[1]=2.0*pi.value();
+// phi2[1]=0.0;
+// phi3[1]=0.0;
+
+// phi1[2]=2.0*pi.value();
+// phi2[2]=0.0;
+// phi3[2]=0.0;
+
+// phi1[11]=0.25*pi.value();
+// phi2[11]=0.0;
+// phi3[11]=0.0;
 
 
 
@@ -436,39 +445,39 @@ phi3[11]=0.0;
 
 
 
-Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
+// Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
 
 
 
 
-  double C11 = 107.3e9;
-  double C12 = 60.9e9;
-  double C44 = 128.3e9;
+//   double C11 = 107.3e9;
+//   double C12 = 60.9e9;
+//   double C44 = 128.3e9;
 
-//Cubic
+// //Cubic
 
-  C(0,0,0,0)=C11;
-  C(1,1,1,1)=C11;
-  C(2,2,2,2)=C11;
+//   C(0,0,0,0)=C11;
+//   C(1,1,1,1)=C11;
+//   C(2,2,2,2)=C11;
 
-  C(1,0,1,0)=C44;
-  C(2,0,2,0)=C44;
-  C(0,0,1,1)=C12;
-  C(1,0,0,1)=C44;
-  C(0,0,2,2)=C12;
-  C(2,0,0,2)=C44;
-  C(0,1,1,0)=C44;
-  C(1,1,0,0)=C12;
-  C(0,1,0,1)=C44;
-  C(2,1,2,1)=C44;
-  C(1,1,2,2)=C12;
-  C(2,1,1,2)=C44;
-  C(0,2,2,0)=C44;
-  C(2,2,0,0)=C12;
-  C(1,2,2,1)=C44;
-  C(2,2,1,1)=C12;
-  C(0,2,0,2)=C44;
-  C(1,2,1,2)=C44;
+//   C(1,0,1,0)=C44;
+//   C(2,0,2,0)=C44;
+//   C(0,0,1,1)=C12;
+//   C(1,0,0,1)=C44;
+//   C(0,0,2,2)=C12;
+//   C(2,0,0,2)=C44;
+//   C(0,1,1,0)=C44;
+//   C(1,1,0,0)=C12;
+//   C(0,1,0,1)=C44;
+//   C(2,1,2,1)=C44;
+//   C(1,1,2,2)=C12;
+//   C(2,1,1,2)=C44;
+//   C(0,2,2,0)=C44;
+//   C(2,2,0,0)=C12;
+//   C(1,2,2,1)=C44;
+//   C(2,2,1,1)=C12;
+//   C(0,2,0,2)=C44;
+//   C(1,2,1,2)=C44;
 
 
 /*

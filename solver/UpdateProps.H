@@ -83,9 +83,9 @@ for(int i = 0 ; i < 3 ; i++ ){
           for(int n = 0 ; n < 3 ; n++ ){
             for(int p = 0 ; p < 3 ; p++ ){
               for(int q = 0 ;q  < 3 ; q++ ){
-                    if(C(m,n,p,q)>SMALL){
+                    // if(C(m,n,p,q)>SMALL){
                     value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*Cprime2[Phase2Material[h]](m,n,p,q);//C(m,n,p,q);
-                        }
+                        // }
                     }
                   }
                 }
