@@ -83,9 +83,9 @@ for(int i = 0 ; i < 3 ; i++ ){
           for(int n = 0 ; n < 3 ; n++ ){
             for(int p = 0 ; p < 3 ; p++ ){
               for(int q = 0 ;q  < 3 ; q++ ){
-                    // if(C(m,n,p,q)>SMALL){
+                    if(Cprime2[Phase2Material[h]](m,n,p,q)>SMALL){
                     value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*Cprime2[Phase2Material[h]](m,n,p,q);//C(m,n,p,q);
-                        // }
+                        }
                     }
                   }
                 }
@@ -138,8 +138,8 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 {
 
 
-double m = 1.0;
-double epsilon_P_dot_zero = 1e-5;
+double m = 50.0;
+double epsilon_P_dot_zero = 1e-3;
 // double sigma_Y = 240e6;//1e9;
 
 
@@ -205,18 +205,18 @@ else{
 for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
-if(sigma_VM>=(sigma_Y[cell]) && (e_dot_DDP_s > SMALL)){
-  // Info<<"here"<<endl;
-        Fepsilon_P_dot(i,j)= (e_dot_DDP_s/s_DDP_s)*sigma_D(i,j); //epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
-        }
-        else{
-          Fepsilon_P_dot(i,j)=0.0;
-        }
+// if(sigma_VM>=(sigma_Y[cell]) && (e_dot_DDP_s > SMALL)){
+//   // Info<<"here"<<endl;
+//         Fepsilon_P_dot(i,j)= (e_dot_DDP_s/s_DDP_s)*sigma_D(i,j); //epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
+//         }
+//         else{
+//           Fepsilon_P_dot(i,j)=0.0;
+//         }
 
-        // // Pratheeks plasticity implementation
-        // if(sigma_VM>sigma_Y[cell]){
-        // Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y[cell]),m)*sigma_D(i,j)/sigma_VM;
-        // }
+        // Pratheeks plasticity implementation
+        if(sigma_VM>SMALL/*sigma_Y[cell]*/){
+        Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y[cell]),m)*sigma_D(i,j)/sigma_VM;
+        }
         
 
     }
