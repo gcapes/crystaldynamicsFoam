@@ -138,7 +138,7 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 {
 
 
-double m = 50.0;
+double m = 20.0;
 double epsilon_P_dot_zero = 1e-3;
 // double sigma_Y = 240e6;//1e9;
 
@@ -289,18 +289,11 @@ epsilon_P_dot.correctBoundaryConditions();
 
 
 
-// dsigmadt_crystal.correctBoundaryConditions();
-// dsigmadt+=dsigmadt_crystal;
-
-// dsdt_crystal.write();
-// exit(0);
-
-// Info<<tr(dsigmadt)<<endl;
-// trsig = tr(dsigmadt);
-
 
 sigma=sigma + (1.0/n_sub_steps)*runTime.deltaT()*(dsigmadt);
 sigma.correctBoundaryConditions();
+
+// sigma = fvc::smoo(sigma);
 
 epsilon_dot_P_VM.correctBoundaryConditions();
 // Acc_Strain = Acc_Strain + (1.0/n_sub_steps)*runTime.deltaT()*(epsilon_dot_P_VM);

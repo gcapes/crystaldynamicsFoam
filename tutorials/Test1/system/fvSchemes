@@ -42,15 +42,14 @@ divSchemes
     div(rhoPhi,K)	Gauss upwind;//Gauss linear;
     div((Cv*rhoPhi),T)	Gauss upwind;//Gauss linear;
     div((sigma&U))	Gauss linear;
-    div(phi,rho)	Gauss linear;//Gauss ROUNDAplus;//
+    div(phi,rho)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//
     
-    div(phi,Acc_Strain)	Gauss linear;
+    div(phi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
     "div\(phi,n.*\)"	Gauss linear;
     
-    div(phi,omega_tot)	Gauss linear;
+    div(phi,omega_tot)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
-    div(phi,Global_Orientation_Tensor)	Gauss linear;
 }
 
 laplacianSchemes
@@ -60,7 +59,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         linear;//cubic;
+    default         linear;//linear;//
 }
 
 snGradSchemes

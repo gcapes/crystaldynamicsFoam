@@ -8,7 +8,19 @@
 
     // Info<<"TEST"<<fvc::div(sf)<<endl;
 
-// surfaceScalarField rhoUf("rhoUf", fvc::interpolate(rho*U));
+
+        // fvTensorMatrix  sigmaEqn
+        // (
+        //     fvm::ddt(sigma)
+        //     ==
+        //     dsigmadt
+
+        // );
+
+        // sigmaEqn.relax();
+
+        // sigmaEqn.solve();
+
 
     divsigma = fvc::div(sigma);
 
@@ -25,6 +37,7 @@
     // ==
 
     );
+
 
     UEqn.relax();
 
