@@ -138,7 +138,7 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 {
 
 
-double m = 20.0;
+double m = 50.0;
 double epsilon_P_dot_zero = 1e-3;
 // double sigma_Y = 240e6;//1e9;
 
