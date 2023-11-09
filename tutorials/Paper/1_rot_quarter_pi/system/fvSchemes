@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ 
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;//cellMDLimited Gauss linear 0.5;//
+}
+
+divSchemes
+{
+    div(rhoPhi,U)  Gauss linearUpwind grad(U);
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    div(rhoPhi,epsilon1)	Gauss linear;//Gauss vanLeer01;
+    div((interpolate(cp)*rhoPhi),T)   Gauss upwind;
+    
+    div(U)	Gauss linear;//cubic;
+    
+    div(sigma)	Gauss linear;
+    //div(testSIG)	Gauss linear;//cubic;
+    
+    div(interpolate(U),rho)	Gauss linear;
+    
+    div(rhoPhi,K)	Gauss upwind;//Gauss linear;
+    div((Cv*rhoPhi),T)	Gauss upwind;//Gauss linear;
+    div((sigma&U))	Gauss linear;
+    div(phi,rho)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//
+    
+    div(phi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
+    
+    "div\(phi,n.*\)"	Gauss linear;
+    
+    div(phi,omega_tot)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
+    
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;//linear;//
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+
+// ************************************************************************* //
