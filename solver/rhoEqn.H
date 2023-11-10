@@ -19,21 +19,21 @@
 
 
 
-        fvScalarMatrix  AdvAccStrainEqn
-        (
-            fvm::ddt(Acc_Strain)
-            + fvm::div(phi, Acc_Strain)
-            ==
-            epsilon_dot_P_VM
+//         fvScalarMatrix  AdvAccStrainEqn
+//         (
+//             fvm::ddt(Acc_Strain)
+//             + fvm::div(phi, Acc_Strain)
+//             ==
+//             epsilon_dot_P_VM
 
-        );
+//         );
 
-        AdvAccStrainEqn.relax();
+//         AdvAccStrainEqn.relax();
 
-        AdvAccStrainEqn.solve();
-        // Acc_Strain.correctBoundaryConditions();
+//         AdvAccStrainEqn.solve();
+//         // Acc_Strain.correctBoundaryConditions();
         
-Acc_Strain=max(Acc_Strain,0.0);
+// Acc_Strain=max(Acc_Strain,0.0);
 
 
 

@@ -39,25 +39,238 @@ dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.looku
 dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
 dimensionedScalar rho_0("rho_0",dimensionSet(1, -3, 0, 0, 0),physicalProperties.lookup("rho_0"));
 
-const Switch Hardening(physicalProperties.lookupOrDefault<Switch>("Hardening", false));
+int N_Slips = 12;
 
-// if(Hardening){
+vector m_alpha[N_Slips]; //slip direction
 
-scalar K_0(physicalProperties.lookupOrDefault<scalar>("K_0", 0.0));   
-scalar K_n(physicalProperties.lookupOrDefault<scalar>("K_n", 0.0));   
-scalar K_B(physicalProperties.lookupOrDefault<scalar>("K_B", 0.0));   
-scalar K_Beta_0(physicalProperties.lookupOrDefault<scalar>("K_Beta_0", 0.0));   
-scalar K_Beta_1(physicalProperties.lookupOrDefault<scalar>("K_Beta_1", 0.0));    
+vector n_alpha[N_Slips];//slip plane normal
 
-// dimensionedScalar K_0("K_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("K_0"));
-// dimensionedScalar K_n("K_n",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_n"));
-// dimensionedScalar K_B("K_B",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_B"));
-// dimensionedScalar K_Beta_0("K_Beta_0",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_0"));
-// dimensionedScalar K_Beta_1("K_Beta_1",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_1"));
+vector v1(0,	0.707,	-0.707);
+
+
+ vector n1(0,	0.707,	-0.707); 
+ vector n2(-0.707,0.0,0.707);	
+ vector n3(0.707,-0.707,0.0);	    
+  vector n4(0,-0.707,-0.707);	  
+  vector n5(0.707,0.0,0.707);	
+ vector n6(-0.707,0.707,0.0);	    
+  vector n7(0,0.707,-0.707);	  
+  vector n8(0.707,0.0,0.707);	  
+ vector n9(-0.707,-0.707,0.0);	    
+  vector n10(0,-0.707,-0.707);	 
+ vector n11(-0.707,0.0,0.707); 
+  vector n12(0.707,0.707,0.0);
+
+n_alpha[0]=n1;
+n_alpha[1]=n2;
+n_alpha[2]=n3;
+n_alpha[3]=n4;
+n_alpha[4]=n5;
+n_alpha[5]=n6;
+n_alpha[6]=n7;
+n_alpha[7]=n8;
+n_alpha[8]=n9;
+n_alpha[9]=n10;
+n_alpha[10]=n11;
+n_alpha[11]=n12;
+
+ vector m1(0.577,0.577,0.577)	;
+vector m2(0.577,0.577,0.577)	;
+vector m3(0.577,0.577,0.577)	;
+vector m4(-0.577,-0.577,0.577);	
+vector m5(-0.577,-0.577,0.577);	
+vector m6(-0.577,-0.577,0.577);	
+vector m7(-0.577,0.577,0.577)	;
+vector m8(-0.577,0.577,0.577)	;
+vector m9(-0.577,0.577,0.577)	;
+vector m10(0.577,-0.577,0.577)	;
+vector m11(0.577,-0.577,0.577)	;
+vector m12(0.577,-0.577,0.577)	;
+
+m_alpha[0] = m1;
+m_alpha[1] = m2;
+m_alpha[2] = m3;
+m_alpha[3] = m4;
+m_alpha[4] = m5;
+m_alpha[5] = m6;
+m_alpha[6] = m7;
+m_alpha[7] = m8;
+m_alpha[8] = m9;
+m_alpha[9] = m10;
+m_alpha[10] = m11;
+m_alpha[11] = m12;
+
+//  Info<<"TEST"<<(n_alpha[0] * m_alpha[0])<<endl;
+
+// exit(0);
+
+
+
+
+
+PtrList<volScalarField> g_alphas(N_Slips);
+
+for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+{
+
+    word name_g_alpha ("g_alpha." + name(count));
+
+    g_alphas.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_g_alpha,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+
+PtrList<volScalarField> g_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
+
+for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+{
+
+    word name_g_alpha_dot ("g_alpha_dot." + name(count));
+
+    g_alpha_dots.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_g_alpha_dot,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+PtrList<volScalarField> gamma_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
+
+for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+{
+
+    word name_gamma_alpha_dot ("gamma_alpha_dot." + name(count));
+
+    gamma_alpha_dots.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_gamma_alpha_dot,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("gamma_alpha_dot",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+volScalarField sumgamma
+(
+    IOobject
+    (
+        "sumgamma",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("p",dimensionSet(0, 0, 0, 0, 0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+);
+
+
+
+
+
+
+
+
+
+
+volTensorField D_P
+(
+    IOobject
+    (
+        "D_P",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
+                zeroGradientFvPatchTensorField::typeName
+);
+
+volTensorField Omega_P
+(
+    IOobject
+    (
+        "Omega_P",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
+                zeroGradientFvPatchTensorField::typeName
+);
+
+// for ()
+// {
+
 
 // }
 
-dimensionedScalar sigma_Y_0("sigma_Y_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("sigma_Y_0"));
+// const Switch Hardening(physicalProperties.lookupOrDefault<Switch>("Hardening", false));
+
+// // if(Hardening){
+
+// scalar K_0(physicalProperties.lookupOrDefault<scalar>("K_0", 0.0));   
+// scalar K_n(physicalProperties.lookupOrDefault<scalar>("K_n", 0.0));   
+// scalar K_B(physicalProperties.lookupOrDefault<scalar>("K_B", 0.0));   
+// scalar K_Beta_0(physicalProperties.lookupOrDefault<scalar>("K_Beta_0", 0.0));   
+// scalar K_Beta_1(physicalProperties.lookupOrDefault<scalar>("K_Beta_1", 0.0));    
+
+// // dimensionedScalar K_0("K_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("K_0"));
+// // dimensionedScalar K_n("K_n",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_n"));
+// // dimensionedScalar K_B("K_B",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_B"));
+// // dimensionedScalar K_Beta_0("K_Beta_0",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_0"));
+// // dimensionedScalar K_Beta_1("K_Beta_1",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_Beta_1"));
+
+// // }
+
+// dimensionedScalar sigma_Y_0("sigma_Y_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("sigma_Y_0"));
 
 
 Info<< "Reading field U\n" << endl;
@@ -408,9 +621,9 @@ phi3[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
 // phi2[2]=0.0;
 // phi3[2]=0.0;
 
-phi1[3]=0.25*pi.value();
-phi2[11]=0.0;
-phi3[11]=0.0;
+phi1[3]=0.17*pi.value();
+phi2[3]=0.0;
+phi3[3]=0.0;
 
 
 
@@ -744,20 +957,20 @@ dimensionedScalar("Acc_Strain",dimensionSet(0, 0, 0, 0, 0),0.0),
 //                // zeroGradientFvPatchTensorField::typeName
 // );
 
-volScalarField sigma_Y
-(
-    IOobject
-    (
-        "sigma_Y",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedScalar("sigma_Y",dimensionSet(1, -1, -2, 0, 0),sigma_Y_0.value()),
-                zeroGradientFvPatchScalarField::typeName
-);
+// volScalarField sigma_Y
+// (
+//     IOobject
+//     (
+//         "sigma_Y",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedScalar("sigma_Y",dimensionSet(1, -1, -2, 0, 0),sigma_Y_0.value()),
+//                 zeroGradientFvPatchScalarField::typeName
+// );
 
 volTensorField sigma
 (
