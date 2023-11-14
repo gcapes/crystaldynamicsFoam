@@ -46,7 +46,13 @@ divSchemes
     
     div(phi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
+    div(rhoPhi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
+    
     "div\(phi,n.*\)"	Gauss linear;
+    "div\(rhoPhi,n.*\)"	Gauss linear;
+    
+    "div\(phi,g_alpha.*\)"	Gauss linear;
+    "div\(rhoPhi,g_alpha.*\)"	Gauss linear;
     
     div(phi,omega_tot)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     

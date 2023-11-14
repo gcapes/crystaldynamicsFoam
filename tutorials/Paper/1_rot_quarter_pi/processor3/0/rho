@@ -40,27 +40,12 @@ boundaryField
     {
         type            zeroGradient;
     }
-    procBoundary3to0
-    {
-        type            processor;
-        value           uniform 7800;
-    }
     procBoundary3to1
     {
         type            processor;
         value           uniform 7800;
     }
     procBoundary3to2
-    {
-        type            processor;
-        value           uniform 7800;
-    }
-    procBoundary3to5
-    {
-        type            processor;
-        value           uniform 7800;
-    }
-    procBoundary3to13
     {
         type            processor;
         value           uniform 7800;

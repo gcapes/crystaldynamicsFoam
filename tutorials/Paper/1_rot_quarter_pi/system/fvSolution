@@ -181,14 +181,32 @@ solvers
         relTol          0.0;
     }
     
+            "g_alpha.*"
+    {
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+
+    }
+
+    "(g_alpha.*)Final"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+    }
+    
 }
 
 
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    5;
-    nCorrectors         3;
+    nOuterCorrectors    3;
+    nCorrectors         1;
     nNonOrthogonalCorrectors 0;
     
 

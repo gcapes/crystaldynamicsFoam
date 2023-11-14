@@ -18,16 +18,19 @@ epsilon_dot = 0.5*(fvc::grad(U)+TgradU) ;//- (1.0/3.0)*(fvc::div(phi))*Ident; //
 epsilon_dot.correctBoundaryConditions(); // already called by line above
 
 
-dsigmadt = - ((sigma & omega_dot) - (omega_dot & sigma));
+dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma);
 dsigmadt.correctBoundaryConditions();
 // dsigmadt_crystal*=0.0;
 
-epsilon_P_dot*=0.0;
+// epsilon_P_dot*=0.0;
+Omega_P*=0.0;
+D_P*=0.0;
 
 p*=0.0;
 
 Euler_Angles*=0.0;
-epsilon_dot_P_VM*=0.0;
+// epsilon_dot_P_VM*=0.0;
+sumgamma*=0.0;
 
 
 forAll(mesh.C(), cell)
@@ -73,9 +76,9 @@ phi_2_total +=PopBal[z][cell]*phi2[z];
 phi_3_total +=PopBal[z][cell]*phi3[z];
 }
 
-Euler_Angles[cell].component(0) = phi_1_total;
-Euler_Angles[cell].component(1) = phi_2_total;
-Euler_Angles[cell].component(2) = phi_3_total;
+Euler_Angles[cell].component(0) = phi_1_total + omega_tot[cell].component(5);
+Euler_Angles[cell].component(1) = phi_2_total + omega_tot[cell].component(2);
+Euler_Angles[cell].component(2) = phi_3_total + omega_tot[cell].component(1);
 
 Fastor::Tensor<double,3,3> Rot_matrix(0.0);
 
@@ -181,34 +184,45 @@ tau_alpha+=Fsigma(i,j) * Schmid_T(i,j);
 
 // Fastor::print(s,"\t",tau_alpha);
 
-double k_exponent = 1;
+double k_exponent = 5.0;
 double ref_shear_rate = 1e-3;
-double g_alpha = 1.0;//(s+0.1)*0.2; //hardening
+double ta_s = 18e6;
+double tau_0 = 7e6;
+double r = 1.1;
+double ho = 2e6;
+// double g_alpha = 1.0;//(s+0.1)*0.2; //hardening
 
 //needs to be accumilated and advected I think??
 // double gamma_alpha_dot = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alpha)),k_exponent)*sign(tau_alpha);
 
+g_alpha_dots[s][cell]*=0.0;
+
 for(int beta=0;beta<N_Slips;beta++){
 
-  double h_of_gamma = ho*pow(sech((ho*sumgamma[cell])/(ta_s-tau_0)),2.0);
+  double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
   double h_alpha_beta = 0.0;
   if(beta==s){
-    h_alpha_beta = h_of_gamma*(1.0);
+    h_alpha_beta = h_of_gamma*(r+(1.0-r));
     }
 
     else{
       h_alpha_beta = h_of_gamma*(r);
     }
-  g_alpha_dots[s][cell]+=(h_alpha_beta)*gamma_alpha_dots[beta][cell]
+
+// h_alpha_beta = r*h_of_gamma;
+
+  g_alpha_dots[s][cell]+=(h_alpha_beta)*gamma_alpha_dots[beta][cell];
 
 }
 
-gamma_alpha_dots[s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alpha)),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
+// Info<<g_alphas[s][cell]<<endl;
+
+gamma_alpha_dots[s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
 
 sumgamma[cell]+= mag(gamma_alpha_dots[s][cell]);//for next time-step
 
-F_D_P+=(P_alpha*gamma_alpha_dot);
-F_Omega_P+=(omega_alpha*gamma_alpha_dot);
+F_D_P+=(P_alpha*gamma_alpha_dots[s][cell]);
+F_Omega_P+=(omega_alpha*gamma_alpha_dots[s][cell]);
 
 // Fastor::print(s,"\t",tau_alpha);
 
@@ -230,22 +244,7 @@ F_Omega_P+=(omega_alpha*gamma_alpha_dot);
 
 
 
-
-// // Info<<"hang: "<<cell<<endl;
-// for (label h = 0; h < N_Ori; h++)
-// {
-
-// Cprime += PopBal[h][cell]*Cprime2[h];
-
-// }
-
-
-
-
-
-
-
-Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
+// Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 
 {
 
@@ -263,9 +262,9 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
   
 
   double pressure=0.0;
-  double sigma_VM=0.0;//von mises,J2
-  double e_dot_DDP_s = 0.0; //double inner product of e_dot and deviatoric part of stress
-  double s_DDP_s = 0.0; //double inner product of deviatoric part of stress and deviatoric part of stress
+  // double sigma_VM=0.0;//von mises,J2
+  // double e_dot_DDP_s = 0.0; //double inner product of e_dot and deviatoric part of stress
+  // double s_DDP_s = 0.0; //double inner product of deviatoric part of stress and deviatoric part of stress
   // double epsilon_dot_P_VM=0.0;
   // epsilon_dot_P_VM[cell] = 0.0;
 
@@ -277,98 +276,6 @@ Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
 
 
 
-  for(int i = 0 ; i < 3 ; i++ ){
-    for(int j = 0 ; j < 3 ; j++ ){
-      sigma_D(i,j) = Fsigma(i,j);
-      if(i==j){
-      sigma_D(i,j) = Fsigma(i,j)+pressure;
-      }
-    // sigma_VM += sigma_D(i,j)*sigma_D(i,j);
-    // s_DDP_s += sigma_D(i,j)*sigma_D(i,j);
-    // e_dot_DDP_s += Fepsilon_dot(i,j)*sigma_D(i,j);
-
-
-    }
-  }
-sigma_VM=Foam::sqrt(sigma_VM*(3.0/2.0));
-
-// Info<<sigma_VM<<"\t"<<(Foam::pow(sigma_Y,2.0)/3.0)<<endl;
-
-
-
-
-// if(Hardening){
-
-//   double log_term = 0.0;
-//   if(epsilon_dot_P_VM[cell]>SMALL){
-//     log_term=Foam::log(epsilon_dot_P_VM[cell]);
-//   }
-
-// sigma_Y[cell]=(sigma_Y_0.value()+(K_0*Foam::pow(max(Acc_Strain[cell],0.0),K_n)))*(K_B*Foam::exp(-(K_Beta_0-K_Beta_1*log_term)*T[cell]));
-
-// }
-// else{
-//   sigma_Y[cell]=sigma_Y_0.value();
-// }
-
-
-
-
-for(int i = 0 ; i < 3 ; i++ ){
-    for(int j = 0 ; j < 3 ; j++ ){
-
-// if(sigma_VM>=(sigma_Y[cell]) && (e_dot_DDP_s > SMALL)){
-//   // Info<<"here"<<endl;
-//         Fepsilon_P_dot(i,j)= (e_dot_DDP_s/s_DDP_s)*sigma_D(i,j); //epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
-//         }
-//         else{
-//           Fepsilon_P_dot(i,j)=0.0;
-//         }
-
-        // Pratheeks plasticity implementation
-        // if(sigma_VM>SMALL/*sigma_Y[cell]*/){
-        // Fepsilon_P_dot(i,j)=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y[cell]),m)*sigma_D(i,j)/sigma_VM;
-        // }
-        
-
-    }
-  }
-
-// double eps_P_dot_DDP_eps_P_dot = 0.0;
-// for(int i = 0 ; i < 3 ; i++ ){
-//     for(int j = 0 ; j < 3 ; j++ ){
-//       eps_P_dot_DDP_eps_P_dot+= Fepsilon_P_dot(i,j)*Fepsilon_P_dot(i,j);
-//     }
-// }
-
-// eps_P_dot_DDP_eps_P_dot*=(2.0/3.0);
-
-// epsilon_dot_P_VM[cell]=Foam::sqrt(eps_P_dot_DDP_eps_P_dot);
-
-
-// Info<<"sig_y: "<<sigma_Y[cell]<<" Acc_strain: "<<Acc_Strain[cell]<<endl;
-
-// epsilon_dot_P_VM[cell]=epsilon_P_dot_zero*Foam::pow((sigma_VM/sigma_Y),m);
-
-
-
-//epsilon_dot_P_VM will need to be integrated dt, and the accumilated rate convected once we have hardening
-
-// epsilon_P_dot_zero = constant, inpyut parameter.
-// sigma_Y= constant, inpyut parameter. // will update later
-// m= constant, inpyut parameter.
-
-
-// for(int i = 0 ; i < 3 ; i++ ){
-//     for(int j = 0 ; j < 3 ; j++ ){
-// // Info<<"H1: "<<sigma_VM<<endl;
-// if(sigma_VM>SMALL){
-//         Fepsilon_P_dot(i,j)=epsilon_dot_P_VM[cell]*sigma_D(i,j)/sigma_VM;
-//         }
-// // Info<<"H1"<<endl;
-//     }
-//   }
-
 
 
 }
@@ -376,7 +283,7 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 
 enum {I,J,K,L};
-Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot-Fepsilon_P_dot);////Double contraction
+Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot-F_D_P);////Double contraction
 
 
 
@@ -385,7 +292,7 @@ for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
       dsigmadt/*_crystal*/[cell].component(count_index) +=sig(i,j);
-      epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
+      // epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
 
       D_P[cell].component(count_index) = F_D_P(i,j);
       Omega_P[cell].component(count_index) = F_Omega_P(i,j);
@@ -398,10 +305,25 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 }
 
+sumgamma.correctBoundaryConditions();
+
+for (label countS = 0; countS < N_Slips; countS++)
+{
+g_alpha_dots[countS].correctBoundaryConditions();
+gamma_alpha_dots[countS].correctBoundaryConditions();
+}
+
+
+dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
+
 dsigmadt.correctBoundaryConditions();
-epsilon_P_dot.correctBoundaryConditions();
+// epsilon_P_dot.correctBoundaryConditions();
 // Info<<"HERE"<<endl;
 
+
+Omega_E = omega_dot - Omega_P;
+
+Omega_E.correctBoundaryConditions();
 
 
 
@@ -410,7 +332,7 @@ sigma.correctBoundaryConditions();
 
 // sigma = fvc::smoo(sigma);
 
-epsilon_dot_P_VM.correctBoundaryConditions();
+// epsilon_dot_P_VM.correctBoundaryConditions();
 // Acc_Strain = Acc_Strain + (1.0/n_sub_steps)*runTime.deltaT()*(epsilon_dot_P_VM);
 Acc_Strain.correctBoundaryConditions();
 
