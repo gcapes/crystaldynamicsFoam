@@ -18,7 +18,7 @@ epsilon_dot = 0.5*(fvc::grad(U)+TgradU) ;//- (1.0/3.0)*(fvc::div(phi))*Ident; //
 epsilon_dot.correctBoundaryConditions(); // already called by line above
 
 
-dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma);
+dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma);// -(tr(epsilon_dot)*sigma);
 dsigmadt.correctBoundaryConditions();
 // dsigmadt_crystal*=0.0;
 
@@ -120,7 +120,7 @@ for(int i = 0 ; i < 3 ; i++ ){
 
               // value*=PopBal[h][cell];
 
-        Cprime(i,j,k,l)+=PopBal[h][cell]*value;
+        Cprime(i,j,k,l)+=PopBal[h][cell]*value/Sum_Phases[cell];
       
       }
     }
@@ -169,8 +169,8 @@ for(int i=0;i<3;i++){
 // Fastor::print(F_n_alpha_Rot);
 
 
-P_alpha = 0.5*(outer(F_n_alpha_Rot,F_m_alpha_Rot) + outer(F_m_alpha_Rot,F_n_alpha_Rot));
-omega_alpha = 0.5*(outer(F_n_alpha_Rot,F_m_alpha_Rot) - outer(F_m_alpha_Rot,F_n_alpha_Rot));
+P_alpha = 0.5*(outer(F_m_alpha_Rot,F_n_alpha_Rot) + outer(F_n_alpha_Rot,F_m_alpha_Rot));
+omega_alpha = 0.5*(outer(F_m_alpha_Rot,F_n_alpha_Rot) - outer(F_n_alpha_Rot,F_m_alpha_Rot));
 
 Fastor::Tensor<double,3,3> Schmid_T(0.0);
 
@@ -184,12 +184,12 @@ tau_alpha+=Fsigma(i,j) * Schmid_T(i,j);
 
 // Fastor::print(s,"\t",tau_alpha);
 
-double k_exponent = 5.0;
+double k_exponent = 5.0;//12.0
 double ref_shear_rate = 1e-3;
-double ta_s = 18e6;
-double tau_0 = 7e6;
+double ta_s = 148e6;
+double tau_0 = 16e6;
 double r = 1.1;
-double ho = 2e6;
+double ho = 180e6;
 // double g_alpha = 1.0;//(s+0.1)*0.2; //hardening
 
 //needs to be accumilated and advected I think??

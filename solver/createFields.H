@@ -129,7 +129,7 @@ for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),2.0e6), 
+            dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),16.0e6), 
              zeroGradientFvPatchScalarField::typeName
         )
     );
@@ -685,7 +685,7 @@ phi3[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
 // phi2[2]=0.0;
 // phi3[2]=0.0;
 
-phi1[3]=0.17*pi.value();
+phi1[3]=0.25*pi.value();
 phi2[3]=0.0;
 phi3[3]=0.0;
 
@@ -929,35 +929,7 @@ dimensionedTensor("omega_tot",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
                zeroGradientFvPatchTensorField::typeName
 );
 
-// volTensorField epsilon_P_dot
-// (
-//     IOobject
-//     (
-//         "epsilon_P_dot",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedTensor("epsilon_P_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
-//                // zeroGradientFvPatchTensorField::typeName
-// );
 
-// volScalarField epsilon_dot_P_VM
-// (
-//     IOobject
-//     (
-//         "epsilon_dot_P_VM",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedScalar("epsilon_dot_P_VM",dimensionSet(0, 0, -1, 0, 0),0.0),
-//                zeroGradientFvPatchTensorField::typeName
-// );
 
 volScalarField Acc_Strain
 (
@@ -975,66 +947,6 @@ dimensionedScalar("Acc_Strain",dimensionSet(0, 0, 0, 0, 0),0.0),
 );
 
 
-// volScalarField TESD
-// (
-//     IOobject
-//     (
-//         "TESD",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedScalar("TESD",dimensionSet(0, 0, -1, 0, 0),0.0),
-//                 zeroGradientFvPatchScalarField::typeName
-// );
-
-// volTensorField gradU
-// (
-//     IOobject
-//     (
-//         "gradU",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedTensor("gradU",dimensionSet(0, 0, -1, 0, 0),tensor::zero)//,
-//                // zeroGradientFvPatchTensorField::typeName
-// );
-
-
-// volTensorField epsilon
-// (
-//     IOobject
-//     (
-//         "epsilon",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedTensor("epsilon",dimensionSet(0, 0, 0, 0, 0),tensor::zero)//,
-//                // zeroGradientFvPatchTensorField::typeName
-// );
-
-// volScalarField sigma_Y
-// (
-//     IOobject
-//     (
-//         "sigma_Y",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedScalar("sigma_Y",dimensionSet(1, -1, -2, 0, 0),sigma_Y_0.value()),
-//                 zeroGradientFvPatchScalarField::typeName
-// );
 
 volTensorField sigma
 (
@@ -1107,7 +1019,7 @@ volTensorField dsigmadt
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
         mesh,
 dimensionedTensor("dsigmadt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),

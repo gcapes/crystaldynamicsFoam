@@ -22,6 +22,7 @@ UpdateProps.H \
 UEqn.H \
 rhoEqn.H \
 TEqn.H \
+Advect.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Time.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvMesh.H \
@@ -843,6 +844,7 @@ UpdateProps.H :
 UEqn.H :
 rhoEqn.H :
 TEqn.H :
+Advect.H :
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H :
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Time.H :
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvMesh.H :
