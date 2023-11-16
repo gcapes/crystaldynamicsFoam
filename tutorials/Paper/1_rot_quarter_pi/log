@@ -7,19 +7,19 @@
 \*---------------------------------------------------------------------------*/
 Build  : 10-c4cf895ad8fa
 Exec   : Euler_Solid_MechFoam -parallel
-Date   : Nov 15 2023
-Time   : 20:58:13
+Date   : Nov 16 2023
+Time   : 10:10:05
 Host   : "tom-ThinkStation-P520c"
-PID    : 68325
+PID    : 77635
 I/O    : uncollated
 Case   : /home/tom/OpenFOAM/custom/Eulerian_Mechanics/tutorials/Paper/1_rot_quarter_pi
 nProcs : 4
 Slaves : 
 3
 (
-"tom-ThinkStation-P520c.68326"
-"tom-ThinkStation-P520c.68327"
-"tom-ThinkStation-P520c.68328"
+"tom-ThinkStation-P520c.77636"
+"tom-ThinkStation-P520c.77637"
+"tom-ThinkStation-P520c.77638"
 )
 
 Pstream initialised with:
@@ -78,68 +78,31 @@ PIMPLE: Iteration 1
 GAMG:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
 GAMG:  Solving for Uz, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for rho, Initial residual = 0.9999999104, Final residual = 0, No Iterations 1
-PIMPLE: Iteration 2
-GAMG:  Solving for Uy, Initial residual = 1, Final residual = 1.41995335e-17, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 1, Final residual = 4.710166334e-23, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.9999999995, Final residual = 9.646185492e-12, No Iterations 1
-PIMPLE: Iteration 3
-GAMG:  Solving for Uy, Initial residual = 0.1672605483, Final residual = 4.583924464e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.3141494371, Final residual = 3.613463366e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.1218300938, Final residual = 1.435909702e-12, No Iterations 1
-PIMPLE: Iteration 4
-GAMG:  Solving for Uy, Initial residual = 0.08468740896, Final residual = 3.296565756e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.1877954305, Final residual = 2.091372048e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.08497495807, Final residual = 3.157727351e-12, No Iterations 1
-PIMPLE: Iteration 5
-GAMG:  Solving for Uy, Initial residual = 0.05446558993, Final residual = 2.457723874e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.1377097797, Final residual = 3.724865697e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.05991095422, Final residual = 5.590296763e-12, No Iterations 1
-PIMPLE: Iteration 6
-GAMG:  Solving for Uy, Initial residual = 0.03931136791, Final residual = 2.391606998e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.1028783457, Final residual = 5.514880019e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.0430579432, Final residual = 5.749668006e-12, No Iterations 1
-PIMPLE: Iteration 7
-GAMG:  Solving for Uy, Initial residual = 0.03040325265, Final residual = 1.147289974e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.08241288213, Final residual = 2.974746098e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.03165670295, Final residual = 7.745921324e-12, No Iterations 1
-PIMPLE: Iteration 8
-GAMG:  Solving for Uy, Initial residual = 0.02467765651, Final residual = 3.98990667e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.07066172261, Final residual = 5.736585189e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.02387454792, Final residual = 7.203760261e-12, No Iterations 1
-PIMPLE: Iteration 9
-GAMG:  Solving for Uy, Initial residual = 0.02074198607, Final residual = 4.037193576e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.06174879109, Final residual = 3.533693543e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.01954686069, Final residual = 7.29872489e-12, No Iterations 1
-PIMPLE: Iteration 10
-GAMG:  Solving for Uy, Initial residual = 0.01786807319, Final residual = 3.342017579e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.05447533494, Final residual = 3.09728031e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.01677278055, Final residual = 9.937833392e-12, No Iterations 1
-smoothSolver:  Solving for T, Initial residual = 0.9999997775, Final residual = 3.725811301e-07, No Iterations 1000
-smoothSolver:  Solving for Acc_Strain, Initial residual = 0.9998968601, Final residual = 2.51730109e-10, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
-smoothSolver:  Solving for omega_totyz, Initial residual = 0.9998676789, Final residual = 1.201245747e-10, No Iterations 1
-smoothSolver:  Solving for omega_totzy, Initial residual = 0.9998676789, Final residual = 1.201245747e-10, No Iterations 1
+smoothSolver:  Solving for omega_totyz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totzy, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
-smoothSolver:  Solving for g_alpha.0, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.1, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.2, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.3, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.4, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.5, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.6, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.7, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.8, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.9, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.10, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
-smoothSolver:  Solving for g_alpha.11, Initial residual = 0.9999785632, Final residual = 1.993520748e-05, No Iterations 1
+smoothSolver:  Solving for g_alpha.0, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 1, Final residual = 0, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 1, Final residual = 0, No Iterations 1
 smoothSolver:  Solving for n.0, Initial residual = 1.29239146e-17, Final residual = 1.29239146e-17, No Iterations 0
 Max phase field(0) = 1
 Min phase field(0) = 0
-smoothSolver:  Solving for n.1, Initial residual = 4.694463753e-09, Final residual = 4.694463753e-09, No Iterations 0
+smoothSolver:  Solving for n.1, Initial residual = 1.334006994e-17, Final residual = 1.334006994e-17, No Iterations 0
 Max phase field(1) = 1
 Min phase field(1) = 0
-smoothSolver:  Solving for n.2, Initial residual = 3.424523632e-09, Final residual = 3.424523632e-09, No Iterations 0
+smoothSolver:  Solving for n.2, Initial residual = 1.496547379e-17, Final residual = 1.496547379e-17, No Iterations 0
 Max phase field(2) = 1
 Min phase field(2) = 0
 smoothSolver:  Solving for n.3, Initial residual = 1.501974169e-17, Final residual = 1.501974169e-17, No Iterations 0
@@ -148,7 +111,7 @@ Min phase field(3) = 0
 smoothSolver:  Solving for n.4, Initial residual = 1.445257144e-17, Final residual = 1.445257144e-17, No Iterations 0
 Max phase field(4) = 1
 Min phase field(4) = 0
-smoothSolver:  Solving for n.5, Initial residual = 3.847579489e-10, Final residual = 3.847579489e-10, No Iterations 0
+smoothSolver:  Solving for n.5, Initial residual = 1.526070945e-17, Final residual = 1.526070945e-17, No Iterations 0
 Max phase field(5) = 1
 Min phase field(5) = 0
 smoothSolver:  Solving for n.6, Initial residual = 1.250529565e-17, Final residual = 1.250529565e-17, No Iterations 0
@@ -163,139 +126,1738 @@ Min phase field(8) = 0
 smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
 Max phase field(9) = 0
 Min phase field(9) = 0
-ExecutionTime = 10.334873 s  ClockTime = 10 s
-
-Courant Number mean: 4.071508748e-07 max: 3.989263558e-05
-Time = 2e-08s
-
-PIMPLE: Iteration 1
-GAMG:  Solving for Uy, Initial residual = 0.2158440991, Final residual = 5.460005522e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.3076306363, Final residual = 2.731396822e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.2059352785, Final residual = 4.017918274e-11, No Iterations 1
 PIMPLE: Iteration 2
-GAMG:  Solving for Uy, Initial residual = 0.01480399483, Final residual = 2.011222378e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.1347497281, Final residual = 6.33203671e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.1148671915, Final residual = 7.667263536e-11, No Iterations 1
-PIMPLE: Iteration 3
-GAMG:  Solving for Uy, Initial residual = 0.01328194461, Final residual = 3.906616632e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.09861205194, Final residual = 3.624186419e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.009099850959, Final residual = 1.299372725e-11, No Iterations 1
-PIMPLE: Iteration 4
-GAMG:  Solving for Uy, Initial residual = 0.01204407496, Final residual = 4.26894319e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.07889673108, Final residual = 3.366610705e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.008363891373, Final residual = 1.489963887e-11, No Iterations 1
-PIMPLE: Iteration 5
-GAMG:  Solving for Uy, Initial residual = 0.01102713863, Final residual = 3.253360475e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.06697747519, Final residual = 7.40347562e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.0076899745, Final residual = 1.765278262e-11, No Iterations 1
-PIMPLE: Iteration 6
-GAMG:  Solving for Uy, Initial residual = 0.01017530414, Final residual = 3.808552567e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.06002691048, Final residual = 4.724657612e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.007081071413, Final residual = 1.941960852e-11, No Iterations 1
-PIMPLE: Iteration 7
-GAMG:  Solving for Uy, Initial residual = 0.009447107385, Final residual = 3.116441114e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.05489504455, Final residual = 7.780830914e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.006536936017, Final residual = 2.190442914e-11, No Iterations 1
-PIMPLE: Iteration 8
-GAMG:  Solving for Uy, Initial residual = 0.008814729273, Final residual = 3.200247744e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.05055328116, Final residual = 3.197453051e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.006051770563, Final residual = 2.388648838e-11, No Iterations 1
-PIMPLE: Iteration 9
-GAMG:  Solving for Uy, Initial residual = 0.008260366885, Final residual = 3.469850845e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.04691807634, Final residual = 3.551846539e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.005618401474, Final residual = 2.514813868e-11, No Iterations 1
-PIMPLE: Iteration 10
-GAMG:  Solving for Uy, Initial residual = 0.007773612107, Final residual = 3.000376303e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.04372986269, Final residual = 3.339540315e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.005229547537, Final residual = 2.658144676e-11, No Iterations 1
-smoothSolver:  Solving for T, Initial residual = 0.3940441155, Final residual = 5.575412232e-08, No Iterations 1000
-smoothSolver:  Solving for Acc_Strain, Initial residual = 0.9010609376, Final residual = 4.141894793e-17, No Iterations 2
+GAMG:  Solving for Uy, Initial residual = 1, Final residual = 1.419953353e-17, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.9999937222, Final residual = 1.408559454e-17, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.9999999995, Final residual = 9.646185492e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
-smoothSolver:  Solving for omega_totyz, Initial residual = 0.3340603823, Final residual = 1.582472986e-10, No Iterations 1
-smoothSolver:  Solving for omega_totzy, Initial residual = 0.3340603823, Final residual = 1.582472986e-10, No Iterations 1
+smoothSolver:  Solving for omega_totyz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totzy, Initial residual = 0, Final residual = 0, No Iterations 0
 smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
-smoothSolver:  Solving for g_alpha.0, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.1, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.2, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.3, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.4, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.5, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.6, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.7, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.8, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.9, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.10, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for g_alpha.11, Initial residual = 0.3653566828, Final residual = 4.872216431e-06, No Iterations 1
-smoothSolver:  Solving for n.0, Initial residual = 2.728105621e-18, Final residual = 2.728105621e-18, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.9999831509, Final residual = 6.066741885e-08, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.393327506e-17, Final residual = 1.393327506e-17, No Iterations 0
 Max phase field(0) = 1
 Min phase field(0) = 0
-smoothSolver:  Solving for n.1, Initial residual = 1.827409548e-08, Final residual = 1.827409548e-08, No Iterations 0
+smoothSolver:  Solving for n.1, Initial residual = 2.298298351e-10, Final residual = 2.298298351e-10, No Iterations 0
 Max phase field(1) = 1
 Min phase field(1) = 0
-smoothSolver:  Solving for n.2, Initial residual = 1.332615469e-08, Final residual = 1.332615469e-08, No Iterations 0
+smoothSolver:  Solving for n.2, Initial residual = 1.380949384e-09, Final residual = 1.380949384e-09, No Iterations 0
 Max phase field(2) = 1
 Min phase field(2) = 0
-smoothSolver:  Solving for n.3, Initial residual = 1.960114043e-18, Final residual = 1.960114043e-18, No Iterations 0
+smoothSolver:  Solving for n.3, Initial residual = 1.549719932e-17, Final residual = 1.549719932e-17, No Iterations 0
 Max phase field(3) = 1
 Min phase field(3) = 0
-smoothSolver:  Solving for n.4, Initial residual = 2.736813859e-18, Final residual = 2.736813859e-18, No Iterations 0
+smoothSolver:  Solving for n.4, Initial residual = 1.497744481e-17, Final residual = 1.497744481e-17, No Iterations 0
 Max phase field(4) = 1
 Min phase field(4) = 0
-smoothSolver:  Solving for n.5, Initial residual = 1.493540147e-09, Final residual = 1.493540147e-09, No Iterations 0
+smoothSolver:  Solving for n.5, Initial residual = 6.292941345e-10, Final residual = 6.292941345e-10, No Iterations 0
 Max phase field(5) = 1
 Min phase field(5) = 0
-smoothSolver:  Solving for n.6, Initial residual = 2.438363485e-18, Final residual = 2.438363485e-18, No Iterations 0
+smoothSolver:  Solving for n.6, Initial residual = 1.322121478e-17, Final residual = 1.322121478e-17, No Iterations 0
 Max phase field(6) = 1
 Min phase field(6) = 0
-smoothSolver:  Solving for n.7, Initial residual = 1.302869009e-18, Final residual = 1.302869009e-18, No Iterations 0
+smoothSolver:  Solving for n.7, Initial residual = 1.232619543e-17, Final residual = 1.232619543e-17, No Iterations 0
 Max phase field(7) = 1
 Min phase field(7) = 0
-smoothSolver:  Solving for n.8, Initial residual = 1.142922427e-18, Final residual = 1.142922427e-18, No Iterations 0
+smoothSolver:  Solving for n.8, Initial residual = 1.536595805e-17, Final residual = 1.536595805e-17, No Iterations 0
 Max phase field(8) = 1
 Min phase field(8) = 0
 smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
 Max phase field(9) = 0
 Min phase field(9) = 0
-ExecutionTime = 20.81103 s  ClockTime = 21 s
+PIMPLE: Iteration 3
+GAMG:  Solving for Uy, Initial residual = 0.1672605483, Final residual = 4.592428972e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.643598097, Final residual = 9.666950189e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.1218300935, Final residual = 1.437559896e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.8197083181, Final residual = 6.856421309e-12, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.02354386651, Final residual = 1.709648269e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.02354386651, Final residual = 1.709648269e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.39408592, Final residual = 3.375190582e-08, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.314435057e-17, Final residual = 1.314435057e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 5.538116589e-10, Final residual = 5.538116589e-10, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.628629315e-09, Final residual = 1.628629315e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.524054539e-17, Final residual = 1.524054539e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.465018345e-17, Final residual = 1.465018345e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 6.506514851e-10, Final residual = 6.506514851e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.256213705e-17, Final residual = 1.256213705e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.218605142e-17, Final residual = 1.218605142e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.522789274e-17, Final residual = 1.522789274e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 4
+GAMG:  Solving for Uy, Initial residual = 0.08468740901, Final residual = 3.359898152e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.2950427881, Final residual = 7.71846671e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.08497495794, Final residual = 3.096392594e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.8067274236, Final residual = 3.869463365e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.01904023517, Final residual = 4.564401284e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.01904023517, Final residual = 4.564401284e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.09085921921, Final residual = 2.495641447e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.393327506e-17, Final residual = 1.393327506e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.167604856e-09, Final residual = 1.167604856e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.077219192e-09, Final residual = 2.077219192e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.549719932e-17, Final residual = 1.549719932e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.497744481e-17, Final residual = 1.497744481e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 7.004548741e-10, Final residual = 7.004548741e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.322121478e-17, Final residual = 1.322121478e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.232619543e-17, Final residual = 1.232619543e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.536595805e-17, Final residual = 1.536595805e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 5
+GAMG:  Solving for Uy, Initial residual = 0.05446558998, Final residual = 2.471673147e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.1809262192, Final residual = 4.689997812e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.05991095416, Final residual = 5.528911966e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.4809008374, Final residual = 4.567224879e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.0146833562, Final residual = 4.587396193e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.0146833562, Final residual = 4.587396193e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.08861614855, Final residual = 3.898185789e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.314435057e-17, Final residual = 1.314435057e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.805210081e-09, Final residual = 1.805210081e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.542911371e-09, Final residual = 2.542911371e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.524054539e-17, Final residual = 1.524054539e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.465018345e-17, Final residual = 1.465018345e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 7.522185447e-10, Final residual = 7.522185447e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.256213705e-17, Final residual = 1.256213705e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.218605142e-17, Final residual = 1.218605142e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.522789274e-17, Final residual = 1.522789274e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 6
+GAMG:  Solving for Uy, Initial residual = 0.03931136795, Final residual = 2.608998097e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.1239392353, Final residual = 6.222494623e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.04305794318, Final residual = 5.560046618e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.3063089065, Final residual = 4.237667348e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.011554349, Final residual = 3.799316022e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.011554349, Final residual = 3.799316022e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.09488811858, Final residual = 7.56309512e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.393327506e-17, Final residual = 1.393327506e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 2.423849914e-09, Final residual = 2.423849914e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.994879456e-09, Final residual = 2.994879456e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.549719932e-17, Final residual = 1.549719932e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.497744481e-17, Final residual = 1.497744481e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 8.027374856e-10, Final residual = 8.027374856e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.322121478e-17, Final residual = 1.322121478e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.232619543e-17, Final residual = 1.232619543e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.536595805e-17, Final residual = 1.536595805e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 7
+GAMG:  Solving for Uy, Initial residual = 0.03040325268, Final residual = 1.060401685e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.09302155934, Final residual = 5.647499543e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.03165670296, Final residual = 7.690189421e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.2158634648, Final residual = 3.782973839e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.009858521797, Final residual = 3.747777797e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.009858521797, Final residual = 3.747777797e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.09645451752, Final residual = 9.595796028e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.314435057e-17, Final residual = 1.314435057e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.021008572e-09, Final residual = 3.021008572e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.431088907e-09, Final residual = 3.431088907e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.524054539e-17, Final residual = 1.524054539e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.465018345e-17, Final residual = 1.465018345e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 8.51615108e-10, Final residual = 8.51615108e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.256213705e-17, Final residual = 1.256213705e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.218605142e-17, Final residual = 1.218605142e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.522789274e-17, Final residual = 1.522789274e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 8
+GAMG:  Solving for Uy, Initial residual = 0.02467765653, Final residual = 4.072966923e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.0748234164, Final residual = 5.464981056e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.02387454794, Final residual = 6.939381836e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.1638599229, Final residual = 3.370923527e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.008701762412, Final residual = 5.192864025e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.008701762412, Final residual = 5.192864025e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.09405591279, Final residual = 1.555864239e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.393327506e-17, Final residual = 1.393327506e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.597708033e-09, Final residual = 3.597708033e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.852288168e-09, Final residual = 3.852288168e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.549719932e-17, Final residual = 1.549719932e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.497744481e-17, Final residual = 1.497744481e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 8.988886139e-10, Final residual = 8.988886139e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.322121478e-17, Final residual = 1.322121478e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.232619543e-17, Final residual = 1.232619543e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.536595805e-17, Final residual = 1.536595805e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 9
+GAMG:  Solving for Uy, Initial residual = 0.02074198609, Final residual = 4.024166327e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.06420102755, Final residual = 5.748991802e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.01954686069, Final residual = 6.974598489e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.1311505802, Final residual = 3.025079403e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.008111762042, Final residual = 8.546208612e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.008111762042, Final residual = 8.546208612e-13, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.08856554249, Final residual = 2.385107097e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 1.314435057e-17, Final residual = 1.314435057e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.155070658e-09, Final residual = 4.155070658e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 4.259276517e-09, Final residual = 4.259276517e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.524054539e-17, Final residual = 1.524054539e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.465018345e-17, Final residual = 1.465018345e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 9.44616064e-10, Final residual = 9.44616064e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.256213705e-17, Final residual = 1.256213705e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.218605142e-17, Final residual = 1.218605142e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.522789274e-17, Final residual = 1.522789274e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 10
+GAMG:  Solving for Uy, Initial residual = 0.01786807321, Final residual = 2.985925291e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.05364823728, Final residual = 4.939039753e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.01677278057, Final residual = 9.759225796e-12, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.1091111927, Final residual = 2.739605943e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.007315423285, Final residual = 1.267276185e-12, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.007315423285, Final residual = 1.267276185e-12, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.07958692728, Final residual = 4.379755328e-06, No Iterations 1000
+smoothSolver:  Solving for n.0, Initial residual = 1.393327506e-17, Final residual = 1.393327506e-17, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.694463472e-09, Final residual = 4.694463472e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 4.653040995e-09, Final residual = 4.653040995e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.549719932e-17, Final residual = 1.549719932e-17, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.497744481e-17, Final residual = 1.497744481e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 9.88878099e-10, Final residual = 9.88878099e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.322121478e-17, Final residual = 1.322121478e-17, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.232619543e-17, Final residual = 1.232619543e-17, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.536595805e-17, Final residual = 1.536595805e-17, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+smoothSolver:  Solving for T, Initial residual = 0.9999997779, Final residual = 3.728212785e-07, No Iterations 1000
+ExecutionTime = 19.581282 s  ClockTime = 19 s
 
-Courant Number mean: 1.211289223e-06 max: 8.558934735e-05
+Courant Number mean: 4.07150874e-07 max: 3.989263132e-05
+Time = 2e-08s
+
+PIMPLE: Iteration 1
+GAMG:  Solving for Uy, Initial residual = 0.2158440992, Final residual = 5.791308308e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.3429133759, Final residual = 5.473756671e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.2059352785, Final residual = 3.99507075e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.2623590268, Final residual = 7.057617108e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.07464280904, Final residual = 1.183897923e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.07464280904, Final residual = 1.183897923e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.8386847904, Final residual = 1.348964689e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.760424216e-18, Final residual = 2.760424216e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 5.222539154e-09, Final residual = 5.222539154e-09, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.806373538e-09, Final residual = 3.806373538e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.930340565e-18, Final residual = 1.930340565e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.663156268e-18, Final residual = 2.663156268e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 4.295430967e-10, Final residual = 4.295430967e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.416923304e-18, Final residual = 2.416923304e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.313509896e-18, Final residual = 1.313509896e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.14313327e-18, Final residual = 1.14313327e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 2
+GAMG:  Solving for Uy, Initial residual = 0.01480399487, Final residual = 1.84209942e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.04363659991, Final residual = 4.536517087e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.1148671915, Final residual = 7.663826067e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04938676466, Final residual = 5.419885731e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.06572809107, Final residual = 3.695736946e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.06572809107, Final residual = 3.695736946e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.1995895845, Final residual = 4.912255973e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.537631688e-18, Final residual = 3.537631688e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.09515646e-08, Final residual = 1.09515646e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 7.982748788e-09, Final residual = 7.982748788e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.375372658e-18, Final residual = 2.375372658e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.092998257e-18, Final residual = 3.092998257e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 9.003985382e-10, Final residual = 9.003985382e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 3.036112396e-18, Final residual = 3.036112396e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.503070915e-18, Final residual = 1.503070915e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.316788913e-18, Final residual = 1.316788913e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 3
+GAMG:  Solving for Uy, Initial residual = 0.01328194464, Final residual = 3.665581885e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.03755087957, Final residual = 4.96529303e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.009099850942, Final residual = 1.274958213e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.1062773381, Final residual = 1.218444681e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.00881513644, Final residual = 5.621097203e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.00881513644, Final residual = 5.621097203e-11, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.373468124, Final residual = 4.94458434e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.760424216e-18, Final residual = 2.760424216e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.194242126e-08, Final residual = 1.194242126e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 8.711868301e-09, Final residual = 8.711868301e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.930340565e-18, Final residual = 1.930340565e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.663156268e-18, Final residual = 2.663156268e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 9.789631038e-10, Final residual = 9.789631038e-10, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.416923304e-18, Final residual = 2.416923304e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.313509896e-18, Final residual = 1.313509896e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.14313327e-18, Final residual = 1.14313327e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 4
+GAMG:  Solving for Uy, Initial residual = 0.01204407498, Final residual = 4.422055741e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.03566586896, Final residual = 5.731336674e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.008363891367, Final residual = 1.469882587e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.1031203994, Final residual = 1.221666597e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.008649779254, Final residual = 1.899642297e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.008649779254, Final residual = 1.899642297e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.03369239178, Final residual = 1.589056873e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.537631688e-18, Final residual = 3.537631688e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.291528551e-08, Final residual = 1.291528551e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 9.421531848e-09, Final residual = 9.421531848e-09, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.375372658e-18, Final residual = 2.375372658e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.092998257e-18, Final residual = 3.092998257e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.058443856e-09, Final residual = 1.058443856e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 3.036112396e-18, Final residual = 3.036112396e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.503070915e-18, Final residual = 1.503070915e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.316788913e-18, Final residual = 1.316788913e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 5
+GAMG:  Solving for Uy, Initial residual = 0.01102713865, Final residual = 3.440504857e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.0317576175, Final residual = 4.590280128e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.007689974499, Final residual = 1.759940122e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.09692883041, Final residual = 1.178472983e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.008145947338, Final residual = 1.961325538e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.008145947338, Final residual = 1.961325538e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.02821431769, Final residual = 2.109628723e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.760424216e-18, Final residual = 2.760424216e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.386264927e-08, Final residual = 1.386264927e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.011233047e-08, Final residual = 1.011233047e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.930340565e-18, Final residual = 1.930340565e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.663156781e-18, Final residual = 2.663156781e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.135735078e-09, Final residual = 1.135735078e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.416923304e-18, Final residual = 2.416923304e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.313509896e-18, Final residual = 1.313509896e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.14313327e-18, Final residual = 1.14313327e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 6
+GAMG:  Solving for Uy, Initial residual = 0.01017530415, Final residual = 3.725792966e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02979192842, Final residual = 5.637153353e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.007081071415, Final residual = 1.928142545e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.08991973493, Final residual = 1.116359548e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.007940303692, Final residual = 1.39767889e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.007940303692, Final residual = 1.39767889e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.02415929864, Final residual = 1.989269698e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.537631688e-18, Final residual = 3.537631688e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.478630755e-08, Final residual = 1.478630755e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.078564401e-08, Final residual = 1.078564401e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.375372658e-18, Final residual = 2.375372658e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.093008003e-18, Final residual = 3.093008003e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.210948184e-09, Final residual = 1.210948184e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 3.036112396e-18, Final residual = 3.036112396e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.503070915e-18, Final residual = 1.503070915e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.316788913e-18, Final residual = 1.316788913e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 7
+GAMG:  Solving for Uy, Initial residual = 0.009447107395, Final residual = 3.136611847e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02760867411, Final residual = 5.272009249e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.006536936021, Final residual = 2.184072079e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.08307758749, Final residual = 1.049289582e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.007651381528, Final residual = 1.929708906e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.007651381528, Final residual = 1.929708906e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.02146812956, Final residual = 2.817390081e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.760424216e-18, Final residual = 2.760424216e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.568788583e-08, Final residual = 1.568788583e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.144265962e-08, Final residual = 1.144265962e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.930340565e-18, Final residual = 1.930340565e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.663369125e-18, Final residual = 2.663369125e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.284217072e-09, Final residual = 1.284217072e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.416923304e-18, Final residual = 2.416923304e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.313509896e-18, Final residual = 1.313509896e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.14313327e-18, Final residual = 1.14313327e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 8
+GAMG:  Solving for Uy, Initial residual = 0.008814729281, Final residual = 3.225108907e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02894799512, Final residual = 5.761940007e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.006051770567, Final residual = 2.380975242e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.07678154699, Final residual = 9.838051054e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.008004103262, Final residual = 2.504961267e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.008004103262, Final residual = 2.504961267e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.01895607453, Final residual = 3.212701012e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.537631688e-18, Final residual = 3.537631688e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.656884945e-08, Final residual = 1.656884945e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.208445077e-08, Final residual = 1.208445077e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.375372658e-18, Final residual = 2.375372658e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.094130005e-18, Final residual = 3.094130005e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.355664855e-09, Final residual = 1.355664855e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 3.036112396e-18, Final residual = 3.036112396e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.503070915e-18, Final residual = 1.503070915e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.316788913e-18, Final residual = 1.316788913e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 9
+GAMG:  Solving for Uy, Initial residual = 0.008260366892, Final residual = 3.481518156e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02743750581, Final residual = 5.045852883e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.005618401478, Final residual = 2.504652294e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.07113262399, Final residual = 9.226335662e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.007364673847, Final residual = 3.042923941e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.007364673847, Final residual = 3.042923941e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.01670681951, Final residual = 2.847988776e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.760424216e-18, Final residual = 2.760424216e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.743052078e-08, Final residual = 1.743052078e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.271198891e-08, Final residual = 1.271198891e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.930340565e-18, Final residual = 1.930340565e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.670282494e-18, Final residual = 2.670282494e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.425404594e-09, Final residual = 1.425404594e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.416923304e-18, Final residual = 2.416923304e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.313509896e-18, Final residual = 1.313509896e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.14313327e-18, Final residual = 1.14313327e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 10
+GAMG:  Solving for Uy, Initial residual = 0.007773612113, Final residual = 3.082502451e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02913152183, Final residual = 3.741989848e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.005229547541, Final residual = 2.648648509e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.06611541656, Final residual = 8.66667632e-11, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.007767085255, Final residual = 3.435033637e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.007767085255, Final residual = 3.435033637e-10, No Iterations 1
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.01472589789, Final residual = 2.865029218e-06, No Iterations 1000
+smoothSolver:  Solving for n.0, Initial residual = 3.537631688e-18, Final residual = 3.537631688e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.827409529e-08, Final residual = 1.827409529e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.332615453e-08, Final residual = 1.332615453e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.375372658e-18, Final residual = 2.375372658e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.1194423e-18, Final residual = 3.1194423e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.493540156e-09, Final residual = 1.493540156e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 3.036112396e-18, Final residual = 3.036112396e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.503070915e-18, Final residual = 1.503070915e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 1.316788913e-18, Final residual = 1.316788913e-18, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+smoothSolver:  Solving for T, Initial residual = 0.3940441156, Final residual = 5.593145122e-08, No Iterations 1000
+ExecutionTime = 37.764518 s  ClockTime = 38 s
+
+Courant Number mean: 1.211289222e-06 max: 8.558934661e-05
 Time = 3e-08s
 
 PIMPLE: Iteration 1
-GAMG:  Solving for Uy, Initial residual = 0.1536726677, Final residual = 2.492002924e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.3971802751, Final residual = 5.428070774e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.1491606436, Final residual = 4.305209564e-10, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.1536726678, Final residual = 2.564052504e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.2508255732, Final residual = 5.46776411e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.1491606437, Final residual = 4.304332053e-10, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.2382127316, Final residual = 3.231340238e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.108263255, Final residual = 7.622080683e-15, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.108263255, Final residual = 7.622080683e-15, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.8612798736, Final residual = 1.008251921e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.640131367e-18, Final residual = 2.640131367e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 1.911509967e-08, Final residual = 1.911509967e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 1.392864786e-08, Final residual = 1.392864786e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603064e-18, Final residual = 1.833603064e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.052064119e-18, Final residual = 2.052064119e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 1.565391874e-09, Final residual = 1.565391874e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.939547287e-18, Final residual = 1.939547287e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 9.000851343e-19, Final residual = 9.000851343e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.202694506e-19, Final residual = 8.202694506e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 2
-GAMG:  Solving for Uy, Initial residual = 0.00539573519, Final residual = 1.9413796e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.1384616019, Final residual = 4.006719594e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.05001031145, Final residual = 4.60321031e-10, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.005395735188, Final residual = 2.028418919e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02933923997, Final residual = 3.844087559e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.05001031145, Final residual = 4.602654398e-10, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.03338474071, Final residual = 1.094525708e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.05565005646, Final residual = 2.714236342e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.05565005646, Final residual = 2.714236342e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.2360379182, Final residual = 3.641268367e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.421073028e-18, Final residual = 3.421073028e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.379806355e-08, Final residual = 3.379806355e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.46389396e-08, Final residual = 2.46389396e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330949245e-18, Final residual = 2.330949245e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.741235771e-18, Final residual = 2.741235771e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 2.759335475e-09, Final residual = 2.759335475e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.555911058e-18, Final residual = 2.555911058e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.119062152e-18, Final residual = 1.119062152e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.736841955e-19, Final residual = 9.736841955e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 3
-GAMG:  Solving for Uy, Initial residual = 0.005251997845, Final residual = 1.723204701e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.09371904244, Final residual = 6.696979487e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002996068689, Final residual = 3.006304245e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.005251997844, Final residual = 1.815664571e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.1993677205, Final residual = 4.082796236e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002996068689, Final residual = 2.995969195e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04484722963, Final residual = 1.451359335e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.08362866247, Final residual = 1.939110945e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.08362866247, Final residual = 1.939110945e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.3284322972, Final residual = 9.11902955e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.640131367e-18, Final residual = 2.640131367e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.489287966e-08, Final residual = 3.489287966e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.543668923e-08, Final residual = 2.543668923e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603064e-18, Final residual = 1.833603064e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.094007826e-18, Final residual = 3.094007826e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 2.845556339e-09, Final residual = 2.845556339e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.939547287e-18, Final residual = 1.939547287e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 9.000851343e-19, Final residual = 9.000851343e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.202694506e-19, Final residual = 8.202694506e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 4
-GAMG:  Solving for Uy, Initial residual = 0.005102124563, Final residual = 4.1027363e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.06590513593, Final residual = 3.543435751e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002826591857, Final residual = 2.906527928e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.005102124563, Final residual = 4.239111071e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.1668077154, Final residual = 1.308210867e-17, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002826591858, Final residual = 2.894132612e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04647552499, Final residual = 1.497507935e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.0693498396, Final residual = 1.55356575e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.0693498396, Final residual = 1.55356575e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.02190898198, Final residual = 2.035701387e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.421073028e-18, Final residual = 3.421073028e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.597649219e-08, Final residual = 3.597649219e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.62237359e-08, Final residual = 2.62237359e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330949245e-18, Final residual = 2.330949245e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 5.233241928e-18, Final residual = 5.233241928e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 2.93169497e-09, Final residual = 2.93169497e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.555911058e-18, Final residual = 2.555911058e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.119062152e-18, Final residual = 1.119062152e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.736841955e-19, Final residual = 9.736841955e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 5
-GAMG:  Solving for Uy, Initial residual = 0.004954310603, Final residual = 3.018626884e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.05189100618, Final residual = 3.112492304e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002679140845, Final residual = 2.801692728e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.004954310603, Final residual = 3.512138259e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.3272977723, Final residual = 4.731110634e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002679140846, Final residual = 2.788868556e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04730909074, Final residual = 1.520089946e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.1639763759, Final residual = 4.892767889e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.1639763759, Final residual = 4.892767889e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.01526629906, Final residual = 1.935286326e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.640131367e-18, Final residual = 2.640131367e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.704523399e-08, Final residual = 3.704523399e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.699976995e-08, Final residual = 2.699976995e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603064e-18, Final residual = 1.833603064e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 8.627685008e-18, Final residual = 8.627685008e-18, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.016506656e-09, Final residual = 3.016506656e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.939547288e-18, Final residual = 1.939547288e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 9.000851343e-19, Final residual = 9.000851343e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.202694506e-19, Final residual = 8.202694506e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 6
-GAMG:  Solving for Uy, Initial residual = 0.004807629285, Final residual = 3.625050516e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.04269582761, Final residual = 3.326305706e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002550852137, Final residual = 2.729205881e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.004807629286, Final residual = 3.846584323e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.158997495, Final residual = 3.778036528e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002550852139, Final residual = 2.719571759e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04750434596, Final residual = 1.524161e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.04016707629, Final residual = 2.109991546e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.04016707629, Final residual = 2.109991546e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.01106512408, Final residual = 2.076957494e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.421073028e-18, Final residual = 3.421073028e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.80998334e-08, Final residual = 3.80998334e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.776533053e-08, Final residual = 2.776533053e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330949245e-18, Final residual = 2.330949245e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.691508568e-17, Final residual = 1.691508568e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.100075487e-09, Final residual = 3.100075487e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.55591106e-18, Final residual = 2.55591106e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.119062152e-18, Final residual = 1.119062152e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.736841955e-19, Final residual = 9.736841955e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 7
-GAMG:  Solving for Uy, Initial residual = 0.004663489572, Final residual = 3.567704499e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.03609397311, Final residual = 4.858898894e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002437873521, Final residual = 2.629797153e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.004663489573, Final residual = 3.255385423e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.07831255374, Final residual = 6.369686009e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002437873522, Final residual = 2.624783003e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04716862781, Final residual = 1.513058176e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.02201790794, Final residual = 1.46876293e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.02201790794, Final residual = 1.46876293e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.008069517103, Final residual = 2.044727081e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.640131367e-18, Final residual = 2.640131367e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 3.914071546e-08, Final residual = 3.914071546e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.852077118e-08, Final residual = 2.852077118e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603064e-18, Final residual = 1.833603064e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.138692756e-17, Final residual = 3.138692756e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.182439531e-09, Final residual = 3.182439531e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.939547299e-18, Final residual = 1.939547299e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 9.000851343e-19, Final residual = 9.000851343e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.202694506e-19, Final residual = 8.202694506e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 8
-GAMG:  Solving for Uy, Initial residual = 0.004525132373, Final residual = 3.906493153e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.03120516533, Final residual = 5.253031561e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002336939365, Final residual = 2.547535282e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.004525132374, Final residual = 3.811881053e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.0477226988, Final residual = 4.515566393e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002336939366, Final residual = 2.535709962e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04646760696, Final residual = 1.491935546e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.01576432596, Final residual = 1.185838657e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.01576432596, Final residual = 1.185838657e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.006016474798, Final residual = 2.033089671e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.421073028e-18, Final residual = 3.421073028e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.016831975e-08, Final residual = 4.016831975e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 2.926643094e-08, Final residual = 2.926643094e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330949245e-18, Final residual = 2.330949245e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 5.916023239e-17, Final residual = 5.916023239e-17, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.263647127e-09, Final residual = 3.263647127e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.555911109e-18, Final residual = 2.555911109e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.119062152e-18, Final residual = 1.119062152e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.736841955e-19, Final residual = 9.736841955e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 9
-GAMG:  Solving for Uy, Initial residual = 0.004392909739, Final residual = 3.445948465e-18, No Iterations 1
-GAMG:  Solving for Uz, Initial residual = 0.02746229393, Final residual = 6.152184685e-18, No Iterations 1
-smoothSolver:  Solving for rho, Initial residual = 0.002245766102, Final residual = 2.504489898e-11, No Iterations 1
+GAMG:  Solving for Uy, Initial residual = 0.00439290974, Final residual = 3.548560943e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.03393092983, Final residual = 5.801316902e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002245766103, Final residual = 2.498870883e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04548461212, Final residual = 1.463278938e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.01269049032, Final residual = 9.798949701e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.01269049032, Final residual = 9.798949701e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.00473466147, Final residual = 2.158406944e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.640131367e-18, Final residual = 2.640131367e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.118306866e-08, Final residual = 4.118306866e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.000263357e-08, Final residual = 3.000263357e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603064e-18, Final residual = 1.833603064e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.068012167e-16, Final residual = 1.068012167e-16, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.343743796e-09, Final residual = 3.343743796e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.939547482e-18, Final residual = 1.939547482e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 9.000851343e-19, Final residual = 9.000851343e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.202694506e-19, Final residual = 8.202694506e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
 PIMPLE: Iteration 10
+GAMG:  Solving for Uy, Initial residual = 0.004266900248, Final residual = 3.542857898e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.03082038195, Final residual = 4.874848498e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.002162996027, Final residual = 2.379193343e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.04434131647, Final residual = 1.430803167e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.01060947152, Final residual = 8.238325861e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.01060947152, Final residual = 8.238325861e-14, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.003835315802, Final residual = 1.965865385e-06, No Iterations 1000
+smoothSolver:  Solving for n.0, Initial residual = 3.421073028e-18, Final residual = 3.421073028e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.218536816e-08, Final residual = 4.218536816e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.072968867e-08, Final residual = 3.072968867e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330949245e-18, Final residual = 2.330949245e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.880451823e-16, Final residual = 1.880451823e-16, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.422772412e-09, Final residual = 3.422772412e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.555911721e-18, Final residual = 2.555911721e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.119062152e-18, Final residual = 1.119062152e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.736841955e-19, Final residual = 9.736841955e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+smoothSolver:  Solving for T, Initial residual = 0.2830196216, Final residual = 1.901529942e-08, No Iterations 1000
+ExecutionTime = 53.906677 s  ClockTime = 54 s
+
+Courant Number mean: 2.415291788e-06 max: 0.0001327330785
+Time = 4e-08s
+
+PIMPLE: Iteration 1
+GAMG:  Solving for Uy, Initial residual = 0.1200821159, Final residual = 4.881741443e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.2325306268, Final residual = 5.021095325e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.1173712274, Final residual = 1.813204414e-12, No Iterations 2
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.2160159359, Final residual = 7.175121144e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.1230723526, Final residual = 5.698300339e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.1230723526, Final residual = 5.698300339e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.8364437129, Final residual = 6.798216406e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.637299508e-18, Final residual = 2.637299508e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 4.319891853e-08, Final residual = 4.319891853e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 3.144937717e-08, Final residual = 3.144937717e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603691e-18, Final residual = 1.833603691e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 3.186455322e-16, Final residual = 3.186455322e-16, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 3.50927611e-09, Final residual = 3.50927611e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.923594447e-18, Final residual = 1.923594447e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 8.965198813e-19, Final residual = 8.965198813e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.148721776e-19, Final residual = 8.148721776e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 2
+GAMG:  Solving for Uy, Initial residual = 0.002986755503, Final residual = 3.607681675e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.0317089024, Final residual = 4.764086493e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.02873458517, Final residual = 1.807266503e-12, No Iterations 2
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.02409580695, Final residual = 1.51351451e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.06323449229, Final residual = 1.247944794e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.06323449229, Final residual = 1.247944794e-12, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.2953961166, Final residual = 2.869040477e-07, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.418241419e-18, Final residual = 3.418241419e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 6.823216836e-08, Final residual = 6.823216836e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 4.967689503e-08, Final residual = 4.967689503e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330950043e-18, Final residual = 2.330950043e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 8.425712011e-16, Final residual = 8.425712011e-16, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 5.52000388e-09, Final residual = 5.52000388e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.53996417e-18, Final residual = 2.53996417e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.115496976e-18, Final residual = 1.115496976e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.682869812e-19, Final residual = 9.682869812e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 3
+GAMG:  Solving for Uy, Initial residual = 0.0029511223, Final residual = 2.762291298e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.0292459686, Final residual = 6.221996026e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.001428812295, Final residual = 3.295632293e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.02821512405, Final residual = 1.774335519e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.01065137316, Final residual = 4.615540885e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.01065137316, Final residual = 4.615540885e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.31469756, Final residual = 1.30050705e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 2.637299508e-18, Final residual = 2.637299508e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 6.936289762e-08, Final residual = 6.936289762e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 5.04977745e-08, Final residual = 5.04977745e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 1.833603691e-18, Final residual = 1.833603691e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 1.365608632e-15, Final residual = 1.365608632e-15, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 5.606120393e-09, Final residual = 5.606120393e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 1.923613238e-18, Final residual = 1.923613238e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 8.965198813e-19, Final residual = 8.965198813e-19, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 8.148721776e-19, Final residual = 8.148721776e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 4
+GAMG:  Solving for Uy, Initial residual = 0.00291298516, Final residual = 3.559974213e-18, No Iterations 1
+GAMG:  Solving for Uz, Initial residual = 0.02539440131, Final residual = 5.060467431e-18, No Iterations 1
+smoothSolver:  Solving for rho, Initial residual = 0.001372913382, Final residual = 3.112847383e-11, No Iterations 1
+smoothSolver:  Solving for Acc_Strain, Initial residual = 0.0293373607, Final residual = 1.855716181e-10, No Iterations 1
+smoothSolver:  Solving for omega_totxx, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyy, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for omega_totyz, Initial residual = 0.009921686369, Final residual = 4.024463349e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzy, Initial residual = 0.009921686369, Final residual = 4.024463349e-13, No Iterations 2
+smoothSolver:  Solving for omega_totzz, Initial residual = 0, Final residual = 0, No Iterations 0
+smoothSolver:  Solving for g_alpha.0, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.1, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.2, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.3, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.4, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.5, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.6, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.7, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.8, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.9, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.10, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for g_alpha.11, Initial residual = 0.008219046718, Final residual = 1.49012043e-06, No Iterations 1
+smoothSolver:  Solving for n.0, Initial residual = 3.418241419e-18, Final residual = 3.418241419e-18, No Iterations 0
+Max phase field(0) = 1
+Min phase field(0) = 0
+smoothSolver:  Solving for n.1, Initial residual = 7.049127049e-08, Final residual = 7.049127049e-08, No Iterations 0
+Max phase field(1) = 1
+Min phase field(1) = 0
+smoothSolver:  Solving for n.2, Initial residual = 5.131408917e-08, Final residual = 5.131408917e-08, No Iterations 0
+Max phase field(2) = 1
+Min phase field(2) = 0
+smoothSolver:  Solving for n.3, Initial residual = 2.330950043e-18, Final residual = 2.330950043e-18, No Iterations 0
+Max phase field(3) = 1
+Min phase field(3) = 0
+smoothSolver:  Solving for n.4, Initial residual = 2.155689495e-15, Final residual = 2.155689495e-15, No Iterations 0
+Max phase field(4) = 1
+Min phase field(4) = 0
+smoothSolver:  Solving for n.5, Initial residual = 5.693459875e-09, Final residual = 5.693459875e-09, No Iterations 0
+Max phase field(5) = 1
+Min phase field(5) = 0
+smoothSolver:  Solving for n.6, Initial residual = 2.540008558e-18, Final residual = 2.540008558e-18, No Iterations 0
+Max phase field(6) = 1
+Min phase field(6) = 0
+smoothSolver:  Solving for n.7, Initial residual = 1.115496976e-18, Final residual = 1.115496976e-18, No Iterations 0
+Max phase field(7) = 1
+Min phase field(7) = 0
+smoothSolver:  Solving for n.8, Initial residual = 9.682869812e-19, Final residual = 9.682869812e-19, No Iterations 0
+Max phase field(8) = 1
+Min phase field(8) = 0
+smoothSolver:  Solving for n.9, Initial residual = 0, Final residual = 0, No Iterations 0
+Max phase field(9) = 0
+Min phase field(9) = 0
+PIMPLE: Iteration 5

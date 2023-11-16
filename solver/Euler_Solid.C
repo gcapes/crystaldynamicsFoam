@@ -106,6 +106,8 @@ sigma.correctBoundaryConditions();
             #include "UEqn.H"
             #include "rhoEqn.H"
 
+            #include "Advect.H"
+
             // #include "TEqn.H"
 
             
@@ -129,7 +131,7 @@ sigma.correctBoundaryConditions();
 
         #include "TEqn.H"
 
-        #include "Advect.H"
+        
 
 
 
