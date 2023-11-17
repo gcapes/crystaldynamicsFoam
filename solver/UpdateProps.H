@@ -51,31 +51,36 @@ forAll(mesh.C(), cell)
 
 
 
-Fastor::Tensor<double,3,3,3,3> Cprime(0.0); //global stiffness at this cell
 
-Fastor::Tensor<double,3,3> F_D_P(0.0);
-Fastor::Tensor<double,3,3> F_Omega_P(0.0);
+
+
 
 
   // if(PopBal[h][cell]>SMALL){// if the phase is there, work out the stiffness contribution
 //  Info<<"Phase: "<<h<<"\t "<<PopBal[h][cell]<<endl;
 
-double phi_1_total =ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
+Fastor::Tensor<double,3,3> sigAv(0.0);
+Fastor::Tensor<double,3,3> Omega_P_Average(0.0);
+Fastor::Tensor<double,3,3> D_P_Average(0.0);
 
-double phi_2_total =ROT_2[cell];// phi2[h] ;//+ omega_tot[cell].component(2);
 
-double phi_3_total =ROT_3[cell];// phi3[h] ;//+ omega_tot[cell].component(1);
+for (label h = 0; h < N_Ori; h++)
+{
 
-// for (int z = 0; z < N_Ori; z++)
-// {
-// phi_1_total +=PopBal[z][cell]*phi1[z];//omega_tot[cell].component(5);
-// phi_2_total +=PopBal[z][cell]*phi2[z];
-// phi_3_total +=PopBal[z][cell]*phi3[z];
-// }
+  Fastor::Tensor<double,3,3,3,3> Cprime(0.0); //global stiffness at this cell
 
-// Euler_Angles[cell].component(0) = phi_1_total + omega_tot[cell].component(5);
-// Euler_Angles[cell].component(1) = phi_2_total + omega_tot[cell].component(2);
-// Euler_Angles[cell].component(2) = phi_3_total + omega_tot[cell].component(1);
+
+
+double phi_1_total =Rot1[h][cell];//ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
+
+double phi_2_total =Rot2[h][cell];//ROT_2[cell];// phi2[h] ;//+ omega_tot[cell].component(2);
+
+double phi_3_total =Rot3[h][cell];//ROT_3[cell];// phi3[h] ;//+ omega_tot[cell].component(1);
+
+
+
+
+
 
 Fastor::Tensor<double,3,3> Rot_matrix(0.0);
 
@@ -94,8 +99,9 @@ Fastor::Tensor<double,3,3> Rot_matrix(0.0);
   //https://en.wikipedia.org/wiki/Rotation_matrix - 
 //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
-for (label h = 0; h < N_Ori; h++)
-{
+
+
+
   if(PopBal[h][cell]>SMALL){// if the phase is there, work out the stiffness contribution
 
   for(int i = 0 ; i < 3 ; i++ ){
@@ -119,19 +125,19 @@ for (label h = 0; h < N_Ori; h++)
 
               // value*=PopBal[h][cell];
 
-        Cprime(i,j,k,l)+=PopBal[h][cell]*value/Sum_Phases[cell];
+        Cprime(i,j,k,l)=value;
       
       }
     }
   }
   }
 
-  }
-//rotate m and n
+//If grain is there
+//Have the stiffness tensor now
+//need Dp and omegaP
 
-}
-
-
+  Fastor::Tensor<double,3,3> F_D_P(0.0);
+  Fastor::Tensor<double,3,3> F_Omega_P(0.0);
 
 for(int s=0;s<N_Slips;s++){
 
@@ -139,11 +145,7 @@ for(int s=0;s<N_Slips;s++){
   Fastor::Tensor<double,3> F_m_alpha(0.0);
   Fastor::Tensor<double,3,3> P_alpha(0.0);
   Fastor::Tensor<double,3,3> omega_alpha(0.0);
-  // Fastor::Tensor<double,3,3> gamma_alpha(0.0);
 
-  // double tau_alpha = sigma[cell] && 
-
-  // (sigma[cell] && (m_alpha[s] *n_alpha[s]));
 
 F_n_alpha(0) = n_alpha[s].component(0);
 F_n_alpha(1) = n_alpha[s].component(1);
@@ -163,11 +165,6 @@ for(int i=0;i<3;i++){
   }
 }
 
-// Fastor::print(Rot_matrix);
-// Fastor::print(F_n_alpha);
-// Fastor::print(F_n_alpha_Rot);
-
-
 P_alpha = 0.5*(outer(F_m_alpha_Rot,F_n_alpha_Rot) + outer(F_n_alpha_Rot,F_m_alpha_Rot));
 omega_alpha = 0.5*(outer(F_m_alpha_Rot,F_n_alpha_Rot) - outer(F_n_alpha_Rot,F_m_alpha_Rot));
 
@@ -181,18 +178,14 @@ tau_alpha+=Fsigma(i,j) * Schmid_T(i,j);
   }
 }
 
-// Fastor::print(s,"\t",tau_alpha);
 
+//Work Out g_alphas
 double k_exponent = 5.0;//12.0
 double ref_shear_rate = 1e-3;
 double ta_s = 148e6;
 double tau_0 = 16e6;
 double r = 1.1;
 double ho = 180e6;
-// double g_alpha = 1.0;//(s+0.1)*0.2; //hardening
-
-//needs to be accumilated and advected I think??
-// double gamma_alpha_dot = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alpha)),k_exponent)*sign(tau_alpha);
 
 g_alpha_dots[s][cell]*=0.0;
 
@@ -219,70 +212,41 @@ for(int beta=0;beta<N_Slips;beta++){
 gamma_alpha_dots[s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
 
 sumgamma[cell]+= mag(gamma_alpha_dots[s][cell]);//for next time-step
+//Work Out g_alphas
+
 
 F_D_P+=(P_alpha*gamma_alpha_dots[s][cell]);
 F_Omega_P+=(omega_alpha*gamma_alpha_dots[s][cell]);
 
-// Fastor::print(s,"\t",tau_alpha);
-
-// Fastor::print(P_alpha);
-
-// Fastor::print(omega_alpha);
-
-// exit(0);
-
-}
-
-
-
-
-  
-
-
-
-
-
-
-// Fastor::Tensor<double,3,3> Fepsilon_P_dot(0.0);
-
-{
-
-
-// double m = 20.0;
-// double epsilon_P_dot_zero = 1e-3;
-// double sigma_Y = 240e6;//1e9;
-
-
-
-
-
-  Fastor::Tensor<double,3,3> sigma_D(0.0);
-
-  
-
-  double pressure=0.0;
-  // double sigma_VM=0.0;//von mises,J2
-  // double e_dot_DDP_s = 0.0; //double inner product of e_dot and deviatoric part of stress
-  // double s_DDP_s = 0.0; //double inner product of deviatoric part of stress and deviatoric part of stress
-  // double epsilon_dot_P_VM=0.0;
-  // epsilon_dot_P_VM[cell] = 0.0;
-
-  for(int i = 0 ; i < 3 ; i++ ){
-   pressure-=Fsigma(i,i)/3.0; //trace(sigma)/3////
-
-  }
-   p[cell]=-pressure;
-
-
-
-
-
-}
-
+}//end of loop over slip systems
 
 
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot-F_D_P);////Double contraction
+
+sigAv+=PopBal[h][cell]*sig;
+Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
+D_P_Average+=PopBal[h][cell]*F_D_P;
+
+}//end loop over (if popbal[h]>SMALL)
+
+
+
+
+
+
+
+
+
+}//end loop over phase fields
+
+
+
+
+
+
+
+
 
 
 
@@ -290,11 +254,11 @@ count_index=0;
 for(int i = 0 ; i < 3 ; i++ ){
     for(int j = 0 ; j < 3 ; j++ ){
 
-      dsigmadt/*_crystal*/[cell].component(count_index) +=sig(i,j);
+      dsigmadt/*_crystal*/[cell].component(count_index) +=sigAv(i,j);//sig(i,j);
       // epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
 
-      D_P[cell].component(count_index) = F_D_P(i,j);
-      Omega_P[cell].component(count_index) = F_Omega_P(i,j);
+      D_P[cell].component(count_index) = D_P_Average(i,j);//F_D_P(i,j);
+      Omega_P[cell].component(count_index) = Omega_P_Average(i,j);//F_Omega_P(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
@@ -303,6 +267,23 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 
 }
+
+
+/*
+
+
+
+
+  double pressure=0.0;
+
+
+  for(int i = 0 ; i < 3 ; i++ ){
+   pressure-=Fsigma(i,i)/3.0; //trace(sigma)/3////
+
+  }
+   p[cell]=-pressure;
+*/
+
 
 sumgamma.correctBoundaryConditions();
 
@@ -339,8 +320,8 @@ Acc_Strain.correctBoundaryConditions();
 
 
 
-D = D+ (1.0/n_sub_steps)*runTime.deltaT()*(U);
-D.correctBoundaryConditions();
+// D = D+ (1.0/n_sub_steps)*runTime.deltaT()*(U);
+// D.correctBoundaryConditions();
 // Foam::label Foam::pimpleLoop::nCorrPimple() const;
 
 

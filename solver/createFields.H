@@ -692,64 +692,166 @@ phi3[3]=0.0;
 
 
 
-volScalarField ROT_1//rotation about x
-(
-    IOobject
+PtrList<volScalarField> Rot1(N_Ori);		//pointer to phase fields
+
+for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+{
+
+    word name_ROT ("ROT.1." + name(count));
+
+    Rot1.set
     (
-        "ROT.1",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0), 
-             zeroGradientFvPatchScalarField::typeName
-);
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ROT,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
 
-volScalarField ROT_2//rotation about y
-(
-    IOobject
+PtrList<volScalarField> Rot2(N_Ori);		//pointer to phase fields
+
+
+for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+{
+
+    word name_ROT ("ROT.2." + name(count));
+
+    Rot2.set
     (
-        "ROT.2",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0), 
-             zeroGradientFvPatchScalarField::typeName
-);
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ROT,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
 
-volScalarField ROT_3//rotation about z
-(
-    IOobject
+
+PtrList<volScalarField> Rot3(N_Ori);		//pointer to phase fields
+
+
+for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+{
+
+    word name_ROT ("ROT.3." + name(count));
+
+    Rot3.set
     (
-        "ROT.3",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0), 
-             zeroGradientFvPatchScalarField::typeName
-);
-
-
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ROT,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
 
 forAll(mesh.C(), cell)
 {
 
 for (label h = 0; h < N_Ori; h++)
 {
-ROT_1[cell]+=PopBal[h][cell]*phi1[h];
-ROT_2[cell]+=PopBal[h][cell]*phi2[h];
-ROT_3[cell]+=PopBal[h][cell]*phi3[h];
+// ROT_1[cell]+=PopBal[h][cell]*phi1[h];
+// ROT_2[cell]+=PopBal[h][cell]*phi2[h];
+// ROT_3[cell]+=PopBal[h][cell]*phi3[h];
+
+Rot1[h][cell] = phi1[h];
+Rot2[h][cell] = phi2[h];
+Rot3[h][cell] = phi3[h];
+
+
 }
 
 }
+
+// volScalarField ROT_1//rotation about x
+// (
+//     IOobject
+//     (
+//         "ROT.1",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//              zeroGradientFvPatchScalarField::typeName
+// );
+
+// volScalarField ROT_2//rotation about y
+// (
+//     IOobject
+//     (
+//         "ROT.2",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//              zeroGradientFvPatchScalarField::typeName
+// );
+
+// volScalarField ROT_3//rotation about z
+// (
+//     IOobject
+//     (
+//         "ROT.3",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//              zeroGradientFvPatchScalarField::typeName
+// );
+
+
+
+// forAll(mesh.C(), cell)
+// {
+
+// for (label h = 0; h < N_Ori; h++)
+// {
+// ROT_1[cell]+=PopBal[h][cell]*phi1[h];
+// ROT_2[cell]+=PopBal[h][cell]*phi2[h];
+// ROT_3[cell]+=PopBal[h][cell]*phi3[h];
+// }
+
+// }
 
 
 // tensor rot[N_Ori]={tensor::zero};

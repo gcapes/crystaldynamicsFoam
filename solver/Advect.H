@@ -121,57 +121,98 @@ Sum_Phases.correctBoundaryConditions();
 
 
 
+for (label count = 0; count < N_Ori; count++)
+{
+
+volScalarField & Rot1_ = Rot1[count];
+volScalarField & Rot2_ = Rot2[count];
+volScalarField & Rot3_ = Rot3[count];
+
+
+    solve
+    (
+        fvm::ddt(rho,Rot1_) 
+        +fvm::div(rhoPhi, Rot1_)
+        ==
+        (rho*(omega_dot.component(5) - Omega_P.component(5)))//epsilon_dot_P_VM
+
+    );
+    Rot1_.correctBoundaryConditions();
+
+
+        solve
+    (
+        fvm::ddt(rho,Rot2_) 
+        +fvm::div(rhoPhi, Rot2_)
+        ==
+        (rho*(omega_dot.component(2) - Omega_P.component(2)))//epsilon_dot_P_VM
+
+    );
+    Rot2_.correctBoundaryConditions();
+
+
+        solve
+    (
+        fvm::ddt(rho,Rot3_) 
+        +fvm::div(rhoPhi, Rot3_)
+        ==
+        (rho*(omega_dot.component(1) - Omega_P.component(1)))//epsilon_dot_P_VM
+
+    );
+    Rot3_.correctBoundaryConditions();
+
+
+}
+
+
+
+
+        // fvScalarMatrix  ROT1Eqn
+        // (
+        //     fvm::ddt(rho,ROT_1)
+        //     + fvm::div(rhoPhi, ROT_1)
+        //     ==
+        //     (rho*(omega_dot.component(5) - Omega_P.component(5)))//epsilon_dot_P_VM
+
+        // );
+
+        // ROT1Eqn.relax();
+
+        // ROT1Eqn.solve();
 
 
 
 
 
-        fvScalarMatrix  ROT1Eqn
-        (
-            fvm::ddt(rho,ROT_1)
-            + fvm::div(rhoPhi, ROT_1)
-            ==
-            (rho*(omega_dot.component(5) - Omega_P.component(5)))//epsilon_dot_P_VM
+        // fvScalarMatrix  ROT2Eqn
+        // (
+        //     fvm::ddt(rho,ROT_2)
+        //     + fvm::div(rhoPhi, ROT_2)
+        //     ==
+        //     (rho*(omega_dot.component(2) - Omega_P.component(2)))//epsilon_dot_P_VM
 
-        );
+        // );
 
-        ROT1Eqn.relax();
+        // ROT2Eqn.relax();
 
-        ROT1Eqn.solve();
-
-
-
-
-
-        fvScalarMatrix  ROT2Eqn
-        (
-            fvm::ddt(rho,ROT_2)
-            + fvm::div(rhoPhi, ROT_2)
-            ==
-            (rho*(omega_dot.component(2) - Omega_P.component(2)))//epsilon_dot_P_VM
-
-        );
-
-        ROT2Eqn.relax();
-
-        ROT2Eqn.solve();
+        // ROT2Eqn.solve();
 
 
 
 
 
-         fvScalarMatrix  ROT3Eqn
-        (
-            fvm::ddt(rho,ROT_3)
-            + fvm::div(rhoPhi, ROT_3)
-            ==
-            (rho*(omega_dot.component(1) - Omega_P.component(1)))//epsilon_dot_P_VM
+        //  fvScalarMatrix  ROT3Eqn
+        // (
+        //     fvm::ddt(rho,ROT_3)
+        //     + fvm::div(rhoPhi, ROT_3)
+        //     ==
+        //     (rho*(omega_dot.component(1) - Omega_P.component(1)))//epsilon_dot_P_VM
 
-        );
+        // );
 
-        ROT3Eqn.relax();
+        // ROT3Eqn.relax();
 
-        ROT3Eqn.solve();       
+        // ROT3Eqn.solve();       
 
 
 

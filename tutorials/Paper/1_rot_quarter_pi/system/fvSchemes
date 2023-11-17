@@ -59,7 +59,8 @@ divSchemes
     div(rhoPhi,ROT.2)	Gauss ROUNDAplus;//Gauss linear;
     div(rhoPhi,ROT.3)	Gauss ROUNDAplus;//Gauss linear;
     
-    div((rho*(U*U)))	Gauss linear;
+
+	"div\(rhoPhi,ROT.*.*\)"	Gauss ROUNDAplus;//Gauss ROUNDAplus;//Gauss linear;
     
 }
 
