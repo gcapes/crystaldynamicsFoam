@@ -155,7 +155,7 @@ for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
                 runTime.timeName(),
                 mesh,
                 IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
+                IOobject::NO_WRITE
             ),
             mesh,
             dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
@@ -246,20 +246,20 @@ dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
                 zeroGradientFvPatchTensorField::typeName
 );
 
-volTensorField Omega_E
-(
-    IOobject
-    (
-        "Omega_E",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("Omega_E",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+// volTensorField Omega_E
+// (
+//     IOobject
+//     (
+//         "Omega_E",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("Omega_E",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
+//                 zeroGradientFvPatchTensorField::typeName
+// );
 
 // for ()
 // {
@@ -691,6 +691,67 @@ phi3[3]=0.0;
 
 
 
+
+volScalarField ROT_1//rotation about x
+(
+    IOobject
+    (
+        "ROT.1",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField ROT_2//rotation about y
+(
+    IOobject
+    (
+        "ROT.2",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField ROT_3//rotation about z
+(
+    IOobject
+    (
+        "ROT.3",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0), 
+             zeroGradientFvPatchScalarField::typeName
+);
+
+
+
+forAll(mesh.C(), cell)
+{
+
+for (label h = 0; h < N_Ori; h++)
+{
+ROT_1[cell]+=PopBal[h][cell]*phi1[h];
+ROT_2[cell]+=PopBal[h][cell]*phi2[h];
+ROT_3[cell]+=PopBal[h][cell]*phi3[h];
+}
+
+}
+
+
 // tensor rot[N_Ori]={tensor::zero};
 
 // for (label i = 0; i < N_Ori; i++)
@@ -914,20 +975,20 @@ dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
                zeroGradientFvPatchTensorField::typeName
 );
 
-volTensorField omega_tot
-(
-    IOobject
-    (
-        "omega_tot",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("omega_tot",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
-               zeroGradientFvPatchTensorField::typeName
-);
+// volTensorField omega_tot
+// (
+//     IOobject
+//     (
+//         "omega_tot",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("omega_tot",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
+//                zeroGradientFvPatchTensorField::typeName
+// );
 
 
 
@@ -971,7 +1032,7 @@ volVectorField divsigma
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
         mesh,
 dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
@@ -979,20 +1040,20 @@ dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
 );
 
 
-volVectorField Euler_Angles
-(
-    IOobject
-    (
-        "Euler_Angles",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
-                //zeroGradientFvPatchTensorField::typeName
-);
+// volVectorField Euler_Angles
+// (
+//     IOobject
+//     (
+//         "Euler_Angles",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
+//                 //zeroGradientFvPatchTensorField::typeName
+// );
 
 
 // volTensorField testSIG

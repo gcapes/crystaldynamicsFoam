@@ -112,17 +112,33 @@ sigma.correctBoundaryConditions();
 
             
 
+//             while (pimple.correct())
+//             {
+// volScalarField rAU(1.0/UEqn.A());
+
+//             volVectorField HbyA("HbyA", U);
+//             HbyA = rAU*UEqn.H();
+//             surfaceScalarField phiHbyA
+//             (
+//                 "phiHbyA",
+//                 (fvc::interpolate(HbyA) & mesh.Sf())
+//               // + fvc::ddtPhiCorr(rAU, U, phi)
+//             );
+
+
+// U = HbyA ;
+// U.correctBoundaryConditions();
+
             
+// phi=phiHbyA;//fvc::flux(U);
 
-        //     while (pimple.correct())
-        //     {
+// rhoPhi = fvc::interpolate(rho)*phi;//fvc::flux(U);
 
-        //     // if (pimple.finalNonOrthogonalIter())
-        // // {
-        //     // #include "rhoEqn.H"
-        // // }
 
-        //     }
+//     K = 0.5*magSqr(U);
+//             }
+
+
 
         }
 

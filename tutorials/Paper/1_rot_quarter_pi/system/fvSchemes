@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;//cellMDLimited Gauss linear 0.5;//leastSquares;//
+    default         Gauss linear;//cellLimited Gauss linear 1.0;;//leastSquares;//
 }
 
 divSchemes
@@ -42,19 +42,24 @@ divSchemes
     div(rhoPhi,K)	Gauss upwind;//Gauss linear;
     div((Cv*rhoPhi),T)	Gauss upwind;//Gauss linear;
     div((sigma&U))	Gauss linear;
-    div(phi,rho)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//
+    div(phi,rho)	Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//
     
-    div(phi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
-    div(rhoPhi,Acc_Strain)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
+    div(rhoPhi,Acc_Strain)	Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
-    "div\(phi,n.*\)"	Gauss linear;
-    "div\(rhoPhi,n.*\)"	Gauss linear;
+   
+    "div\(rhoPhi,n.*\)"	Gauss ROUNDAplus01;//Gauss ROUNDAplus;//Gauss linear;
     
-    "div\(phi,g_alpha.*\)"	Gauss linear;
-    "div\(rhoPhi,g_alpha.*\)"	Gauss linear;
+
+    "div\(rhoPhi,g_alpha.*\)"	Gauss ROUNDAplus;//Gauss linear;
     
-    div(phi,omega_tot)	Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
+   
+    
+    div(rhoPhi,ROT.1)	Gauss ROUNDAplus;//Gauss linear;
+    div(rhoPhi,ROT.2)	Gauss ROUNDAplus;//Gauss linear;
+    div(rhoPhi,ROT.3)	Gauss ROUNDAplus;//Gauss linear;
+    
+    div((rho*(U*U)))	Gauss linear;
     
 }
 
@@ -65,7 +70,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         cubic;//linear;//linear;//
+    default         linear;//linear;//linear;//
 }
 
 snGradSchemes

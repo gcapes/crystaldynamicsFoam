@@ -49,18 +49,7 @@ solvers
         $U;
     }
     
-        D
-    {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-12;
-        minIter         1;
-        maxIter         500;//2
-    }
-        DFinal
-    {
-        $D;
-    }
+
     
     
         T
@@ -74,7 +63,7 @@ solvers
 */
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-12;
+        tolerance       1e-6;
         relTol          0.0;
     }
 
@@ -94,7 +83,7 @@ solvers
 */
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-9;
+        tolerance       1e-12;
         relTol          0.0;
     }
 
@@ -115,7 +104,7 @@ solvers
 */
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-9;
+        tolerance       1e-6;
         relTol          0.0;
     }
 
@@ -124,27 +113,7 @@ solvers
         $Acc_Strain;
     }
     
-  
-                  omega_tot
-    {
-/*
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-12;
-        minIter         1;
-        maxIter         500;//2
-*/
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
-        tolerance       1e-9;
-        relTol          0.0;
-    }
 
-    omega_totFinal
-    {
-        $omega_tot;
-    }
-    
     
     
     
@@ -187,7 +156,7 @@ solvers
         solver          smoothSolver;
         smoother        symGaussSeidel;
         tolerance       1e-6;
-        relTol          0.05;
+        relTol          0.0;
 
     }
 
@@ -198,6 +167,27 @@ solvers
         tolerance       1e-6;
         relTol          0.0;
     }
+    
+    
+    
+                "ROT.*"
+    {
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+
+    }
+    
+        "(ROT.*)Final"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+    }
+
     
 }
 

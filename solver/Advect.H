@@ -27,19 +27,19 @@
 
 
 
-        fvTensorMatrix  OmegaTotEqn
-        (
-            fvm::ddt(omega_tot)
-            + fvm::div(phi, omega_tot)
-            ==
-            Omega_E
+        // fvTensorMatrix  OmegaTotEqn
+        // (
+        //     fvm::ddt(omega_tot)
+        //     + fvm::div(phi, omega_tot)
+        //     ==
+        //     Omega_E
 
-        );
+        // );
 
-        OmegaTotEqn.relax();
+        // OmegaTotEqn.relax();
 
-        OmegaTotEqn.solve();
-        // Acc_Strain.correctBoundaryConditions();
+        // OmegaTotEqn.solve();
+        // // Acc_Strain.correctBoundaryConditions();
 
 
 
@@ -85,6 +85,7 @@ for (label count = 0; count < N_Ori; count++)
     (
         fvm::ddt(rho,ni) 
         +fvm::div(rhoPhi, ni)
+        // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
         // RHS
     );
     ni.correctBoundaryConditions();
@@ -97,25 +98,83 @@ for (label count = 0; count < N_Ori; count++)
 Sum_Phases.correctBoundaryConditions();
 
 
-//  Project any out of bounds phases back onto the Gibbs Simplex
-for (label count = 0; count < N_Ori; count++)
-{
+// //  Project any out of bounds phases back onto the Gibbs Simplex
+// for (label count = 0; count < N_Ori; count++)
+// {
 
-    volScalarField & ni = PopBal[count];
+//     volScalarField & ni = PopBal[count];
 
 
-    ni = max(min(ni, 1.0), 0.0);
-    volScalarField temp_holder = ni;
+//     ni = max(min(ni, 1.0), 0.0);
+//     volScalarField temp_holder = ni;
 
-    forAll(mesh.C(), celli)
-    {
-        if (Sum_Phases[celli] > 0.0)
-        {
-            temp_holder[celli] *= (1.0 / Sum_Phases[celli]);
-        }
-    }
-    ni = temp_holder;
-}
+//     forAll(mesh.C(), celli)
+//     {
+//         if (Sum_Phases[celli] > 0.0)
+//         {
+//             temp_holder[celli] *= (1.0 / Sum_Phases[celli]);
+//         }
+//     }
+//     ni = temp_holder;
+// }
+
+
+
+
+
+
+
+
+
+        fvScalarMatrix  ROT1Eqn
+        (
+            fvm::ddt(rho,ROT_1)
+            + fvm::div(rhoPhi, ROT_1)
+            ==
+            (rho*(omega_dot.component(5) - Omega_P.component(5)))//epsilon_dot_P_VM
+
+        );
+
+        ROT1Eqn.relax();
+
+        ROT1Eqn.solve();
+
+
+
+
+
+        fvScalarMatrix  ROT2Eqn
+        (
+            fvm::ddt(rho,ROT_2)
+            + fvm::div(rhoPhi, ROT_2)
+            ==
+            (rho*(omega_dot.component(2) - Omega_P.component(2)))//epsilon_dot_P_VM
+
+        );
+
+        ROT2Eqn.relax();
+
+        ROT2Eqn.solve();
+
+
+
+
+
+         fvScalarMatrix  ROT3Eqn
+        (
+            fvm::ddt(rho,ROT_3)
+            + fvm::div(rhoPhi, ROT_3)
+            ==
+            (rho*(omega_dot.component(1) - Omega_P.component(1)))//epsilon_dot_P_VM
+
+        );
+
+        ROT3Eqn.relax();
+
+        ROT3Eqn.solve();       
+
+
+
 
 
 

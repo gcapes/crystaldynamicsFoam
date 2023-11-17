@@ -2,9 +2,7 @@
 
 // Info<<n_sub_steps<<endl;
 
-phi=fvc::flux(U);
 
-rhoPhi = fvc::interpolate(rho)*fvc::flux(U);
 
 // divU=fvc::div(U);
 
@@ -28,7 +26,7 @@ D_P*=0.0;
 
 p*=0.0;
 
-Euler_Angles*=0.0;
+// Euler_Angles*=0.0;
 // epsilon_dot_P_VM*=0.0;
 sumgamma*=0.0;
 
@@ -58,27 +56,26 @@ Fastor::Tensor<double,3,3,3,3> Cprime(0.0); //global stiffness at this cell
 Fastor::Tensor<double,3,3> F_D_P(0.0);
 Fastor::Tensor<double,3,3> F_Omega_P(0.0);
 
-for (label h = 0; h < N_Ori; h++)
-{
+
   // if(PopBal[h][cell]>SMALL){// if the phase is there, work out the stiffness contribution
 //  Info<<"Phase: "<<h<<"\t "<<PopBal[h][cell]<<endl;
 
-double phi_1_total =0.0;// phi1[h] ;//+ omega_tot[cell].component(5);
+double phi_1_total =ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
 
-double phi_2_total =0.0;// phi2[h] ;//+ omega_tot[cell].component(2);
+double phi_2_total =ROT_2[cell];// phi2[h] ;//+ omega_tot[cell].component(2);
 
-double phi_3_total =0.0;// phi3[h] ;//+ omega_tot[cell].component(1);
+double phi_3_total =ROT_3[cell];// phi3[h] ;//+ omega_tot[cell].component(1);
 
-for (int z = 0; z < N_Ori; z++)
-{
-phi_1_total +=PopBal[z][cell]*phi1[z];//omega_tot[cell].component(5);
-phi_2_total +=PopBal[z][cell]*phi2[z];
-phi_3_total +=PopBal[z][cell]*phi3[z];
-}
+// for (int z = 0; z < N_Ori; z++)
+// {
+// phi_1_total +=PopBal[z][cell]*phi1[z];//omega_tot[cell].component(5);
+// phi_2_total +=PopBal[z][cell]*phi2[z];
+// phi_3_total +=PopBal[z][cell]*phi3[z];
+// }
 
-Euler_Angles[cell].component(0) = phi_1_total + omega_tot[cell].component(5);
-Euler_Angles[cell].component(1) = phi_2_total + omega_tot[cell].component(2);
-Euler_Angles[cell].component(2) = phi_3_total + omega_tot[cell].component(1);
+// Euler_Angles[cell].component(0) = phi_1_total + omega_tot[cell].component(5);
+// Euler_Angles[cell].component(1) = phi_2_total + omega_tot[cell].component(2);
+// Euler_Angles[cell].component(2) = phi_3_total + omega_tot[cell].component(1);
 
 Fastor::Tensor<double,3,3> Rot_matrix(0.0);
 
@@ -97,9 +94,11 @@ Fastor::Tensor<double,3,3> Rot_matrix(0.0);
   //https://en.wikipedia.org/wiki/Rotation_matrix - 
 //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
+for (label h = 0; h < N_Ori; h++)
+{
+  if(PopBal[h][cell]>SMALL){// if the phase is there, work out the stiffness contribution
 
-
-for(int i = 0 ; i < 3 ; i++ ){
+  for(int i = 0 ; i < 3 ; i++ ){
   for(int j = 0 ; j < 3 ; j++ ){
     for(int k = 0 ; k < 3 ; k++ ){
       for(int l = 0 ;l  < 3 ; l++ ){
@@ -125,12 +124,12 @@ for(int i = 0 ; i < 3 ; i++ ){
       }
     }
   }
-}
+  }
 
-// }
+  }
 //rotate m and n
 
-
+}
 
 
 
@@ -237,7 +236,7 @@ F_Omega_P+=(omega_alpha*gamma_alpha_dots[s][cell]);
 
 
 
-  }
+  
 
 
 
@@ -321,9 +320,9 @@ dsigmadt.correctBoundaryConditions();
 // Info<<"HERE"<<endl;
 
 
-Omega_E = omega_dot - Omega_P;
+// Omega_E = omega_dot - Omega_P;
 
-Omega_E.correctBoundaryConditions();
+// Omega_E.correctBoundaryConditions();
 
 
 
