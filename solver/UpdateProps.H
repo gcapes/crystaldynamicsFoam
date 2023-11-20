@@ -21,7 +21,14 @@ dsigmadt.correctBoundaryConditions();
 // dsigmadt_crystal*=0.0;
 
 // epsilon_P_dot*=0.0;
-Omega_P*=0.0;
+// Omega_P*=0.0;
+
+
+for(label h = 0; h < N_Ori; h++){
+  Omega_P[h]*=0.0;
+}
+
+
 D_P*=0.0;
 
 p*=0.0;
@@ -60,7 +67,7 @@ forAll(mesh.C(), cell)
 //  Info<<"Phase: "<<h<<"\t "<<PopBal[h][cell]<<endl;
 
 Fastor::Tensor<double,3,3> sigAv(0.0);
-Fastor::Tensor<double,3,3> Omega_P_Average(0.0);
+// Fastor::Tensor<double,3,3> Omega_P_Average(0.0);
 Fastor::Tensor<double,3,3> D_P_Average(0.0);
 
 
@@ -139,7 +146,7 @@ Fastor::Tensor<double,3,3> Rot_matrix(0.0);
   Fastor::Tensor<double,3,3> F_D_P(0.0);
   Fastor::Tensor<double,3,3> F_Omega_P(0.0);
 
-for(int s=0;s<N_Slips;s++){
+for(int s=0;s<MatList[Phase2Material[h]].N_Slips;s++){
 
   Fastor::Tensor<double,3> F_n_alpha(0.0);
   Fastor::Tensor<double,3> F_m_alpha(0.0);
@@ -147,13 +154,18 @@ for(int s=0;s<N_Slips;s++){
   Fastor::Tensor<double,3,3> omega_alpha(0.0);
 
 
-F_n_alpha(0) = n_alpha[s].component(0);
-F_n_alpha(1) = n_alpha[s].component(1);
-F_n_alpha(2) = n_alpha[s].component(2);
+F_n_alpha(0) = MatList[Phase2Material[h]].SP_norm[s].component(0);//n_alpha[Phase2Material[h]][s].component(0);
+F_n_alpha(1) = MatList[Phase2Material[h]].SP_norm[s].component(1);//n_alpha[Phase2Material[h]][s].component(1);
+F_n_alpha(2) = MatList[Phase2Material[h]].SP_norm[s].component(2);//n_alpha[Phase2Material[h]][s].component(2);
 
-F_m_alpha(0) = m_alpha[s].component(0);
-F_m_alpha(1) = m_alpha[s].component(1);
-F_m_alpha(2) = m_alpha[s].component(2);
+F_m_alpha(0) = MatList[Phase2Material[h]].SP_direction[s].component(0);//m_alpha[Phase2Material[h]][s].component(0);
+F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1);//m_alpha[Phase2Material[h]][s].component(1);
+F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2);//m_alpha[Phase2Material[h]][s].component(2);
+
+
+// Info<<MatList[Phase2Material[h]].SP_norm[s]<<endl;
+// Info<<MatList[Phase2Material[h]].SP_direction[s]<<endl;
+
 
 Fastor::Tensor<double,3> F_n_alpha_Rot(0.0);
 Fastor::Tensor<double,3> F_m_alpha_Rot(0.0);
@@ -186,13 +198,16 @@ double ta_s = 148e6;
 double tau_0 = 16e6;
 double r = 1.1;
 double ho = 180e6;
+double n_exponent = 5.0;//12.0
 
-g_alpha_dots[s][cell]*=0.0;
+g_alpha_dots[Phase2Material[h]][s][cell]*=0.0;
 
-for(int beta=0;beta<N_Slips;beta++){
+for(int beta=0;beta<MatList[Phase2Material[h]].N_Slips;beta++){
 
-  double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+  // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
   double h_alpha_beta = 0.0;
+  double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+  // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
   if(beta==s){
     h_alpha_beta = h_of_gamma*(r+(1.0-r));
     }
@@ -203,29 +218,37 @@ for(int beta=0;beta<N_Slips;beta++){
 
 // h_alpha_beta = r*h_of_gamma;
 
-  g_alpha_dots[s][cell]+=(h_alpha_beta)*gamma_alpha_dots[beta][cell];
+  g_alpha_dots[Phase2Material[h]][s][cell]+=PopBal[h][cell]*(h_alpha_beta)*gamma_alpha_dots[Phase2Material[h]][beta][cell];
 
 }
 
 // Info<<g_alphas[s][cell]<<endl;
 
-gamma_alpha_dots[s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
+gamma_alpha_dots[Phase2Material[h]][s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[Phase2Material[h]][s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
 
-sumgamma[cell]+= mag(gamma_alpha_dots[s][cell]);//for next time-step
+sumgamma[cell]+= mag(PopBal[h][cell]*gamma_alpha_dots[Phase2Material[h]][s][cell]);//for next time-step
 //Work Out g_alphas
 
 
-F_D_P+=(P_alpha*gamma_alpha_dots[s][cell]);
-F_Omega_P+=(omega_alpha*gamma_alpha_dots[s][cell]);
+F_D_P+=(P_alpha*gamma_alpha_dots[Phase2Material[h]][s][cell]);
+F_Omega_P+=(omega_alpha*gamma_alpha_dots[Phase2Material[h]][s][cell]);
 
 }//end of loop over slip systems
 
 
+int OP_index=0;
+for(int i = 0 ; i < 3 ; i++ ){
+    for(int j = 0 ; j < 3 ; j++ ){
+    Omega_P[h][cell].component(OP_index)=F_Omega_P(i,j);
+    OP_index++;
+  }
+}
+
 enum {I,J,K,L};
 Fastor::Tensor<double,3,3> sig= Fastor::einsum<Fastor::Index<I,J,K,L>,Fastor::Index<K,L>/*,Fastor::OIndex<I,J>*/>(Cprime,Fepsilon_dot-F_D_P);////Double contraction
 
-sigAv+=PopBal[h][cell]*sig;
-Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
+sigAv+=PopBal[h][cell]*sig/Sum_Phases[cell];
+// Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
 D_P_Average+=PopBal[h][cell]*F_D_P;
 
 }//end loop over (if popbal[h]>SMALL)
@@ -235,8 +258,14 @@ D_P_Average+=PopBal[h][cell]*F_D_P;
 
 
 
-
-
+// dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
+int Count_Child=0;
+for(int Juno = 0; Juno < 3; Juno++){
+  for(int Sadie = 0; Sadie < 3; Sadie++){
+    dsigmadt[cell]+= (sigma[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigma[cell]);
+    Count_Child++;
+  }
+}
 
 }//end loop over phase fields
 
@@ -258,7 +287,7 @@ for(int i = 0 ; i < 3 ; i++ ){
       // epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
 
       D_P[cell].component(count_index) = D_P_Average(i,j);//F_D_P(i,j);
-      Omega_P[cell].component(count_index) = Omega_P_Average(i,j);//F_Omega_P(i,j);
+      // Omega_P[cell].component(count_index) = Omega_P_Average(i,j);//F_Omega_P(i,j);
       // testSIG[cell].component(count_index) =sig(i,j);
   count_index++;
     }
@@ -286,15 +315,17 @@ for(int i = 0 ; i < 3 ; i++ ){
 
 
 sumgamma.correctBoundaryConditions();
-
-for (label countS = 0; countS < N_Slips; countS++)
+for(label i = 0; i < N_Mats; i++){
+for (label countS = 0; countS < MatList[i].N_Slips; countS++)
 {
-g_alpha_dots[countS].correctBoundaryConditions();
-gamma_alpha_dots[countS].correctBoundaryConditions();
+g_alpha_dots[i][countS].correctBoundaryConditions();
+gamma_alpha_dots[i][countS].correctBoundaryConditions();
+gamma_alphas[i][countS].correctBoundaryConditions();
+g_alphas[i][countS].correctBoundaryConditions();
+}
 }
 
-
-dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
+// dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
 
 dsigmadt.correctBoundaryConditions();
 // epsilon_P_dot.correctBoundaryConditions();

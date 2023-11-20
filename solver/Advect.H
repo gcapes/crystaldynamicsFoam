@@ -43,11 +43,12 @@
 
 
 
-for (label countS = 0; countS < N_Slips; countS++)
+for(label i = 0; i < N_Mats; i++){
+for (label countS = 0; countS < MatList[i].N_Slips; countS++)
 {
 
     // volScalarField & ni = PopBal[count];
-    volScalarField & g_a =g_alphas[countS];
+    volScalarField & g_a =g_alphas[i][countS];
 
 
 
@@ -56,7 +57,7 @@ for (label countS = 0; countS < N_Slips; countS++)
         fvm::ddt(rho,g_a) 
         +fvm::div(rhoPhi, g_a)
         ==
-        (rho*g_alpha_dots[countS])
+        (rho*g_alpha_dots[i][countS])
         // RHS
     );
     // g_a.correctBoundaryConditions();
@@ -66,8 +67,34 @@ for (label countS = 0; countS < N_Slips; countS++)
     // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
 
 }
+}
 
 
+for(label i = 0; i < N_Mats; i++){
+for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+{
+
+    // volScalarField & ni = PopBal[count];
+    volScalarField & gam_a =gamma_alphas[i][countS];
+
+
+
+    solve
+    (
+        fvm::ddt(rho,gam_a) 
+        +fvm::div(rhoPhi, gam_a)
+        ==
+        (rho*gamma_alpha_dots[i][countS])
+        // RHS
+    );
+    // g_a.correctBoundaryConditions();
+    // Sum_Phases += ni;
+
+    // Info << "Max phase field(" << count << ") = " << gMax(ni) << endl;
+    // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
+
+}
+}
         
 
 
@@ -134,7 +161,7 @@ volScalarField & Rot3_ = Rot3[count];
         fvm::ddt(rho,Rot1_) 
         +fvm::div(rhoPhi, Rot1_)
         ==
-        (rho*(omega_dot.component(5) - Omega_P.component(5)))//epsilon_dot_P_VM
+        (rho*(omega_dot.component(5) - Omega_P[count].component(5)))//epsilon_dot_P_VM
 
     );
     Rot1_.correctBoundaryConditions();
@@ -145,7 +172,7 @@ volScalarField & Rot3_ = Rot3[count];
         fvm::ddt(rho,Rot2_) 
         +fvm::div(rhoPhi, Rot2_)
         ==
-        (rho*(omega_dot.component(2) - Omega_P.component(2)))//epsilon_dot_P_VM
+        (rho*(omega_dot.component(2) - Omega_P[count].component(2)))//epsilon_dot_P_VM
 
     );
     Rot2_.correctBoundaryConditions();
@@ -156,7 +183,7 @@ volScalarField & Rot3_ = Rot3[count];
         fvm::ddt(rho,Rot3_) 
         +fvm::div(rhoPhi, Rot3_)
         ==
-        (rho*(omega_dot.component(1) - Omega_P.component(1)))//epsilon_dot_P_VM
+        (rho*(omega_dot.component(1) - Omega_P[count].component(1)))//epsilon_dot_P_VM
 
     );
     Rot3_.correctBoundaryConditions();

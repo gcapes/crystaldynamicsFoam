@@ -39,173 +39,13 @@ dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.looku
 dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
 dimensionedScalar rho_0("rho_0",dimensionSet(1, -3, 0, 0, 0),physicalProperties.lookup("rho_0"));
 
-int N_Slips = 12;
 
-vector m_alpha[N_Slips]; //slip direction
-
-vector n_alpha[N_Slips];//slip plane normal
-
-vector v1(0,	0.707,	-0.707);
-
-
- vector n1(0,	0.707,	-0.707); 
- vector n2(-0.707,0.0,0.707);	
- vector n3(0.707,-0.707,0.0);	    
-  vector n4(0,-0.707,-0.707);	  
-  vector n5(0.707,0.0,0.707);	
- vector n6(-0.707,0.707,0.0);	    
-  vector n7(0,0.707,-0.707);	  
-  vector n8(0.707,0.0,0.707);	  
- vector n9(-0.707,-0.707,0.0);	    
-  vector n10(0,-0.707,-0.707);	 
- vector n11(-0.707,0.0,0.707); 
-  vector n12(0.707,0.707,0.0);
-
-n_alpha[0]=n1;
-n_alpha[1]=n2;
-n_alpha[2]=n3;
-n_alpha[3]=n4;
-n_alpha[4]=n5;
-n_alpha[5]=n6;
-n_alpha[6]=n7;
-n_alpha[7]=n8;
-n_alpha[8]=n9;
-n_alpha[9]=n10;
-n_alpha[10]=n11;
-n_alpha[11]=n12;
-
- vector m1(0.577,0.577,0.577)	;
-vector m2(0.577,0.577,0.577)	;
-vector m3(0.577,0.577,0.577)	;
-vector m4(-0.577,-0.577,0.577);	
-vector m5(-0.577,-0.577,0.577);	
-vector m6(-0.577,-0.577,0.577);	
-vector m7(-0.577,0.577,0.577)	;
-vector m8(-0.577,0.577,0.577)	;
-vector m9(-0.577,0.577,0.577)	;
-vector m10(0.577,-0.577,0.577)	;
-vector m11(0.577,-0.577,0.577)	;
-vector m12(0.577,-0.577,0.577)	;
-
-m_alpha[0] = m1;
-m_alpha[1] = m2;
-m_alpha[2] = m3;
-m_alpha[3] = m4;
-m_alpha[4] = m5;
-m_alpha[5] = m6;
-m_alpha[6] = m7;
-m_alpha[7] = m8;
-m_alpha[8] = m9;
-m_alpha[9] = m10;
-m_alpha[10] = m11;
-m_alpha[11] = m12;
 
 //  Info<<"TEST"<<(n_alpha[0] * m_alpha[0])<<endl;
 
 // exit(0);
 
 
-
-
-
-PtrList<volScalarField> g_alphas(N_Slips);
-
-for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
-{
-
-    word name_g_alpha ("g_alpha." + name(count));
-
-    g_alphas.set
-    (
-        count,
-        new volScalarField
-        (
-            IOobject
-            (
-                name_g_alpha,
-                runTime.timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),16.0e6), 
-             zeroGradientFvPatchScalarField::typeName
-        )
-    );
-}
-
-
-
-PtrList<volScalarField> g_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
-
-for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
-{
-
-    word name_g_alpha_dot ("g_alpha_dot." + name(count));
-
-    g_alpha_dots.set
-    (
-        count,
-        new volScalarField
-        (
-            IOobject
-            (
-                name_g_alpha_dot,
-                runTime.timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh,
-            dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
-             zeroGradientFvPatchScalarField::typeName
-        )
-    );
-}
-
-
-PtrList<volScalarField> gamma_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
-
-for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
-{
-
-    word name_gamma_alpha_dot ("gamma_alpha_dot." + name(count));
-
-    gamma_alpha_dots.set
-    (
-        count,
-        new volScalarField
-        (
-            IOobject
-            (
-                name_gamma_alpha_dot,
-                runTime.timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar("gamma_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
-             zeroGradientFvPatchScalarField::typeName
-        )
-    );
-}
-
-volScalarField sumgamma
-(
-    IOobject
-    (
-        "sumgamma",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("sumgamma",dimensionSet(0, 0, -1, 0, 0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-);
 
 
 
@@ -231,20 +71,24 @@ dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
                 zeroGradientFvPatchTensorField::typeName
 );
 
-volTensorField Omega_P
-(
-    IOobject
-    (
-        "Omega_P",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+// volTensorField Omega_P
+// (
+//     IOobject
+//     (
+//         "Omega_P",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
+//                 zeroGradientFvPatchTensorField::typeName
+// );
+
+
+
+
 
 // volTensorField Omega_E
 // (
@@ -302,19 +146,19 @@ volVectorField U
     mesh
 );
 
-volVectorField D
-(
-    IOobject
-    (
-        "D",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
-);
+// volVectorField D
+// (
+//     IOobject
+//     (
+//         "D",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
+// );
 
 Info<< "Reading field Temperature\n" << endl;
 volScalarField T
@@ -536,6 +380,73 @@ Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
 
 
 
+// int N_Slips = 12;
+
+// vector m_alpha[N_Mats][N_Slips]; //slip direction
+
+// vector n_alpha[N_Mats][N_Slips];//slip plane normal
+
+
+
+
+
+//  vector n1(0,	0.707,	-0.707); 
+//  vector n2(-0.707,0.0,0.707);	
+//  vector n3(0.707,-0.707,0.0);	    
+//   vector n4(0,-0.707,-0.707);	  
+//   vector n5(0.707,0.0,0.707);	
+//  vector n6(-0.707,0.707,0.0);	    
+//   vector n7(0,0.707,-0.707);	  
+//   vector n8(0.707,0.0,0.707);	  
+//  vector n9(-0.707,-0.707,0.0);	    
+//   vector n10(0,-0.707,-0.707);	 
+//  vector n11(-0.707,0.0,0.707); 
+//   vector n12(0.707,0.707,0.0);
+
+// n_alpha[0]=n1;
+// n_alpha[1]=n2;
+// n_alpha[2]=n3;
+// n_alpha[3]=n4;
+// n_alpha[4]=n5;
+// n_alpha[5]=n6;
+// n_alpha[6]=n7;
+// n_alpha[7]=n8;
+// n_alpha[8]=n9;
+// n_alpha[9]=n10;
+// n_alpha[10]=n11;
+// n_alpha[11]=n12;
+
+//  vector m1(0.577,0.577,0.577)	;
+// vector m2(0.577,0.577,0.577)	;
+// vector m3(0.577,0.577,0.577)	;
+// vector m4(-0.577,-0.577,0.577);	
+// vector m5(-0.577,-0.577,0.577);	
+// vector m6(-0.577,-0.577,0.577);	
+// vector m7(-0.577,0.577,0.577)	;
+// vector m8(-0.577,0.577,0.577)	;
+// vector m9(-0.577,0.577,0.577)	;
+// vector m10(0.577,-0.577,0.577)	;
+// vector m11(0.577,-0.577,0.577)	;
+// vector m12(0.577,-0.577,0.577)	;
+
+// m_alpha[0] = m1;
+// m_alpha[1] = m2;
+// m_alpha[2] = m3;
+// m_alpha[3] = m4;
+// m_alpha[4] = m5;
+// m_alpha[5] = m6;
+// m_alpha[6] = m7;
+// m_alpha[7] = m8;
+// m_alpha[8] = m9;
+// m_alpha[9] = m10;
+// m_alpha[10] = m11;
+// m_alpha[11] = m12;
+
+
+
+
+std::vector<Material> MatList(N_Mats,Material());
+
 
 for(label i = 0; i < N_Mats; i++)
 {
@@ -562,13 +473,253 @@ for(label i = 0; i < N_Mats; i++)
 
 Cprime2[i] = Cprime_temp_Read;
 
+
+
+
+
+label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
+
+MatList[i].N_Slips = N_slips_Temp;
+
+for(int j=0;j<MatList[i].N_Slips; j++){
+
+word Slip_direction_name="m" + name(j);
+word Slip_normal_name = "n" + name(j);
+
+
+
+ vector temp_m(Mat.lookup(Slip_direction_name));
+ vector temp_n(Mat.lookup(Slip_normal_name));
+
+//   m_alpha[i][j] = temp_m;
+//   n_alpha[i][j] = temp_n;
+
+MatList[i].SP_norm.push_back(temp_n);
+MatList[i].SP_direction.push_back(temp_m);
+
 }
 
-// Fastor::print(Cprime2[0]);
+}
 
-// Fastor::print(Cprime2[1]);
+// Info<<"TEST: "<<MatList[0].SP_norm[0]<<endl;
+
+// Info<<"TEST: "<<MatList[0].SP_norm[11]<<endl;
 
 // exit(0);
+
+
+PtrList<PtrList<volScalarField> > g_alphas(N_Mats);
+forAll(g_alphas, i)
+{
+    g_alphas.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    forAll(g_alphas[i], j)
+    {
+        g_alphas[i].set
+        (
+            j,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "g_alpha."+Foam::name(i)+"."+Foam::name(j),
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("g_alphas", dimensionSet(0,0,0,0,0,0,0), 16.0e6),//should be initial for particular material
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
+}
+
+
+
+// PtrList<volScalarField> g_alphas(N_Slips);
+
+// for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+// {
+
+//     word name_g_alpha ("g_alpha." + name(count));
+
+//     g_alphas.set
+//     (
+//         count,
+//         new volScalarField
+//         (
+//             IOobject
+//             (
+//                 name_g_alpha,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+//                 IOobject::AUTO_WRITE
+//             ),
+//             mesh,
+//             dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),16.0e6), 
+//              zeroGradientFvPatchScalarField::typeName
+//         )
+//     );
+// }
+
+
+
+// PtrList<volScalarField> g_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
+
+// for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+// {
+
+//     word name_g_alpha_dot ("g_alpha_dot." + name(count));
+
+//     g_alpha_dots.set
+//     (
+//         count,
+//         new volScalarField
+//         (
+//             IOobject
+//             (
+//                 name_g_alpha_dot,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+//                 IOobject::NO_WRITE
+//             ),
+//             mesh,
+//             dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
+//              zeroGradientFvPatchScalarField::typeName
+//         )
+//     );
+// }
+
+
+PtrList<PtrList<volScalarField> > g_alpha_dots(N_Mats);
+forAll(g_alpha_dots, i)
+{
+    g_alpha_dots.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    forAll(g_alpha_dots[i], j)
+    {
+        g_alpha_dots[i].set
+        (
+            j,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "g_alpha_dots."+Foam::name(i)+"."+Foam::name(j),
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("g_alpha_dots", dimensionSet(0,0,-1,0,0,0,0), 0.0),
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
+}
+
+// PtrList<volScalarField> gamma_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
+
+// for(label count = 0; count < N_Slips; count++)	//hardening field per slip system
+// {
+
+//     word name_gamma_alpha_dot ("gamma_alpha_dot." + name(count));
+
+//     gamma_alpha_dots.set
+//     (
+//         count,
+//         new volScalarField
+//         (
+//             IOobject
+//             (
+//                 name_gamma_alpha_dot,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+//                 IOobject::AUTO_WRITE
+//             ),
+//             mesh,
+//             dimensionedScalar("gamma_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
+//              zeroGradientFvPatchScalarField::typeName
+//         )
+//     );
+// }
+
+
+
+PtrList<PtrList<volScalarField> > gamma_alpha_dots(N_Mats);
+forAll(gamma_alpha_dots, i)
+{
+    gamma_alpha_dots.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    forAll(gamma_alpha_dots[i], j)
+    {
+        gamma_alpha_dots[i].set
+        (
+            j,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "gamma_alpha_dots."+Foam::name(i)+"."+Foam::name(j),
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("gamma_alpha_dots", dimensionSet(0,0,-1,0,0,0,0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
+}
+
+
+PtrList<PtrList<volScalarField> > gamma_alphas(N_Mats);
+forAll(gamma_alphas, i)
+{
+    gamma_alphas.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    forAll(gamma_alphas[i], j)
+    {
+        gamma_alphas[i].set
+        (
+            j,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "gamma_alphas."+Foam::name(i)+"."+Foam::name(j),
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("gamma_alphas", dimensionSet(0,0,0,0,0,0,0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
+}
+
+
+volScalarField sumgamma
+(
+    IOobject
+    (
+        "sumgamma",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("sumgamma",dimensionSet(0, 0, -1, 0, 0),0.0),
+                zeroGradientFvPatchScalarField::typeName
+);
 
 
 
@@ -651,6 +802,33 @@ for (label count = 0; count < N_Ori; count++)
 
 
 
+PtrList<volTensorField> Omega_P(N_Ori);		//pointer to phase fields
+
+
+for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+{
+
+    word name_Omega_P ("nOmega_P." + name(count));
+
+    Omega_P.set
+    (
+        count,
+        new volTensorField
+        (
+            IOobject
+            (
+                name_Omega_P,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
+            zeroGradientFvPatchTensorField::typeName
+        )
+    );
+}
 
 
 

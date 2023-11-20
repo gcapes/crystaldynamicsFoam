@@ -53,7 +53,7 @@ divSchemes
 
     "div\(rhoPhi,g_alpha.*\)"	Gauss ROUNDAplus;//Gauss linear;
     
-   
+   "div\(rhoPhi,gamma_alphas.*.*\)"	Gauss ROUNDAplus;//Gauss ROUNDAplus;//Gauss linear;
     
     div(rhoPhi,ROT.1)	Gauss ROUNDAplus;//Gauss linear;
     div(rhoPhi,ROT.2)	Gauss ROUNDAplus;//Gauss linear;

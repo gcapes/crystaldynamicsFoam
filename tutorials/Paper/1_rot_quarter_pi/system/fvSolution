@@ -155,7 +155,7 @@ solvers
 
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-6;
+        tolerance       1e-4;
         relTol          0.0;
 
     }
@@ -164,7 +164,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-6;
+        tolerance       1e-4;
         relTol          0.0;
     }
     
@@ -181,6 +181,24 @@ solvers
     }
     
         "(ROT.*)Final"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+    }
+    
+                    "gamma_alphas.*"
+    {
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.0;
+
+    }
+    
+        "(gamma_alphas.*)Final"
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;

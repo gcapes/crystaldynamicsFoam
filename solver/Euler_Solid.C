@@ -44,6 +44,8 @@ Authors
 #include "fvModels.H"
 #include "fvConstraints.H"
 
+#include "Material.H"
+
 
 #include <Fastor/Fastor.h> 
 #include <random>
@@ -109,34 +111,6 @@ sigma.correctBoundaryConditions();
             #include "Advect.H"
 
             // #include "TEqn.H"
-
-            
-
-//             while (pimple.correct())
-//             {
-// volScalarField rAU(1.0/UEqn.A());
-
-//             volVectorField HbyA("HbyA", U);
-//             HbyA = rAU*UEqn.H();
-//             surfaceScalarField phiHbyA
-//             (
-//                 "phiHbyA",
-//                 (fvc::interpolate(HbyA) & mesh.Sf())
-//               // + fvc::ddtPhiCorr(rAU, U, phi)
-//             );
-
-
-// U = HbyA ;
-// U.correctBoundaryConditions();
-
-            
-// phi=phiHbyA;//fvc::flux(U);
-
-// rhoPhi = fvc::interpolate(rho)*phi;//fvc::flux(U);
-
-
-//     K = 0.5*magSqr(U);
-//             }
 
 
 
