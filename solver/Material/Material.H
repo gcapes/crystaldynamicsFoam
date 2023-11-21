@@ -64,6 +64,18 @@ namespace Foam
   std::vector<vector> SP_norm;
   std::vector<vector> SP_direction;
 
+  double initial_CRSS; // initial critically resolved shear stress
+
+  double tau_S;//saturation value for shear stress
+
+  double h_0;//initial hardening rate
+
+   double r;//latent hardening parameter
+
+  double   k_exponent;//exponent on slip rate term
+
+  double   ref_shear_rate;//exponent on slip rate term
+
 //   Polynomial<8> A;
 //   std::vector<Polynomial<8>> Bi;
 //   std::vector<Polynomial<8>> Cij;

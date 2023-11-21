@@ -499,6 +499,23 @@ MatList[i].SP_direction.push_back(temp_m);
 
 }
 
+scalar initialCRSS_temp(readScalar(Mat.lookup("initialCRSS")));
+MatList[i].initial_CRSS = initialCRSS_temp;
+
+scalar tau_S_temp(readScalar(Mat.lookup("tau_S")));
+MatList[i].tau_S = tau_S_temp;
+
+scalar h_0_temp(readScalar(Mat.lookup("h_0")));
+MatList[i].h_0 = h_0_temp;
+
+scalar r_temp(readScalar(Mat.lookup("r")));
+MatList[i].r = r_temp;
+
+scalar k_temp(readScalar(Mat.lookup("k_exponent")));
+MatList[i].k_exponent = k_temp;
+
+scalar gammadot_0_temp(readScalar(Mat.lookup("gammadot_0")));
+MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
 // Info<<"TEST: "<<MatList[0].SP_norm[0]<<endl;
@@ -508,10 +525,10 @@ MatList[i].SP_direction.push_back(temp_m);
 // exit(0);
 
 
-PtrList<PtrList<volScalarField> > g_alphas(N_Mats);
+PtrList<PtrList<volScalarField> > g_alphas(N_Ori);
 forAll(g_alphas, i)
 {
-    g_alphas.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    g_alphas.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(g_alphas[i], j)
     {
         g_alphas[i].set
@@ -528,7 +545,7 @@ forAll(g_alphas, i)
                     IOobject::AUTO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("g_alphas", dimensionSet(0,0,0,0,0,0,0), 16.0e6),//should be initial for particular material
+                dimensionedScalar("g_alphas", dimensionSet(0,0,0,0,0,0,0), MatList[Phase2Material[i]].initial_CRSS/*16.0e6*/),//should be initial for particular material
                 zeroGradientFvPatchScalarField::typeName
             )
         );
@@ -594,10 +611,10 @@ forAll(g_alphas, i)
 // }
 
 
-PtrList<PtrList<volScalarField> > g_alpha_dots(N_Mats);
+PtrList<PtrList<volScalarField> > g_alpha_dots(N_Ori);
 forAll(g_alpha_dots, i)
 {
-    g_alpha_dots.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    g_alpha_dots.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(g_alpha_dots[i], j)
     {
         g_alpha_dots[i].set
@@ -611,7 +628,7 @@ forAll(g_alpha_dots, i)
                     runTime.timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 mesh,
                 dimensionedScalar("g_alpha_dots", dimensionSet(0,0,-1,0,0,0,0), 0.0),
@@ -650,10 +667,10 @@ forAll(g_alpha_dots, i)
 
 
 
-PtrList<PtrList<volScalarField> > gamma_alpha_dots(N_Mats);
+PtrList<PtrList<volScalarField> > gamma_alpha_dots(N_Ori);
 forAll(gamma_alpha_dots, i)
 {
-    gamma_alpha_dots.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    gamma_alpha_dots.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(gamma_alpha_dots[i], j)
     {
         gamma_alpha_dots[i].set
@@ -667,7 +684,7 @@ forAll(gamma_alpha_dots, i)
                     runTime.timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 mesh,
                 dimensionedScalar("gamma_alpha_dots", dimensionSet(0,0,-1,0,0,0,0),0.0),
@@ -678,10 +695,10 @@ forAll(gamma_alpha_dots, i)
 }
 
 
-PtrList<PtrList<volScalarField> > gamma_alphas(N_Mats);
+PtrList<PtrList<volScalarField> > gamma_alphas(N_Ori);
 forAll(gamma_alphas, i)
 {
-    gamma_alphas.set(i, new PtrList<volScalarField>(MatList[i].N_Slips));
+    gamma_alphas.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(gamma_alphas[i], j)
     {
         gamma_alphas[i].set
@@ -706,20 +723,20 @@ forAll(gamma_alphas, i)
 }
 
 
-volScalarField sumgamma
-(
-    IOobject
-    (
-        "sumgamma",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("sumgamma",dimensionSet(0, 0, -1, 0, 0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-);
+// volScalarField sumgamma
+// (
+//     IOobject
+//     (
+//         "sumgamma",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("sumgamma",dimensionSet(0, 0, -1, 0, 0),0.0),
+//                 zeroGradientFvPatchScalarField::typeName
+// );
 
 
 
@@ -799,6 +816,20 @@ for (label count = 0; count < N_Ori; count++)
 
 
 
+volScalarField N_active_Phases
+(
+    IOobject
+    (
+        "N_active_Phases",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedScalar("N_active_Phases",dimensionSet(0, 0, 0, 0, 0),0.0),
+               zeroGradientFvPatchTensorField::typeName
+);
 
 
 
@@ -821,7 +852,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
                 runTime.timeName(),
                 mesh,
                 IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
+                IOobject::NO_WRITE
             ),
             mesh,
             dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),

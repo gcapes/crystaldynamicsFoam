@@ -33,13 +33,113 @@ D_P*=0.0;
 
 p*=0.0;
 
+
+
+for(label i = 0; i < N_Mats; i++){
+for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+{
+g_alpha_dots[i][countS]*=0.0;
+// gamma_alpha_dots[i][countS]*=0.0;
+
+}
+}
+
 // Euler_Angles*=0.0;
 // epsilon_dot_P_VM*=0.0;
-sumgamma*=0.0;
+// sumgamma*=0.0;
+
+
+
+for(label i = 0; i < N_Ori; i++){
+for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
+{
+g_alpha_dots[i][countS]*=0.0;;
+// gamma_alpha_dots[i][countS].correctBoundaryConditions();
+// gamma_alphas[i][countS].correctBoundaryConditions();
+// g_alphas[i][countS].correctBoundaryConditions();
+}
+}
 
 
 forAll(mesh.C(), cell)
 {
+//   label Mat_name =-1;
+//   double max_phase = -1.0;
+  for (label h = 0; h < N_Ori; h++)
+{
+  if(PopBal[h][cell]>SMALL)
+  {
+
+
+  for(int S_alpha=0;S_alpha<MatList[Phase2Material[h]].N_Slips;S_alpha++){
+
+// double k_exponent = 5.0;//12.0
+// // double ref_shear_rate = 1e-3;
+// double ta_s = 148e6;
+// // double tau_0 = 16e6;
+// double r = 1.1;
+// double ho = 180e6;
+// double n_exponent = 5.0;//12.0
+
+  g_alpha_dots[h][S_alpha][cell]*=0.0;
+
+      for(int S_beta=0;S_beta<MatList[Phase2Material[h]].N_Slips;S_beta++){
+
+
+//   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+  double h_alpha_beta = 0.0;
+  double h_of_gamma = MatList[Phase2Material[h]].h_0*Foam::pow(1.0/(Foam::cosh((MatList[Phase2Material[h]].h_0*gamma_alphas[h][S_alpha][cell])/(MatList[Phase2Material[h]].tau_S-MatList[Phase2Material[h]].initial_CRSS))),2.0);
+// //   // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
+  if(S_beta==S_alpha){
+    h_alpha_beta = h_of_gamma*(MatList[Phase2Material[h]].r+(1.0-MatList[Phase2Material[h]].r));
+      }
+    else{
+      h_alpha_beta = h_of_gamma*(MatList[Phase2Material[h]].r);
+    }
+   
+   
+   g_alpha_dots[h][S_alpha][cell]+=(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
+   
+    }
+
+//     
+    }
+
+// // h_alpha_beta = r*h_of_gamma;
+
+//   // Info<<h_alpha_beta<<endl;
+//   g_alpha_dots[Mat_name][S_alpha][cell]+=(h_alpha_beta)*gamma_alpha_dots[Mat_name][S_beta][cell];//Acc_Strain[cell];
+  
+
+    }
+// // Info<<g_alpha_dots[Mat_name][S_alpha][cell]<<endl;
+  }
+
+
+
+
+
+
+}
+
+
+
+
+
+forAll(mesh.C(), cell)
+{
+
+    label Mat_name =-1;
+  double max_phase = -1.0;
+  for (label h = 0; h < N_Ori; h++)
+{
+  if(PopBal[h][cell]>max_phase){
+      Mat_name = Phase2Material[h];
+  }
+  max_phase = max(PopBal[h][cell],max_phase);
+  
+}
+  
 
 
   Fastor::Tensor<double,3,3> Fsigma(0.0); //CAST OPENFOAM VARIABLES INTO FASTOR VARIABLES
@@ -146,7 +246,9 @@ Fastor::Tensor<double,3,3> Rot_matrix(0.0);
   Fastor::Tensor<double,3,3> F_D_P(0.0);
   Fastor::Tensor<double,3,3> F_Omega_P(0.0);
 
+// if(PopBal[h][cell]>0.5){
 for(int s=0;s<MatList[Phase2Material[h]].N_Slips;s++){
+  
 
   Fastor::Tensor<double,3> F_n_alpha(0.0);
   Fastor::Tensor<double,3> F_m_alpha(0.0);
@@ -191,47 +293,20 @@ tau_alpha+=Fsigma(i,j) * Schmid_T(i,j);
 }
 
 
-//Work Out g_alphas
-double k_exponent = 5.0;//12.0
-double ref_shear_rate = 1e-3;
-double ta_s = 148e6;
-double tau_0 = 16e6;
-double r = 1.1;
-double ho = 180e6;
-double n_exponent = 5.0;//12.0
 
-g_alpha_dots[Phase2Material[h]][s][cell]*=0.0;
-
-for(int beta=0;beta<MatList[Phase2Material[h]].N_Slips;beta++){
-
-  // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-  double h_alpha_beta = 0.0;
-  double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-  // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
-  if(beta==s){
-    h_alpha_beta = h_of_gamma*(r+(1.0-r));
-    }
-
-    else{
-      h_alpha_beta = h_of_gamma*(r);
-    }
-
-// h_alpha_beta = r*h_of_gamma;
-
-  g_alpha_dots[Phase2Material[h]][s][cell]+=PopBal[h][cell]*(h_alpha_beta)*gamma_alpha_dots[Phase2Material[h]][beta][cell];
-
-}
-
-// Info<<g_alphas[s][cell]<<endl;
-
-gamma_alpha_dots[Phase2Material[h]][s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[Phase2Material[h]][s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
-
-sumgamma[cell]+= mag(PopBal[h][cell]*gamma_alpha_dots[Phase2Material[h]][s][cell]);//for next time-step
-//Work Out g_alphas
+double k_exponent = MatList[Phase2Material[h]].k_exponent;//10.0;//12.0
+double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate;//1e-3;
 
 
-F_D_P+=(P_alpha*gamma_alpha_dots[Phase2Material[h]][s][cell]);
-F_Omega_P+=(omega_alpha*gamma_alpha_dots[Phase2Material[h]][s][cell]);
+gamma_alpha_dots[h][s][cell] = ref_shear_rate*Foam::pow((mag(tau_alpha/g_alphas[h][s][cell])),k_exponent)*sign(tau_alpha);//source term for RHS of g_alpha equations
+
+// sumgamma[cell]+= mag((PopBal[h][cell]/Sum_Phases[cell])*gamma_alpha_dots[h][s][cell]);//for next time-step
+
+
+
+F_D_P+=(P_alpha*gamma_alpha_dots[h][s][cell]);
+F_Omega_P+=(omega_alpha*gamma_alpha_dots[h][s][cell]);
+// }
 
 }//end of loop over slip systems
 
@@ -314,9 +389,19 @@ for(int i = 0 ; i < 3 ; i++ ){
 */
 
 
-sumgamma.correctBoundaryConditions();
-for(label i = 0; i < N_Mats; i++){
-for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+// sumgamma.correctBoundaryConditions();
+// for(label i = 0; i < N_Mats; i++){
+// for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+// {
+// g_alpha_dots[i][countS].correctBoundaryConditions();
+// // gamma_alpha_dots[i][countS].correctBoundaryConditions();
+// // gamma_alphas[i][countS].correctBoundaryConditions();
+// g_alphas[i][countS].correctBoundaryConditions();
+// }
+// }
+
+for(label i = 0; i < N_Ori; i++){
+for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
 {
 g_alpha_dots[i][countS].correctBoundaryConditions();
 gamma_alpha_dots[i][countS].correctBoundaryConditions();

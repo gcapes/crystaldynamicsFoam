@@ -8,18 +8,18 @@
 
 
 
-        fvScalarMatrix  AdvAccStrainEqn
-        (
-            fvm::ddt(rho,Acc_Strain)
-            + fvm::div(rhoPhi, Acc_Strain)
-            ==
-            (rho*sumgamma)//epsilon_dot_P_VM
+        // fvScalarMatrix  AdvAccStrainEqn
+        // (
+        //     fvm::ddt(rho,Acc_Strain)
+        //     + fvm::div(rhoPhi, Acc_Strain)
+        //     ==
+        //     (rho*sumgamma)//epsilon_dot_P_VM
 
-        );
+        // );
 
-        AdvAccStrainEqn.relax();
+        // AdvAccStrainEqn.relax();
 
-        AdvAccStrainEqn.solve();
+        // AdvAccStrainEqn.solve();
         // Acc_Strain.correctBoundaryConditions();
         
 // Acc_Strain=max(Acc_Strain,0.0);
@@ -43,8 +43,8 @@
 
 
 
-for(label i = 0; i < N_Mats; i++){
-for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+for(label i = 0; i < N_Ori; i++){
+for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
 {
 
     // volScalarField & ni = PopBal[count];
@@ -70,8 +70,8 @@ for (label countS = 0; countS < MatList[i].N_Slips; countS++)
 }
 
 
-for(label i = 0; i < N_Mats; i++){
-for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+for(label i = 0; i < N_Ori; i++){
+for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
 {
 
     // volScalarField & ni = PopBal[count];
