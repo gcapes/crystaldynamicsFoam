@@ -161,7 +161,7 @@ volScalarField & Rot3_ = Rot3[count];
         fvm::ddt(rho,Rot1_) 
         +fvm::div(rhoPhi, Rot1_)
         ==
-        (rho*(omega_dot.component(5) - Omega_P[count].component(5)))//epsilon_dot_P_VM
+        (rho*(omega_dot.component(7) - Omega_P[count].component(7)))//epsilon_dot_P_VM
 
     );
     Rot1_.correctBoundaryConditions();
@@ -183,7 +183,7 @@ volScalarField & Rot3_ = Rot3[count];
         fvm::ddt(rho,Rot3_) 
         +fvm::div(rhoPhi, Rot3_)
         ==
-        (rho*(omega_dot.component(1) - Omega_P[count].component(1)))//epsilon_dot_P_VM
+        (rho*(omega_dot.component(3) - Omega_P[count].component(3)))//epsilon_dot_P_VM
 
     );
     Rot3_.correctBoundaryConditions();

@@ -23,9 +23,28 @@ IOdictionary solutionDict
     )
 );
 
+IOdictionary controlDict
+(
+    IOobject
+    (
+        "controlDict",
+        runTime.system(), //folder where the fvSolution file is located
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+
+
 dictionary& PimpleDICT = solutionDict.subDict("PIMPLE");
 
 int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+
+
+
+
+// scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
 // Info<<"TREST: "<<n_sub_steps<<endl;
 
@@ -63,7 +82,7 @@ volTensorField D_P
         "D_P",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
         mesh,
@@ -541,7 +560,7 @@ forAll(g_alphas, i)
                     "g_alpha."+Foam::name(i)+"."+Foam::name(j),
                     runTime.timeName(),
                     mesh,
-                    IOobject::NO_READ,
+                    IOobject::READ_IF_PRESENT,
                     IOobject::AUTO_WRITE
                 ),
                 mesh,
@@ -711,7 +730,7 @@ forAll(gamma_alphas, i)
                     "gamma_alphas."+Foam::name(i)+"."+Foam::name(j),
                     runTime.timeName(),
                     mesh,
-                    IOobject::NO_READ,
+                    IOobject::READ_IF_PRESENT,
                     IOobject::AUTO_WRITE
                 ),
                 mesh,
@@ -922,7 +941,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0),
+            dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),phi1[count]),
             zeroGradientFvPatchScalarField::typeName
         )
     );
@@ -950,7 +969,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0),
+            dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),phi2[count]),
             zeroGradientFvPatchScalarField::typeName
         )
     );
@@ -979,29 +998,29 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0),
+            dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),phi3[count]),
             zeroGradientFvPatchScalarField::typeName
         )
     );
 }
 
-forAll(mesh.C(), cell)
-{
+// forAll(mesh.C(), cell)
+// {
 
-for (label h = 0; h < N_Ori; h++)
-{
-// ROT_1[cell]+=PopBal[h][cell]*phi1[h];
-// ROT_2[cell]+=PopBal[h][cell]*phi2[h];
-// ROT_3[cell]+=PopBal[h][cell]*phi3[h];
+// for (label h = 0; h < N_Ori; h++)
+// {
+// // ROT_1[cell]+=PopBal[h][cell]*phi1[h];
+// // ROT_2[cell]+=PopBal[h][cell]*phi2[h];
+// // ROT_3[cell]+=PopBal[h][cell]*phi3[h];
 
-Rot1[h][cell] = phi1[h];
-Rot2[h][cell] = phi2[h];
-Rot3[h][cell] = phi3[h];
+// Rot1[h][cell] = phi1[h];
+// Rot2[h][cell] = phi2[h];
+// Rot3[h][cell] = phi3[h];
 
 
-}
+// }
 
-}
+// }
 
 // volScalarField ROT_1//rotation about x
 // (

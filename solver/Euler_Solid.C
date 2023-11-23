@@ -43,6 +43,7 @@ Authors
 #include "pimpleControl.H"
 #include "fvModels.H"
 #include "fvConstraints.H"
+#include "CorrectPhi.H"
 
 #include "Material.H"
 
@@ -75,12 +76,29 @@ int main(int argc, char *argv[])
 
     while (pimple.run(runTime))
     {
+
+//         IOdictionary controlDict
+// (
+//     IOobject
+//     (
+//         "controlDict",
+//         runTime.system(), //folder where the fvSolution file is located
+//         runTime,
+//         IOobject::MUST_READ
+//     )
+// );
+
+        scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
+
+        // Info<<"TEST:: "<<maxTimeStep<<endl;
+
         #include "readDyMControls.H"
 
 
             #include "CourantNo.H"
          //   #include "alphaCourantNo.H"
-       //  #include "setDeltaT.H"
+        #include "setDeltaT.H"
+
 
 
         runTime++;
