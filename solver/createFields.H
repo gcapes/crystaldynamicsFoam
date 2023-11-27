@@ -1,48 +1,32 @@
-Info<< "Reading physicalProperties\n" << endl;
+Info << "Reading physicalProperties\n"
+     << endl;
 
-IOdictionary physicalProperties
-(
-    IOobject
-    (
+IOdictionary physicalProperties(
+    IOobject(
         "physicalProperties",
         runTime.constant(),
         mesh,
         IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
+        IOobject::NO_WRITE));
 
-IOdictionary solutionDict
-(
-    IOobject
-    (
+IOdictionary solutionDict(
+    IOobject(
         "fvSolution",
-        runTime.system(), //folder where the fvSolution file is located
+        runTime.system(), // folder where the fvSolution file is located
         runTime,
-        IOobject::MUST_READ
-    )
-);
+        IOobject::MUST_READ));
 
-IOdictionary controlDict
-(
-    IOobject
-    (
+IOdictionary controlDict(
+    IOobject(
         "controlDict",
-        runTime.system(), //folder where the fvSolution file is located
+        runTime.system(), // folder where the fvSolution file is located
         mesh,
         IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
+        IOobject::NO_WRITE));
 
-
-
-dictionary& PimpleDICT = solutionDict.subDict("PIMPLE");
+dictionary &PimpleDICT = solutionDict.subDict("PIMPLE");
 
 int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
-
-
-
 
 // scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
@@ -52,43 +36,24 @@ int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
 
 dimensionedScalar pi("pi", dimensionSet(0, 0, 0, 0, 0), constant::mathematical::pi);
 
-
-
-dimensionedScalar Cv("Cv",dimensionSet(0, 2, -2, -1, 0),physicalProperties.lookup("Cv"));
-dimensionedScalar kappa("kappa",dimensionSet(1, 1, -3, -1, 0),physicalProperties.lookup("kappa"));
-dimensionedScalar rho_0("rho_0",dimensionSet(1, -3, 0, 0, 0),physicalProperties.lookup("rho_0"));
-
-
+dimensionedScalar Cv("Cv", dimensionSet(0, 2, -2, -1, 0), physicalProperties.lookup("Cv"));
+dimensionedScalar kappa("kappa", dimensionSet(1, 1, -3, -1, 0), physicalProperties.lookup("kappa"));
+dimensionedScalar rho_0("rho_0", dimensionSet(1, -3, 0, 0, 0), physicalProperties.lookup("rho_0"));
 
 //  Info<<"TEST"<<(n_alpha[0] * m_alpha[0])<<endl;
 
 // exit(0);
 
-
-
-
-
-
-
-
-
-
-
-
-volTensorField D_P
-(
-    IOobject
-    (
+volTensorField D_P(
+    IOobject(
         "D_P",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedTensor("D_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName);
 
 // volTensorField Omega_P
 // (
@@ -104,10 +69,6 @@ dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
 // dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
 //                 zeroGradientFvPatchTensorField::typeName
 // );
-
-
-
-
 
 // volTensorField Omega_E
 // (
@@ -127,18 +88,17 @@ dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
 // for ()
 // {
 
-
 // }
 
 // const Switch Hardening(physicalProperties.lookupOrDefault<Switch>("Hardening", false));
 
 // // if(Hardening){
 
-// scalar K_0(physicalProperties.lookupOrDefault<scalar>("K_0", 0.0));   
-// scalar K_n(physicalProperties.lookupOrDefault<scalar>("K_n", 0.0));   
-// scalar K_B(physicalProperties.lookupOrDefault<scalar>("K_B", 0.0));   
-// scalar K_Beta_0(physicalProperties.lookupOrDefault<scalar>("K_Beta_0", 0.0));   
-// scalar K_Beta_1(physicalProperties.lookupOrDefault<scalar>("K_Beta_1", 0.0));    
+// scalar K_0(physicalProperties.lookupOrDefault<scalar>("K_0", 0.0));
+// scalar K_n(physicalProperties.lookupOrDefault<scalar>("K_n", 0.0));
+// scalar K_B(physicalProperties.lookupOrDefault<scalar>("K_B", 0.0));
+// scalar K_Beta_0(physicalProperties.lookupOrDefault<scalar>("K_Beta_0", 0.0));
+// scalar K_Beta_1(physicalProperties.lookupOrDefault<scalar>("K_Beta_1", 0.0));
 
 // // dimensionedScalar K_0("K_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("K_0"));
 // // dimensionedScalar K_n("K_n",dimensionSet(0, 0, 0, 0, 0),physicalProperties.lookup("K_n"));
@@ -150,20 +110,16 @@ dimensionedTensor("D_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
 
 // dimensionedScalar sigma_Y_0("sigma_Y_0",dimensionSet(1, -1, -2, 0, 0),physicalProperties.lookup("sigma_Y_0"));
 
-
-Info<< "Reading field U\n" << endl;
-volVectorField U
-(
-    IOobject
-    (
+Info << "Reading field U\n"
+     << endl;
+volVectorField U(
+    IOobject(
         "U",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+        IOobject::AUTO_WRITE),
+    mesh);
 
 // volVectorField D
 // (
@@ -179,34 +135,26 @@ volVectorField U
 //     dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
 // );
 
-Info<< "Reading field Temperature\n" << endl;
-volScalarField T
-(
-    IOobject
-    (
+Info << "Reading field Temperature\n"
+     << endl;
+volScalarField T(
+    IOobject(
         "T",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+        IOobject::AUTO_WRITE),
+    mesh);
 
-volScalarField K
-(
-    IOobject
-    (
+volScalarField K(
+    IOobject(
         "K",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
+        IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("K",dimensionSet(0, 2, -2, 0, 0),0.0)
-);
-
+    dimensionedScalar("K", dimensionSet(0, 2, -2, 0, 0), 0.0));
 
 // volScalarField trsig
 // (
@@ -281,50 +229,35 @@ volScalarField K
 //                 zeroGradientFvPatchScalarField::typeName
 // );
 
-volScalarField rho
-(
-    IOobject
-    (
+volScalarField rho(
+    IOobject(
         "rho",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
+        IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("rho",dimensionSet(1, -3, 0, 0, 0),rho_0.value()),
-                zeroGradientFvPatchScalarField::typeName
-);
+    dimensionedScalar("rho", dimensionSet(1, -3, 0, 0, 0), rho_0.value()),
+    zeroGradientFvPatchScalarField::typeName);
 
-volScalarField p
-(
-    IOobject
-    (
+volScalarField p(
+    IOobject(
         "p",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
+        IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("p",dimensionSet(1, -1, -2, 0, 0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-);
+    dimensionedScalar("p", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName);
 
-
-surfaceScalarField rhoPhi
-            (
-                IOobject
-                (
-                    "rhoPhi",
-                    runTime.timeName(),
-                    mesh
-                ),
-                mesh,
-                dimensionedScalar(dimMass/dimTime, 0)
-            );
-
-
+surfaceScalarField rhoPhi(
+    IOobject(
+        "rhoPhi",
+        runTime.timeName(),
+        mesh),
+    mesh,
+    dimensionedScalar(dimMass / dimTime, 0));
 
 // volScalarField divU
 // (
@@ -341,63 +274,45 @@ surfaceScalarField rhoPhi
 //                 zeroGradientFvPatchScalarField::typeName
 // );
 
-
-volScalarField Sum_Phases
-(
-    IOobject
-    (
+volScalarField Sum_Phases(
+    IOobject(
         "Sum_Phases",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
+        IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("Sum_Phases",dimensionSet(0, 0, 0, 0, 0),0.0)
-);
-
-
+    dimensionedScalar("Sum_Phases", dimensionSet(0, 0, 0, 0, 0), 0.0));
 
 // const label N_Ori=20;
 
-IOdictionary GrainProperties
-(
-    IOobject
-    (
-        "GrainProperties",    // dictionary name
-        runTime.constant(),     // dict is found in "constant"
-        mesh,                   // registry for the dict
-        IOobject::MUST_READ,    // must exist, otherwise failure
-        IOobject::NO_WRITE      // dict is only read by the solver
-    )
-);
-
+IOdictionary GrainProperties(
+    IOobject(
+        "GrainProperties",   // dictionary name
+        runTime.constant(),  // dict is found in "constant"
+        mesh,                // registry for the dict
+        IOobject::MUST_READ, // must exist, otherwise failure
+        IOobject::NO_WRITE   // dict is only read by the solver
+        ));
 
 label N_Ori(readLabel(GrainProperties.lookup("N_Phases")));
-Info<<"Number of Phase Field Order Parameters: "<<N_Ori<<endl;
+Info << "Number of Phase Field Order Parameters: " << N_Ori << endl;
 
-
-
-
-  // Ready to read in multiple stiffness matrices
+// Ready to read in multiple stiffness matrices
 
 label N_Mats(readLabel(GrainProperties.lookup("N_Materials")));
-Info<<"Number of Materials: "<<N_Mats<<endl;
+Info << "Number of Materials: " << N_Mats << endl;
 
-
-labelList Phase2Material(N_Ori,0);
+labelList Phase2Material(N_Ori, 0);
 
 GrainProperties.lookup("Phase2Material") >> Phase2Material;
 
-for(label c=0; c<N_Ori; c++)
+for (label c = 0; c < N_Ori; c++)
 {
-    Info<<"Phase["<<c<<"] = Material["<<Phase2Material[c]<<"]"<<endl;
+    Info << "Phase[" << c << "] = Material[" << Phase2Material[c] << "]" << endl;
 }
 
-
-Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
-
-
+Fastor::Tensor<double, 3, 3, 3, 3> Cprime2[N_Mats]; // array of tensor objects
 
 // int N_Slips = 12;
 
@@ -405,21 +320,17 @@ Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
 
 // vector n_alpha[N_Mats][N_Slips];//slip plane normal
 
-
-
-
-
-//  vector n1(0,	0.707,	-0.707); 
-//  vector n2(-0.707,0.0,0.707);	
-//  vector n3(0.707,-0.707,0.0);	    
-//   vector n4(0,-0.707,-0.707);	  
-//   vector n5(0.707,0.0,0.707);	
-//  vector n6(-0.707,0.707,0.0);	    
-//   vector n7(0,0.707,-0.707);	  
-//   vector n8(0.707,0.0,0.707);	  
-//  vector n9(-0.707,-0.707,0.0);	    
-//   vector n10(0,-0.707,-0.707);	 
-//  vector n11(-0.707,0.0,0.707); 
+//  vector n1(0,	0.707,	-0.707);
+//  vector n2(-0.707,0.0,0.707);
+//  vector n3(0.707,-0.707,0.0);
+//   vector n4(0,-0.707,-0.707);
+//   vector n5(0.707,0.0,0.707);
+//  vector n6(-0.707,0.707,0.0);
+//   vector n7(0,0.707,-0.707);
+//   vector n8(0.707,0.0,0.707);
+//  vector n9(-0.707,-0.707,0.0);
+//   vector n10(0,-0.707,-0.707);
+//  vector n11(-0.707,0.0,0.707);
 //   vector n12(0.707,0.707,0.0);
 
 // n_alpha[0]=n1;
@@ -438,9 +349,9 @@ Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
 //  vector m1(0.577,0.577,0.577)	;
 // vector m2(0.577,0.577,0.577)	;
 // vector m3(0.577,0.577,0.577)	;
-// vector m4(-0.577,-0.577,0.577);	
-// vector m5(-0.577,-0.577,0.577);	
-// vector m6(-0.577,-0.577,0.577);	
+// vector m4(-0.577,-0.577,0.577);
+// vector m5(-0.577,-0.577,0.577);
+// vector m6(-0.577,-0.577,0.577);
 // vector m7(-0.577,0.577,0.577)	;
 // vector m8(-0.577,0.577,0.577)	;
 // vector m9(-0.577,0.577,0.577)	;
@@ -461,80 +372,72 @@ Fastor::Tensor<double,3,3,3,3> Cprime2[N_Mats];//array of tensor objects
 // m_alpha[10] = m11;
 // m_alpha[11] = m12;
 
+std::vector<Material> MatList(N_Mats, Material());
 
-
-
-std::vector<Material> MatList(N_Mats,Material());
-
-
-for(label i = 0; i < N_Mats; i++)
+for (label i = 0; i < N_Mats; i++)
 {
 
-    word Mat_dict ("Material." + name(i));
+    word Mat_dict("Material." + name(i));
     dictionary Mat = GrainProperties.subDict(Mat_dict);
 
-    Fastor::Tensor<double,3,3,3,3> Cprime_temp_Read(0.0);
+    Fastor::Tensor<double, 3, 3, 3, 3> Cprime_temp_Read(0.0);
 
-    for(int m = 0 ; m < 3 ; m++ ){
-          for(int n = 0 ; n < 3 ; n++ ){
-            for(int p = 0 ; p < 3 ; p++ ){
-              for(int q = 0 ;q  < 3 ; q++ ){
+    for (int m = 0; m < 3; m++)
+    {
+        for (int n = 0; n < 3; n++)
+        {
+            for (int p = 0; p < 3; p++)
+            {
+                for (int q = 0; q < 3; q++)
+                {
 
-                word Cijkl ("C" + name(m)+ name(n)+ name(p)+ name(q));
+                    word Cijkl("C" + name(m) + name(n) + name(p) + name(q));
 
-                Cprime_temp_Read(m,n,p,q)= Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
-
-
-              }
+                    Cprime_temp_Read(m, n, p, q) = Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+                }
             }
-          }
+        }
     }
 
-Cprime2[i] = Cprime_temp_Read;
+    Cprime2[i] = Cprime_temp_Read;
 
+    label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
 
+    MatList[i].N_Slips = N_slips_Temp;
 
+    for (int j = 0; j < MatList[i].N_Slips; j++)
+    {
 
+        word Slip_direction_name = "m" + name(j);
+        word Slip_normal_name = "n" + name(j);
 
-label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
+        vector temp_m(Mat.lookup(Slip_direction_name));
+        vector temp_n(Mat.lookup(Slip_normal_name));
 
-MatList[i].N_Slips = N_slips_Temp;
+        //   m_alpha[i][j] = temp_m;
+        //   n_alpha[i][j] = temp_n;
 
-for(int j=0;j<MatList[i].N_Slips; j++){
+        MatList[i].SP_norm.push_back(temp_n);
+        MatList[i].SP_direction.push_back(temp_m);
+    }
 
-word Slip_direction_name="m" + name(j);
-word Slip_normal_name = "n" + name(j);
+    scalar initialCRSS_temp(readScalar(Mat.lookup("initialCRSS")));
+    MatList[i].initial_CRSS = initialCRSS_temp;
 
+    scalar tau_S_temp(readScalar(Mat.lookup("tau_S")));
+    MatList[i].tau_S = tau_S_temp;
 
+    scalar h_0_temp(readScalar(Mat.lookup("h_0")));
+    MatList[i].h_0 = h_0_temp;
 
- vector temp_m(Mat.lookup(Slip_direction_name));
- vector temp_n(Mat.lookup(Slip_normal_name));
+    scalar r_temp(readScalar(Mat.lookup("r")));
+    MatList[i].r = r_temp;
 
-//   m_alpha[i][j] = temp_m;
-//   n_alpha[i][j] = temp_n;
+    scalar k_temp(readScalar(Mat.lookup("k_exponent")));
+    MatList[i].k_exponent = k_temp;
 
-MatList[i].SP_norm.push_back(temp_n);
-MatList[i].SP_direction.push_back(temp_m);
-
-}
-
-scalar initialCRSS_temp(readScalar(Mat.lookup("initialCRSS")));
-MatList[i].initial_CRSS = initialCRSS_temp;
-
-scalar tau_S_temp(readScalar(Mat.lookup("tau_S")));
-MatList[i].tau_S = tau_S_temp;
-
-scalar h_0_temp(readScalar(Mat.lookup("h_0")));
-MatList[i].h_0 = h_0_temp;
-
-scalar r_temp(readScalar(Mat.lookup("r")));
-MatList[i].r = r_temp;
-
-scalar k_temp(readScalar(Mat.lookup("k_exponent")));
-MatList[i].k_exponent = k_temp;
-
-scalar gammadot_0_temp(readScalar(Mat.lookup("gammadot_0")));
-MatList[i].ref_shear_rate = gammadot_0_temp;
+    scalar gammadot_0_temp(readScalar(Mat.lookup("gammadot_0")));
+    MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
 // Info<<"TEST: "<<MatList[0].SP_norm[0]<<endl;
@@ -543,35 +446,26 @@ MatList[i].ref_shear_rate = gammadot_0_temp;
 
 // exit(0);
 
-
-PtrList<PtrList<volScalarField> > g_alphas(N_Ori);
+PtrList<PtrList<volScalarField>> g_alphas(N_Ori);
 forAll(g_alphas, i)
 {
     g_alphas.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(g_alphas[i], j)
     {
-        g_alphas[i].set
-        (
+        g_alphas[i].set(
             j,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "g_alpha."+Foam::name(i)+"."+Foam::name(j),
+            new volScalarField(
+                IOobject(
+                    "g_alpha." + Foam::name(i) + "." + Foam::name(j),
                     runTime.timeName(),
                     mesh,
                     IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
+                    IOobject::AUTO_WRITE),
                 mesh,
-                dimensionedScalar("g_alphas", dimensionSet(0,0,0,0,0,0,0), MatList[Phase2Material[i]].initial_CRSS/*16.0e6*/),//should be initial for particular material
-                zeroGradientFvPatchScalarField::typeName
-            )
-        );
+                dimensionedScalar("g_alphas", dimensionSet(0, 0, 0, 0, 0, 0, 0), MatList[Phase2Material[i]].initial_CRSS /*16.0e6*/), // should be initial for particular material
+                zeroGradientFvPatchScalarField::typeName));
     }
 }
-
-
 
 // PtrList<volScalarField> g_alphas(N_Slips);
 
@@ -594,13 +488,11 @@ forAll(g_alphas, i)
 //                 IOobject::AUTO_WRITE
 //             ),
 //             mesh,
-//             dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),16.0e6), 
+//             dimensionedScalar("g_alpha",dimensionSet(0, 0, 0, 0, 0),16.0e6),
 //              zeroGradientFvPatchScalarField::typeName
 //         )
 //     );
 // }
-
-
 
 // PtrList<volScalarField> g_alpha_dots(N_Slips);//source terms on RHS of G_alpha_equation
 
@@ -623,37 +515,30 @@ forAll(g_alphas, i)
 //                 IOobject::NO_WRITE
 //             ),
 //             mesh,
-//             dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
+//             dimensionedScalar("g_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0),
 //              zeroGradientFvPatchScalarField::typeName
 //         )
 //     );
 // }
 
-
-PtrList<PtrList<volScalarField> > g_alpha_dots(N_Ori);
+PtrList<PtrList<volScalarField>> g_alpha_dots(N_Ori);
 forAll(g_alpha_dots, i)
 {
     g_alpha_dots.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(g_alpha_dots[i], j)
     {
-        g_alpha_dots[i].set
-        (
+        g_alpha_dots[i].set(
             j,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "g_alpha_dots."+Foam::name(i)+"."+Foam::name(j),
+            new volScalarField(
+                IOobject(
+                    "g_alpha_dots." + Foam::name(i) + "." + Foam::name(j),
                     runTime.timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
+                    IOobject::NO_WRITE),
                 mesh,
-                dimensionedScalar("g_alpha_dots", dimensionSet(0,0,-1,0,0,0,0), 0.0),
-                zeroGradientFvPatchScalarField::typeName
-            )
-        );
+                dimensionedScalar("g_alpha_dots", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0.0),
+                zeroGradientFvPatchScalarField::typeName));
     }
 }
 
@@ -678,69 +563,53 @@ forAll(g_alpha_dots, i)
 //                 IOobject::AUTO_WRITE
 //             ),
 //             mesh,
-//             dimensionedScalar("gamma_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0), 
+//             dimensionedScalar("gamma_alpha_dot",dimensionSet(0, 0, -1, 0, 0),0.0),
 //              zeroGradientFvPatchScalarField::typeName
 //         )
 //     );
 // }
 
-
-
-PtrList<PtrList<volScalarField> > gamma_alpha_dots(N_Ori);
+PtrList<PtrList<volScalarField>> gamma_alpha_dots(N_Ori);
 forAll(gamma_alpha_dots, i)
 {
     gamma_alpha_dots.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(gamma_alpha_dots[i], j)
     {
-        gamma_alpha_dots[i].set
-        (
+        gamma_alpha_dots[i].set(
             j,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "gamma_alpha_dots."+Foam::name(i)+"."+Foam::name(j),
+            new volScalarField(
+                IOobject(
+                    "gamma_alpha_dots." + Foam::name(i) + "." + Foam::name(j),
                     runTime.timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
+                    IOobject::NO_WRITE),
                 mesh,
-                dimensionedScalar("gamma_alpha_dots", dimensionSet(0,0,-1,0,0,0,0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-            )
-        );
+                dimensionedScalar("gamma_alpha_dots", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0.0),
+                zeroGradientFvPatchScalarField::typeName));
     }
 }
 
-
-PtrList<PtrList<volScalarField> > gamma_alphas(N_Ori);
+PtrList<PtrList<volScalarField>> gamma_alphas(N_Ori);
 forAll(gamma_alphas, i)
 {
     gamma_alphas.set(i, new PtrList<volScalarField>(MatList[Phase2Material[i]].N_Slips));
     forAll(gamma_alphas[i], j)
     {
-        gamma_alphas[i].set
-        (
+        gamma_alphas[i].set(
             j,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "gamma_alphas."+Foam::name(i)+"."+Foam::name(j),
+            new volScalarField(
+                IOobject(
+                    "gamma_alphas." + Foam::name(i) + "." + Foam::name(j),
                     runTime.timeName(),
                     mesh,
                     IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
+                    IOobject::AUTO_WRITE),
                 mesh,
-                dimensionedScalar("gamma_alphas", dimensionSet(0,0,0,0,0,0,0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-            )
-        );
+                dimensionedScalar("gamma_alphas", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.0),
+                zeroGradientFvPatchScalarField::typeName));
     }
 }
-
 
 // volScalarField sumgamma
 // (
@@ -757,68 +626,42 @@ forAll(gamma_alphas, i)
 //                 zeroGradientFvPatchScalarField::typeName
 // );
 
+PtrList<volScalarField> PopBal(N_Ori); // pointer to phase fields
 
-
-
-
-
-
-PtrList<volScalarField> PopBal(N_Ori);		//pointer to phase fields
-
-
-for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
 {
 
-    word name_ni ("n." + name(count));
+    word name_ni("n." + name(count));
 
-    PopBal.set
-    (
+    PopBal.set(
         count,
-        new volScalarField
-        (
-            IOobject
-            (
+        new volScalarField(
+            IOobject(
                 name_ni,
                 runTime.timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
             mesh,
-            dimensionedScalar("ni",dimensionSet(0, 0, 0, 0, 0),0.0),
-            zeroGradientFvPatchScalarField::typeName
-        )
-    );
+            dimensionedScalar("ni", dimensionSet(0, 0, 0, 0, 0), 0.0),
+            zeroGradientFvPatchScalarField::typeName));
 }
 
-
-
-
-
-
-
-
-
-
-Sum_Phases*=0.0;
+Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
 {
 
-    volScalarField & ni = PopBal[count];
+    volScalarField &ni = PopBal[count];
 
     Sum_Phases += ni;
-
-
 }
 Sum_Phases.correctBoundaryConditions();
-
 
 //  Project any out of bounds phases back onto the Gibbs Simplex
 for (label count = 0; count < N_Ori; count++)
 {
 
-    volScalarField & ni = PopBal[count];
-
+    volScalarField &ni = PopBal[count];
 
     ni = max(min(ni, 1.0), 0.0);
     volScalarField temp_holder = ni;
@@ -833,73 +676,53 @@ for (label count = 0; count < N_Ori; count++)
     ni = temp_holder;
 }
 
-
-
-volScalarField N_active_Phases
-(
-    IOobject
-    (
+volScalarField N_active_Phases(
+    IOobject(
         "N_active_Phases",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedScalar("N_active_Phases",dimensionSet(0, 0, 0, 0, 0),0.0),
-               zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedScalar("N_active_Phases", dimensionSet(0, 0, 0, 0, 0), 0.0),
+    zeroGradientFvPatchTensorField::typeName);
 
+PtrList<volTensorField> Omega_P(N_Ori); // pointer to phase fields
 
-
-PtrList<volTensorField> Omega_P(N_Ori);		//pointer to phase fields
-
-
-for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
 {
 
-    word name_Omega_P ("nOmega_P." + name(count));
+    word name_Omega_P("nOmega_P." + name(count));
 
-    Omega_P.set
-    (
+    Omega_P.set(
         count,
-        new volTensorField
-        (
-            IOobject
-            (
+        new volTensorField(
+            IOobject(
                 name_Omega_P,
                 runTime.timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::NO_WRITE
-            ),
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::NO_WRITE),
             mesh,
-            dimensionedTensor("Omega_P",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-            zeroGradientFvPatchTensorField::typeName
-        )
-    );
+            dimensionedTensor("Omega_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
+            zeroGradientFvPatchTensorField::typeName));
 }
-
-
-
 
 Random randObj2(clock::getTime());
 
-double phi1[N_Ori]={0.0};
+double phi1[N_Ori] = {0.0};
 
-double phi2[N_Ori]={0.0};
+double phi2[N_Ori] = {0.0};
 
-double phi3[N_Ori]={0.0};
+double phi3[N_Ori] = {0.0};
 
+for (label count_j = 0; count_j < N_Ori; count_j++)
+{
 
-for(label count_j = 0; count_j < N_Ori; count_j++){
-
-phi1[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
-phi2[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
-phi3[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
-
+    phi1[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
+    phi2[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
+    phi3[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
 }
-
 
 // phi1[0]=0.0;
 // phi2[0]=0.0;
@@ -913,95 +736,71 @@ phi3[count_j]=0.0;//randObj2.scalar01()*2.0*pi.value();
 // phi2[2]=0.0;
 // phi3[2]=0.0;
 
-phi1[3]=0.25*pi.value();
-phi2[3]=0.0;
-phi3[3]=0.0;
+phi1[0] = 0.25 * pi.value();
+phi2[0] = 0.0;
+phi3[0] = 0.0;
 
+PtrList<volScalarField> Rot1(N_Ori); // pointer to phase fields
 
-
-
-PtrList<volScalarField> Rot1(N_Ori);		//pointer to phase fields
-
-for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
 {
 
-    word name_ROT ("ROT.1." + name(count));
+    word name_ROT("ROT.1." + name(count));
 
-    Rot1.set
-    (
+    Rot1.set(
         count,
-        new volScalarField
-        (
-            IOobject
-            (
+        new volScalarField(
+            IOobject(
                 name_ROT,
                 runTime.timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
             mesh,
-            dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),phi1[count]),
-            zeroGradientFvPatchScalarField::typeName
-        )
-    );
+            dimensionedScalar("ROT.1", dimensionSet(0, 0, 0, 0, 0), phi1[count]),
+            zeroGradientFvPatchScalarField::typeName));
 }
 
-PtrList<volScalarField> Rot2(N_Ori);		//pointer to phase fields
+PtrList<volScalarField> Rot2(N_Ori); // pointer to phase fields
 
-
-for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
 {
 
-    word name_ROT ("ROT.2." + name(count));
+    word name_ROT("ROT.2." + name(count));
 
-    Rot2.set
-    (
+    Rot2.set(
         count,
-        new volScalarField
-        (
-            IOobject
-            (
+        new volScalarField(
+            IOobject(
                 name_ROT,
                 runTime.timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
             mesh,
-            dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),phi2[count]),
-            zeroGradientFvPatchScalarField::typeName
-        )
-    );
+            dimensionedScalar("ROT.2", dimensionSet(0, 0, 0, 0, 0), phi2[count]),
+            zeroGradientFvPatchScalarField::typeName));
 }
 
+PtrList<volScalarField> Rot3(N_Ori); // pointer to phase fields
 
-PtrList<volScalarField> Rot3(N_Ori);		//pointer to phase fields
-
-
-for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array of fields
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
 {
 
-    word name_ROT ("ROT.3." + name(count));
+    word name_ROT("ROT.3." + name(count));
 
-    Rot3.set
-    (
+    Rot3.set(
         count,
-        new volScalarField
-        (
-            IOobject
-            (
+        new volScalarField(
+            IOobject(
                 name_ROT,
                 runTime.timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,//IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
             mesh,
-            dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),phi3[count]),
-            zeroGradientFvPatchScalarField::typeName
-        )
-    );
+            dimensionedScalar("ROT.3", dimensionSet(0, 0, 0, 0, 0), phi3[count]),
+            zeroGradientFvPatchScalarField::typeName));
 }
 
 // forAll(mesh.C(), cell)
@@ -1016,7 +815,6 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 // Rot1[h][cell] = phi1[h];
 // Rot2[h][cell] = phi2[h];
 // Rot3[h][cell] = phi3[h];
-
 
 // }
 
@@ -1033,7 +831,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 //         IOobject::AUTO_WRITE
 //     ),
 //     mesh,
-//     dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//     dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0),
 //              zeroGradientFvPatchScalarField::typeName
 // );
 
@@ -1048,7 +846,7 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 //         IOobject::AUTO_WRITE
 //     ),
 //     mesh,
-//     dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//     dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0),
 //              zeroGradientFvPatchScalarField::typeName
 // );
 
@@ -1063,11 +861,9 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 //         IOobject::AUTO_WRITE
 //     ),
 //     mesh,
-//     dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0), 
+//     dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0),
 //              zeroGradientFvPatchScalarField::typeName
 // );
-
-
 
 // forAll(mesh.C(), cell)
 // {
@@ -1081,42 +877,34 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 
 // }
 
-
 // tensor rot[N_Ori]={tensor::zero};
 
 // for (label i = 0; i < N_Ori; i++)
 // {
 
-
 //  tensor temprot(
-//     Foam::cos(phi2[i])*Foam::cos(phi3[i]), 
-//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2), 
+//     Foam::cos(phi2[i])*Foam::cos(phi3[i]),
+//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2),
 //     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))+(Foam::sin(phi1[i])*Foam::sin(phi3[i])),//Foam::sin(phi2)*Foam::sin(phi3),
-   
-//     Foam::cos(phi2[i])*Foam::sin(phi3[i]), 
-//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])), 
+
+//     Foam::cos(phi2[i])*Foam::sin(phi3[i]),
+//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])),
 //     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))-(Foam::sin(phi1[i])*Foam::cos(phi3[i])),
-    
-//     -Foam::sin(phi2[i]), 
-//     Foam::sin(phi1[i])*Foam::cos(phi2[i]), 
+
+//     -Foam::sin(phi2[i]),
+//     Foam::sin(phi1[i])*Foam::cos(phi2[i]),
 //     Foam::cos(phi1[i])*Foam::cos(phi2[i])
-// );//https://en.wikipedia.org/wiki/Rotation_matrix - 
+// );//https://en.wikipedia.org/wiki/Rotation_matrix -
 // //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
 // rot[i]=temprot;
 // }
 
-
 // Info<<"TEST: "<<rot[1]<<endl;
 // Info<<"TEST: "<<rot[1].component(4)<<endl;
 // exit(0);
 
-
-
 // Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
-
-
-
 
 //   double C11 = 107.3e9;
 //   double C12 = 60.9e9;
@@ -1147,7 +935,6 @@ for(label count = 0; count < N_Ori; count++)	// how to assign the popbal array o
 //   C(0,2,0,2)=C44;
 //   C(1,2,1,2)=C44;
 
-
 /*
 //ISOTROPIC
 
@@ -1166,8 +953,6 @@ C(2,2,2,2) = C11;
 
 // Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
 
-
-
 // for (label h = 0; h < N_Ori; h++)
 // {
 
@@ -1185,13 +970,11 @@ C(2,2,2,2) = C11;
 //   Rot_matrix(2,1)=rot[h].component(7);
 //   Rot_matrix(2,2)=rot[h].component(8);
 
-
 //   // Rotate To Global needReference
 //   for(int i = 0 ; i < 3 ; i++ ){
 //   for(int j = 0 ; j < 3 ; j++ ){
 //     for(int k = 0 ; k < 3 ; k++ ){
 //       for(int l = 0 ;l  < 3 ; l++ ){
-        
 
 //         double value =0.0;
 //         for(int m = 0 ; m < 3 ; m++ ){
@@ -1209,7 +992,7 @@ C(2,2,2,2) = C11;
 //               // value*=PopBal[h][cell];
 
 //         Cprime_temp(i,j,k,l)=value;
-      
+
 //       }
 //     }
 //   }
@@ -1222,12 +1005,10 @@ C(2,2,2,2) = C11;
 // //     Cprime_temp(0,0,0,0)=247.65;
 // // }
 
-
 // Cprime2[h]=Cprime_temp;
 // }
 // Info<<"HERE5"<<endl;
-//Cprime2[N_Ori] now has all the grain elasticity tensors
-
+// Cprime2[N_Ori] now has all the grain elasticity tensors
 
 // Fastor::print("Test1",Cprime2[0](0,0,0,0));
 // Fastor::print("Test1",Cprime2[1](0,0,0,0));
@@ -1235,8 +1016,6 @@ C(2,2,2,2) = C11;
 // Fastor::print("Test1",Cprime2[2](0,0,0,0));
 
 // exit(0);
-
-
 
 // volTensorField Global_Orientation_Tensor
 // (
@@ -1252,10 +1031,6 @@ C(2,2,2,2) = C11;
 // dimensionedTensor("Global_Orientation_Tensor",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
 //                zeroGradientFvPatchTensorField::typeName
 // );
-
-
-
-
 
 // exit(0);
 
@@ -1274,36 +1049,27 @@ C(2,2,2,2) = C11;
 //                zeroGradientFvPatchTensorField::typeName
 // );
 
-
-volTensorField omega_dot
-(
-    IOobject
-    (
+volTensorField omega_dot(
+    IOobject(
         "omega_dot",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE
-    ),
-        mesh,
-dimensionedTensor("omega_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-               zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::NO_WRITE),
+    mesh,
+    dimensionedTensor("omega_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName);
 
-volTensorField epsilon_dot
-(
-    IOobject
-    (
+volTensorField epsilon_dot(
+    IOobject(
         "epsilon_dot",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
-               zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedTensor("epsilon_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName);
 
 // volTensorField omega_tot
 // (
@@ -1320,55 +1086,39 @@ dimensionedTensor("epsilon_dot",dimensionSet(0, 0, -1, 0, 0),tensor::zero),
 //                zeroGradientFvPatchTensorField::typeName
 // );
 
-
-
-volScalarField Acc_Strain
-(
-    IOobject
-    (
+volScalarField Acc_Strain(
+    IOobject(
         "Acc_Strain",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedScalar("Acc_Strain",dimensionSet(0, 0, 0, 0, 0),0.0),
-                zeroGradientFvPatchScalarField::typeName
-);
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedScalar("Acc_Strain", dimensionSet(0, 0, 0, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName);
 
-
-
-volTensorField sigma
-(
-    IOobject
-    (
+volTensorField sigma(
+    IOobject(
         "sigma",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-        mesh,
-dimensionedTensor("sigma",dimensionSet(1, -1, -2, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName);
 
-volVectorField divsigma
-(
-    IOobject
-    (
+volVectorField divsigma(
+    IOobject(
         "divsigma",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE
-    ),
-        mesh,
-dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
-                //zeroGradientFvPatchTensorField::typeName
+        IOobject::NO_WRITE),
+    mesh,
+    dimensionedVector("divsigma", dimensionSet(1, -2, -2, 0, 0), vector::zero) //,
+                                                                               // zeroGradientFvPatchTensorField::typeName
 );
-
 
 // volVectorField Euler_Angles
 // (
@@ -1385,7 +1135,6 @@ dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
 //                 //zeroGradientFvPatchTensorField::typeName
 // );
 
-
 // volTensorField testSIG
 // (
 //     IOobject
@@ -1401,21 +1150,16 @@ dimensionedVector("divsigma",dimensionSet(1, -2, -2, 0, 0),vector::zero)//,
 //                 //zeroGradientFvPatchTensorField::typeName
 // );
 
-
-volTensorField dsigmadt
-(
-    IOobject
-    (
+volTensorField dsigmadt(
+    IOobject(
         "dsigmadt",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE
-    ),
-        mesh,
-dimensionedTensor("dsigmadt",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
-                zeroGradientFvPatchTensorField::typeName
-);
+        IOobject::NO_WRITE),
+    mesh,
+    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName);
 
 // volTensorField dsigmadt_crystal
 // (

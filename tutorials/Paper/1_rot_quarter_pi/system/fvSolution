@@ -83,7 +83,7 @@ solvers
 */
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-12;
+        tolerance       1e-9;
         relTol          0.0;
     }
 
@@ -120,10 +120,17 @@ solvers
     
         sigma
     {
+    /*
         solver          PCG;
         preconditioner  DIC;
         tolerance       1e-12;
         relTol          0.0;
+        */
+        
+        solver           GAMG;
+        tolerance        1e-012;
+        relTol           0.0;
+        smoother         DILUGaussSeidel;
     }
 
     sigmaFinal
@@ -155,8 +162,8 @@ solvers
 
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-4;
-        relTol          0.0;
+        tolerance       1e-6;
+        relTol          0.05;
 
     }
 
@@ -164,7 +171,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-4;
+        tolerance       1e-6;
         relTol          0.0;
     }
     
@@ -176,7 +183,7 @@ solvers
         solver          smoothSolver;
         smoother        symGaussSeidel;
         tolerance       1e-6;
-        relTol          0.0;
+        relTol          0.05;
 
     }
     
@@ -194,7 +201,7 @@ solvers
         solver          smoothSolver;
         smoother        symGaussSeidel;
         tolerance       1e-6;
-        relTol          0.0;
+        relTol          0.05;
 
     }
     

@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;//cellLimited Gauss linear 1.0;;//leastSquares;//
+    default         leastSquares;//Gauss linear;//cellLimited Gauss linear 1.0;;//leastSquares;//
 }
 
 divSchemes

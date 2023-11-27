@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "Material.C": "cpp",
+        "Euler_Solid.C": "cpp",
+        "ChemPotFoam.C": "cpp",
+        "vector": "cpp",
+        "numbers": "cpp",
+        "chrono": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "semaphore": "cpp"
+    }
+}

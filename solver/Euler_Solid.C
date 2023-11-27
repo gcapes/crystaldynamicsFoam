@@ -50,6 +50,7 @@ Authors
 
 #include <Fastor/Fastor.h> 
 #include <random>
+#include <math.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -117,27 +118,31 @@ sigma.correctBoundaryConditions();
         while (pimple.loop())
         {
          
-
+            #include "UEqn.H"
             #include "UpdateProps.H"
             
    
             
 
-            #include "UEqn.H"
-            #include "rhoEqn.H"
+            
+           
 
-            #include "Advect.H"
+            
 
             // #include "TEqn.H"
-
+            #include "rhoEqn.H"
+            #include "Advect.H"
 
 
         }
 
         
+ 
 
+            
 
         #include "TEqn.H"
+        
 
         
 

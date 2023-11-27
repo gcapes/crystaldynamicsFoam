@@ -21,8 +21,8 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/CourantNo.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/setInitialDeltaT.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/readDyMControls.H \
 setDeltaT.H \
-UpdateProps.H \
 UEqn.H \
+UpdateProps.H \
 rhoEqn.H \
 Advect.H \
 TEqn.H \
@@ -855,8 +855,8 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/CourantNo.H :
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/setInitialDeltaT.H :
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/readDyMControls.H :
 setDeltaT.H :
-UpdateProps.H :
 UEqn.H :
+UpdateProps.H :
 rhoEqn.H :
 Advect.H :
 TEqn.H :
