@@ -23,9 +23,9 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/readDyMControls.H \
 setDeltaT.H \
 UEqn.H \
 UpdateProps.H \
+TEqn.H \
 rhoEqn.H \
 Advect.H \
-TEqn.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Time.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvMesh.H \
@@ -857,9 +857,9 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/readDyMControls.H :
 setDeltaT.H :
 UEqn.H :
 UpdateProps.H :
+TEqn.H :
 rhoEqn.H :
 Advect.H :
-TEqn.H :
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H :
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Time.H :
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvMesh.H :

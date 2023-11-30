@@ -78,26 +78,18 @@ int main(int argc, char *argv[])
     while (pimple.run(runTime))
     {
 
-//         IOdictionary controlDict
-// (
-//     IOobject
-//     (
-//         "controlDict",
-//         runTime.system(), //folder where the fvSolution file is located
-//         runTime,
-//         IOobject::MUST_READ
-//     )
-// );
+        int iCorr = 0;
+        scalar initialResidual = 0;
+
+        int nCorr = 20;
+        scalar convergenceTolerance(1e-9);
 
         scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
-        // Info<<"TEST:: "<<maxTimeStep<<endl;
+
 
         #include "readDyMControls.H"
-
-
-            #include "CourantNo.H"
-         //   #include "alphaCourantNo.H"
+        #include "CourantNo.H"
         #include "setDeltaT.H"
 
 
@@ -106,30 +98,20 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.userTimeName() << nl << endl;
 
-        // --- Pressure-velocity PIMPLE corrector loop
-        
 
-        
-
-
-
-sigma.correctBoundaryConditions();
 
         while (pimple.loop())
         {
+
+        // do
+        // {
          
             #include "UEqn.H"
             #include "UpdateProps.H"
             
-   
             
 
-            
-           
-
-            
-
-            // #include "TEqn.H"
+            #include "TEqn.H"
             #include "rhoEqn.H"
             #include "Advect.H"
 
@@ -137,11 +119,11 @@ sigma.correctBoundaryConditions();
         }
 
         
- 
+    // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
 
             
 
-        #include "TEqn.H"
+        // #include "TEqn.H"
         
 
         

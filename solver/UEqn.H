@@ -20,7 +20,11 @@
 
 // sigmaEqn.solve();
 
-divsigma = fvc::div(sigma);
+surfaceTensorField sigmaf("sigmaf", fvc::interpolate(sigma));
+
+// divsigma = fvc::div(sigma);
+
+divsigma = fvc::div(fvc::interpolate(sigma) & mesh.Sf());
 
 // damping = ;
 
@@ -50,7 +54,8 @@ surfaceScalarField phiHbyA(
 
 phi = phiHbyA; // fvc::flux(U);
 
-UEqn.solve();
+// UEqn.solve();
+initialResidual = UEqn.solve().max().initialResidual();
 U.correctBoundaryConditions();
 
 

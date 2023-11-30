@@ -53,58 +53,76 @@
     }
   }
 
-  forAll(mesh.C(), cell)
-  {
-    //   label Mat_name =-1;
-    //   double max_phase = -1.0;
-    for (label h = 0; h < N_Ori; h++)
-    {
-      if (PopBal[h][cell] > SMALL)
-      {
 
-        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-        {
 
-          // double k_exponent = 5.0;//12.0
-          // // double ref_shear_rate = 1e-3;
-          // double ta_s = 148e6;
-          // // double tau_0 = 16e6;
-          // double r = 1.1;
-          // double ho = 180e6;
-          // double n_exponent = 5.0;//12.0
 
-          g_alpha_dots[h][S_alpha][cell] *= 0.0;
 
-          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-          {
+// //update hardening rates
+// Info<<"HERE1"<<endl;
 
-            //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-            double h_alpha_beta = 0.0;
-            double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
-            // //   // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
-            if (S_beta == S_alpha)
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-            }
-            else
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-            }
+//   forAll(mesh.C(), cell)
+//   {
+//     //   label Mat_name =-1;
+//     //   double max_phase = -1.0;
+//     for (label h = 0; h < N_Ori; h++)
+//     {
+//       // if (PopBal[h][cell] > SMALL)
+//       // {
 
-            g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
-          }
+//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+//         {
 
-          //
-        }
 
-        // // h_alpha_beta = r*h_of_gamma;
+//           g_alpha_dots[h][S_alpha][cell] *= 0.0;
 
-        //   // Info<<h_alpha_beta<<endl;
-        //   g_alpha_dots[Mat_name][S_alpha][cell]+=(h_alpha_beta)*gamma_alpha_dots[Mat_name][S_beta][cell];//Acc_Strain[cell];
-      }
-      // // Info<<g_alpha_dots[Mat_name][S_alpha][cell]<<endl;
-    }
-  }
+//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+//           {
+
+//             //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+//             double h_alpha_beta = 0.0;
+//             // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
+
+//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+//             argument = max(min(argument,20.0),-20.0);
+//             // Pout<<Pstream::myProcNo()<<"Argument: "<<argument<<endl;
+//             // Pout<<Pstream::myProcNo()<<"phase: "<<PopBal[h][cell]<<endl;
+
+//             // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
+//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+//             // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
+//             // Pout<<Pstream::myProcNo()<<"test_h_of_gamma: "<<h_of_gamma<<endl;
+//             // //   // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
+//             if (S_beta == S_alpha)
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+//             }
+//             else
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+//             }
+
+//             g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
+//           }
+//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
+//           g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
+//           //
+//         }
+
+
+//     }
+//   }
+
+//   for (label i = 0; i < N_Mats; i++)
+//   {
+//     for (label countS = 0; countS < MatList[i].N_Slips; countS++)
+//     {
+//       // g_alpha_dots[i][countS].write();
+//       gamma_alpha_dots[i][countS]*=0.0;
+//     }
+//   }
+
+// Info<<"HERE2"<<endl;
+
 
   forAll(mesh.C(), cell)
   {
@@ -122,6 +140,7 @@
 
     Fastor::Tensor<double, 3, 3> Fsigma(0.0); // CAST OPENFOAM VARIABLES INTO FASTOR VARIABLES
     Fastor::Tensor<double, 3, 3> Fepsilon_dot(0.0);
+    Fastor::Tensor<double, 3, 3> Fsigmaav(0.0);
     int count_index = 0;
     for (int i = 0; i < 3; i++)
     {
@@ -130,6 +149,7 @@
         // Info<<i<<","<<j<<endl;
         Fepsilon_dot(i, j) = epsilon_dot[cell].component(count_index);
         Fsigma(i, j) = sigma[cell].component(count_index);
+        Fsigmaav(i, j) = sigmaav[cell].component(count_index);
 
         count_index++;
       }
@@ -307,10 +327,10 @@
                     {
                       for (int q = 0; q < 3; q++)
                       {
-                        if (Cprime2[Phase2Material[h]](m, n, p, q) > SMALL)
-                        {
+                        // if (Cprime2[Phase2Material[h]](m, n, p, q) > SMALL)
+                        // {
                           value += Rot_matrix(i, m) * Rot_matrix(j, n) * Rot_matrix(k, p) * Rot_matrix(l, q) * Cprime2[Phase2Material[h]](m, n, p, q); // C(m,n,p,q);
-                        }
+                        // }
                       }
                     }
                   }
@@ -324,6 +344,8 @@
           }
         }
 
+      }
+
         // If grain is there
         // Have the stiffness tensor now
         // need Dp and omegaP
@@ -331,7 +353,7 @@
         Fastor::Tensor<double, 3, 3> F_D_P(0.0);
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
-        // if(PopBal[h][cell]>0.5){
+        
         for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
 
@@ -348,6 +370,8 @@
           F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1); // m_alpha[Phase2Material[h]][s].component(1);
           F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2); // m_alpha[Phase2Material[h]][s].component(2);
 
+
+          
           // Info<<MatList[Phase2Material[h]].SP_norm[s]<<endl;
           // Info<<MatList[Phase2Material[h]].SP_direction[s]<<endl;
 
@@ -363,6 +387,7 @@
             }
           }
 
+
           P_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) + outer(F_n_alpha_Rot, F_m_alpha_Rot));
           omega_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) - outer(F_n_alpha_Rot, F_m_alpha_Rot));
 
@@ -374,16 +399,18 @@
           {
             for (int j = 0; j < 3; j++)
             {
-              tau_alpha += Fsigma(i, j) * Schmid_T(i, j);
+              tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
             }
           }
 
           double k_exponent = MatList[Phase2Material[h]].k_exponent;         // 10.0;//12.0
           double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate; // 1e-3;
 
-          gamma_alpha_dots[h][s][cell] = /*PopBal[h][cell]*/ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s][cell])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
+          gamma_alpha_dots[h][s][cell] = /*(PopBal[h][cell]/Sum_Phases[cell])*/ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s][cell])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
 
-          // sumgamma[cell]+= mag((PopBal[h][cell]/Sum_Phases[cell])*gamma_alpha_dots[h][s][cell]);//for next time-step
+          // gamma_alpha_dots[h][s][cell] =max(min(gamma_alpha_dots[h][s][cell],0.8/deltaT_),-0.8/deltaT_);
+
+          sumgamma[cell]+= mag(/*(PopBal[h][cell]/Sum_Phases[cell])*/gamma_alpha_dots[h][s][cell]);//for next time-step
 
           F_D_P += (P_alpha * gamma_alpha_dots[h][s][cell]);
           F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s][cell]);
@@ -410,11 +437,11 @@
         };
         Fastor::Tensor<double, 3, 3> sig = Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L> /*,Fastor::OIndex<I,J>*/>(Cprime, Fepsilon_dot - F_D_P); ////Double contraction
 
-        sigAv += PopBal[h][cell] * sig / Sum_Phases[cell];
+        sigAv += (PopBal[h][cell]/Sum_Phases[cell]) * sig / Sum_Phases[cell];
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
-        D_P_Average += PopBal[h][cell] * F_D_P;
+        D_P_Average += /*PopBal[h][cell] */ F_D_P;
 
-      } // end loop over (if popbal[h]>SMALL)
+      
 
       // dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
       int Count_Child = 0;
@@ -427,6 +454,10 @@
         }
       }
 
+      
+
+
+
     } // end loop over phase fields
 
     count_index = 0;
@@ -435,7 +466,7 @@
       for (int j = 0; j < 3; j++)
       {
 
-        dsigmadt /*_crystal*/[cell].component(count_index) += sigAv(i, j); // sig(i,j);
+        dsigmadt[cell].component(count_index) += sigAv(i, j); // sig(i,j);
         // epsilon_P_dot[cell].component(count_index) = Fepsilon_P_dot(i,j);
 
         D_P[cell].component(count_index) = D_P_Average(i, j); // F_D_P(i,j);
@@ -479,11 +510,11 @@
     {
       g_alpha_dots[i][countS].correctBoundaryConditions();
       gamma_alpha_dots[i][countS].correctBoundaryConditions();
-      gamma_alphas[i][countS].correctBoundaryConditions();
+      // gamma_alphas[i][countS].correctBoundaryConditions();
       g_alphas[i][countS].correctBoundaryConditions();
     }
   }
-
+// Info<<"HERE3"<<endl;
   // dsigmadt += (sigma & Omega_P) - (Omega_P & sigma);
 
   dsigmadt.correctBoundaryConditions();
@@ -497,6 +528,8 @@
   sigma = sigma + (1.0 / n_sub_steps) * runTime.deltaT() * (dsigmadt);
   sigma.correctBoundaryConditions();
 
+  // sigmaav = fvc::average(sigma);
+  // sigmaav.correctBoundaryConditions();
   
     // fvTensorMatrix  sigmaEqn
     // (

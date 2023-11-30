@@ -48,7 +48,7 @@ divSchemes
     div(rhoPhi,Acc_Strain)	Gauss ROUNDAplus;//Gauss linear;//Gauss ROUNDAplus;//Gauss linear;
     
    
-    "div\(rhoPhi,n.*\)"	Gauss ROUNDAplus;//Gauss ROUNDAplus01;//;//Gauss linear;
+    "div\(rhoPhi,n.*\)"	Gauss ROUNDAplus01;//Gauss ROUNDAplus01;//;//Gauss linear;
     
 
     "div\(rhoPhi,g_alpha.*\)"	Gauss ROUNDAplus;//Gauss linear;
