@@ -20,19 +20,48 @@
 
 // sigmaEqn.solve();
 
-surfaceTensorField sigmaf("sigmaf", fvc::interpolate(sigma));
+// surfaceTensorField sigmaf("sigmaf", fvc::interpolate(sigma));
 
-// divsigma = fvc::div(sigma);
+divsigma = fvc::div(sigma);
 
-divsigma = fvc::div(fvc::interpolate(sigma) & mesh.Sf());
+// divsigma = fvc::div(fvc::interpolate(sigma) & mesh.Sf());
+
+
+
+// sigma_col1.component(0) = sigma.component(0);
+// sigma_col1.component(1) = sigma.component(3);
+// sigma_col1.component(2) = sigma.component(6);
+
+// sigma_col2.component(0) = sigma.component(1);
+// sigma_col2.component(1) = sigma.component(4);
+// sigma_col2.component(2) = sigma.component(7);
+
+// sigma_col3.component(0) = sigma.component(2);
+// sigma_col3.component(1) = sigma.component(5);
+// sigma_col3.component(2) = sigma.component(8);
+
+// sigma_col1.correctBoundaryConditions();
+// sigma_col2.correctBoundaryConditions();
+// sigma_col3.correctBoundaryConditions();
+
+// surfaceScalarField c1f = (fvc::flux(sigma_col1));
+// surfaceScalarField c2f = (fvc::flux(sigma_col2));
+// surfaceScalarField c3f = (fvc::flux(sigma_col3));
+
+// divsigma.component(0) = fvc::div(c1f);
+// divsigma.component(1) = fvc::div(c2f);
+// divsigma.component(2) = fvc::div(c3f);
+
+
 
 // damping = ;
 
-// TESTADV = fvc::div(rhoPhi, U);
+// TESTADV = fvc::div(rho * (U*U));
 
 fvVectorMatrix UEqn(
     fvm::ddt(rho, U) 
     + fvm::div(rhoPhi, U) 
+    // +fvc::div(rho * (U*U))
     - fvc::div(sigma)
     // ==
 

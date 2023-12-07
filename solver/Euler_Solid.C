@@ -105,15 +105,16 @@ int main(int argc, char *argv[])
 
         // do
         // {
-         
-            #include "UEqn.H"
             #include "UpdateProps.H"
+            // #include "Old_Update.H"
+            #include "UEqn.H"
+            
             
             
 
-            #include "TEqn.H"
-            #include "rhoEqn.H"
-            #include "Advect.H"
+            // #include "TEqn.H"
+            // #include "rhoEqn.H"
+            // #include "Advect.H"
 
 
         }

@@ -28,19 +28,19 @@ solvers
         maxIter         5000;//2
       */ 
         
-    
+    /*
         solver           GAMG;
         tolerance        1e-012;
         relTol           0.0;
         smoother         DILUGaussSeidel;
+  */      
         
-        /*
         solver          smoothSolver;
         smoother        GaussSeidel;
         nSweeps         2;
         tolerance       1e-09;
         relTol          0.01;
-        */
+        
 
         
     }
@@ -224,7 +224,7 @@ solvers
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    10;
+    nOuterCorrectors    5;
     nCorrectors         1;
     nNonOrthogonalCorrectors 0;
     

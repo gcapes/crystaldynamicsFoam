@@ -52,8 +52,9 @@ volTensorField D_P(
         IOobject::NO_READ,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("D_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+    dimensionedTensor("D_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
 
 // volTensorField Omega_P
 // (
@@ -704,8 +705,10 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
                 IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
                 IOobject::NO_WRITE),
             mesh,
-            dimensionedTensor("Omega_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
-            zeroGradientFvPatchTensorField::typeName));
+            dimensionedTensor("Omega_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
+            // zeroGradientFvPatchTensorField::typeName
+            )
+            );
 }
 
 Random randObj2(clock::getTime());
@@ -1057,8 +1060,9 @@ volTensorField omega_dot(
         IOobject::READ_IF_PRESENT,
         IOobject::NO_WRITE),
     mesh,
-    dimensionedTensor("omega_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+    dimensionedTensor("omega_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
 
 volTensorField epsilon_dot(
     IOobject(
@@ -1068,8 +1072,9 @@ volTensorField epsilon_dot(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("epsilon_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+    dimensionedTensor("epsilon_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
 
 // volTensorField omega_tot
 // (
@@ -1094,8 +1099,9 @@ volScalarField Acc_Strain(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("Acc_Strain", dimensionSet(0, 0, 0, 0, 0), 0.0),
-    zeroGradientFvPatchScalarField::typeName);
+    dimensionedScalar("Acc_Strain", dimensionSet(0, 0, 0, 0, 0), 0.0)//,
+    // zeroGradientFvPatchScalarField::typeName
+    );
 
 volTensorField sigma(
     IOobject(
@@ -1105,19 +1111,67 @@ volTensorField sigma(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
 
-volTensorField sigmaav(
-    IOobject(
-        "sigmaav",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE),
-    mesh,
-    dimensionedTensor("sigmaav", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+//     volVectorField sigma_col1(
+//     IOobject(
+//         "sigma_col1",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE),
+//     mesh,
+//     dimensionedVector("sigma1", dimensionSet(1, -1, -2, 0, 0), vector::zero),
+//     zeroGradientFvPatchVectorField::typeName);
+
+//     volVectorField sigma_col2(
+//     IOobject(
+//         "sigma_col2",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE),
+//     mesh,
+//     dimensionedVector("sigma2", dimensionSet(1, -1, -2, 0, 0), vector::zero),
+//     zeroGradientFvPatchVectorField::typeName);
+
+//     volVectorField sigma_col3(
+//     IOobject(
+//         "sigma_col3",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE),
+//     mesh,
+//     dimensionedVector("sigma3", dimensionSet(1, -1, -2, 0, 0), vector::zero),
+//     zeroGradientFvPatchVectorField::typeName);
+
+
+// sigma_col1.component(0) = sigma.component(0);
+// sigma_col1.component(1) = sigma.component(3);
+// sigma_col1.component(2) = sigma.component(6);
+
+// sigma_col2.component(0) = sigma.component(1);
+// sigma_col2.component(1) = sigma.component(4);
+// sigma_col2.component(2) = sigma.component(7);
+
+// sigma_col3.component(0) = sigma.component(2);
+// sigma_col3.component(1) = sigma.component(5);
+// sigma_col3.component(2) = sigma.component(8);
+
+
+// volTensorField sigmaav(
+//     IOobject(
+//         "sigmaav",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::NO_WRITE),
+//     mesh,
+//     dimensionedTensor("sigmaav", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
+//     zeroGradientFvPatchTensorField::typeName);
 
 volVectorField divsigma(
     IOobject(
@@ -1167,10 +1221,11 @@ volTensorField dsigmadt(
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE),
+        IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName);
+    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
 
 // volTensorField dsigmadt_crystal
 // (
