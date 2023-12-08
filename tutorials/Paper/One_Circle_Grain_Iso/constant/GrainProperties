@@ -74,7 +74,7 @@ tau_S	148e6;
 h_0	180e6;
 r	1.1;
 k_exponent	25.0;
-gammadot_0	0.0;//1e-3;
+gammadot_0	1e-3;
 
 }
 

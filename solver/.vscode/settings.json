@@ -10,6 +10,9 @@
         "limits": "cpp",
         "semaphore": "cpp",
         "*.tcc": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp",
+        "*.ipp": "cpp"
     }
 }

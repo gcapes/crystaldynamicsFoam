@@ -694,7 +694,7 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
                 runTime.timeName(),
                 mesh,
                 IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
-                IOobject::NO_WRITE),
+                IOobject::AUTO_WRITE),
             mesh,
             dimensionedTensor("Omega_P", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
             // zeroGradientFvPatchTensorField::typeName
@@ -1090,8 +1090,8 @@ volScalarField Acc_Strain(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedScalar("Acc_Strain", dimensionSet(0, 0, 0, 0, 0), 0.0)//,
-    // zeroGradientFvPatchScalarField::typeName
+    dimensionedScalar("Acc_Strain", dimensionSet(0, 0, 0, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
     );
 
 volTensorField sigma(

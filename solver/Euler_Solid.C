@@ -112,9 +112,9 @@ int main(int argc, char *argv[])
             
             
 
-            // #include "TEqn.H"
-            // #include "rhoEqn.H"
-            // #include "Advect.H"
+            #include "TEqn.H"
+            #include "rhoEqn.H"
+            #include "Advect.H"
 
 
         }
