@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
         scalar initialResidual = 0;
 
         // int nCorr = 20;
-        scalar convergenceTolerance(1e-9);
+        // scalar convergenceTolerance(1e-9);
 
         scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
