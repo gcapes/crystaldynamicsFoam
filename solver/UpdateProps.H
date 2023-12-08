@@ -13,9 +13,6 @@
 
 
 
-
-  
-
  dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
 
 
@@ -23,6 +20,10 @@
 // epsilon_dot.write();
 
 // Info<<"ONE"<<epsilon_dot<<endl;
+// epsilon_dot.correctBoundaryConditions();
+
+// dsigmadt.write();
+
 
 
 forAll(mesh.C(), cell)
@@ -34,7 +35,23 @@ forAll(mesh.C(), cell)
     // epsilon_dot2[cell]=epsilon_dot[cell]
   // Info<<"Two "<<epsilon_dot[cell]<<endl;
   }
+  
+forAll(mesh.boundary(), patchI)
+{
+    if (!mesh.boundary()[patchI].coupled() && mesh.boundary()[patchI].size() > 0)
+    {
+        forAll(mesh.boundary()[patchI], faceI)
+                 {
+            dsigmadt.boundaryFieldRef[patchI][faceI]+=
+                shear_mod.value()*epsilon_dot.boundaryFieldRef[patchI][faceI];
+                 }
+         }
+}
 dsigmadt.correctBoundaryConditions();
+
+
+
+
 
 
   sigma = sigma + (1.0 / n_sub_steps) * runTime.deltaT() * (dsigmadt);

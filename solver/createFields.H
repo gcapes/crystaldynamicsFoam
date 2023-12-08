@@ -147,8 +147,8 @@ volTensorField sigma(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
-    // zeroGradientFvPatchTensorField::typeName
+    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
+    calculatedFvPatchTensorField::typeName
     );
 
 
@@ -193,5 +193,3 @@ volTensorField dsigmadt(
 // );
 
 #include "createPhi.H"
-
-
