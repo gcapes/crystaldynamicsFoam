@@ -73,12 +73,12 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         cubic;//linear;//linear;//
+    default         linear;//linear;//linear;//
 }
 
 snGradSchemes
 {
-    default         corrected;
+    default         uncorrected;
 }
 
 
