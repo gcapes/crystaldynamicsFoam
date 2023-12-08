@@ -26,27 +26,30 @@
 
 
 
-forAll(mesh.C(), cell)
-  {
-
-    // Info<<"One "<<epsilon_dot[cell]<<endl;
-
-    dsigmadt[cell]+=2.0*shear_mod.value()*epsilon_dot[cell];
-    // epsilon_dot2[cell]=epsilon_dot[cell]
-  // Info<<"Two "<<epsilon_dot[cell]<<endl;
-  }
-  
-forAll(mesh.boundary(), patchI)
+forAll(dsigmadt, cellI)
 {
-    if (!mesh.boundary()[patchI].coupled() && mesh.boundary()[patchI].size() > 0)
-    {
-        forAll(mesh.boundary()[patchI], faceI)
-                 {
-            dsigmadt.boundaryFieldRef[patchI][faceI]+=
-                shear_mod.value()*epsilon_dot.boundaryFieldRef[patchI][faceI];
-                 }
-         }
+    // Info<<"One "<<epsilon_dot[cellI]<<endl;
+    dsigmadt[cellI]+=2.0*shear_mod.value()*epsilon_dot[cellI];
+    // epsilon_dot2[cellI]=epsilon_dot[cellI]
+    // Info<<"Two "<<epsilon_dot[cellI]<<endl;
 }
+
+forAll(dsigmadt.boundaryField(), patchI)
+{
+    if
+    (
+        !dsigmadt.boundaryField()[patchI].coupled()
+     && dsigmadt.boundaryField()[patchI].size() > 0
+    )
+    {
+        forAll(dsigmadt.boundaryField()[patchI], faceI)
+        {
+            dsigmadt.boundaryFieldRef()[patchI][faceI] +=
+                shear_mod.value()*epsilon_dot.boundaryField()[patchI][faceI];
+        }
+    }
+}
+
 dsigmadt.correctBoundaryConditions();
 
 

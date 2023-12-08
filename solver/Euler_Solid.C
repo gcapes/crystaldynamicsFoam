@@ -78,10 +78,10 @@ int main(int argc, char *argv[])
     while (pimple.run(runTime))
     {
 
-        int iCorr = 0;
+        // int iCorr = 0;
         scalar initialResidual = 0;
 
-        int nCorr = 20;
+        // int nCorr = 20;
         scalar convergenceTolerance(1e-9);
 
         scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
