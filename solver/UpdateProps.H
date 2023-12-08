@@ -501,7 +501,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       // https://en.wikipedia.org/wiki/Rotation_matrix -
       //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
-/*
+
         double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
 
         Fastor::Tensor<double, 3, 3> Elastic_Spin_h_deltaT(0.0);
@@ -512,7 +512,7 @@ forAll(dsigmadt.boundaryField(), patchI)
           for (int jj = 0; jj < 3; jj++)
           {
         // Info<<i<<","<<j<<endl;
-            Elastic_Spin_h_deltaT(ii, jj) = deltaT_*(omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E));
+            Elastic_Spin_h_deltaT(ii, jj) = deltaT_*(omega_dot.boundaryField()[patchI][faceI].component(count_index_E) - Omega_P[h].boundaryField()[patchI][faceI].component(count_index_E));
             // Elastic_Spin_h_sq(ii, jj) = Foam::pow(omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E),2.0);
             count_index_E++;
           }
@@ -593,10 +593,10 @@ forAll(dsigmadt.boundaryField(), patchI)
 
     }
 
-    Rot1[h][cell] = psi_angle;//update euler angles for advection
-    Rot2[h][cell] = theta_angle;
-    Rot3[h][cell] = phi_angle;
-*/
+    Rot1[h].boundaryFieldRef()[patchI][faceI] = psi_angle;//update euler angles for advection
+    Rot2[h].boundaryFieldRef()[patchI][faceI] = theta_angle;
+    Rot3[h].boundaryFieldRef()[patchI][faceI] = phi_angle;
+
 
 
       if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
@@ -648,64 +648,64 @@ forAll(dsigmadt.boundaryField(), patchI)
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
 
-      // for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-        // {
+      for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
+        {
 
-        //   Fastor::Tensor<double, 3> F_n_alpha(0.0);
-        //   Fastor::Tensor<double, 3> F_m_alpha(0.0);
-        //   Fastor::Tensor<double, 3, 3> P_alpha(0.0);
-        //   Fastor::Tensor<double, 3, 3> omega_alpha(0.0);
+          Fastor::Tensor<double, 3> F_n_alpha(0.0);
+          Fastor::Tensor<double, 3> F_m_alpha(0.0);
+          Fastor::Tensor<double, 3, 3> P_alpha(0.0);
+          Fastor::Tensor<double, 3, 3> omega_alpha(0.0);
 
-        //   F_n_alpha(0) = MatList[Phase2Material[h]].SP_norm[s].component(0); // n_alpha[Phase2Material[h]][s].component(0);
-        //   F_n_alpha(1) = MatList[Phase2Material[h]].SP_norm[s].component(1); // n_alpha[Phase2Material[h]][s].component(1);
-        //   F_n_alpha(2) = MatList[Phase2Material[h]].SP_norm[s].component(2); // n_alpha[Phase2Material[h]][s].component(2);
+          F_n_alpha(0) = MatList[Phase2Material[h]].SP_norm[s].component(0); // n_alpha[Phase2Material[h]][s].component(0);
+          F_n_alpha(1) = MatList[Phase2Material[h]].SP_norm[s].component(1); // n_alpha[Phase2Material[h]][s].component(1);
+          F_n_alpha(2) = MatList[Phase2Material[h]].SP_norm[s].component(2); // n_alpha[Phase2Material[h]][s].component(2);
 
-        //   F_m_alpha(0) = MatList[Phase2Material[h]].SP_direction[s].component(0); // m_alpha[Phase2Material[h]][s].component(0);
-        //   F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1); // m_alpha[Phase2Material[h]][s].component(1);
-        //   F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2); // m_alpha[Phase2Material[h]][s].component(2);
-
-
-        //   Fastor::Tensor<double, 3> F_n_alpha_Rot(0.0);
-        //   Fastor::Tensor<double, 3> F_m_alpha_Rot(0.0);
-
-        //   for (int i = 0; i < 3; i++)
-        //   {
-        //     for (int j = 0; j < 3; j++)
-        //     { // Rotated slip information
-        //       F_n_alpha_Rot(i) += Rot_matrix(i, j) * F_n_alpha(j);
-        //       F_m_alpha_Rot(i) += Rot_matrix(i, j) * F_m_alpha(j);
-        //     }
-        //   }
+          F_m_alpha(0) = MatList[Phase2Material[h]].SP_direction[s].component(0); // m_alpha[Phase2Material[h]][s].component(0);
+          F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1); // m_alpha[Phase2Material[h]][s].component(1);
+          F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2); // m_alpha[Phase2Material[h]][s].component(2);
 
 
-        //   P_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) + outer(F_n_alpha_Rot, F_m_alpha_Rot));
-        //   omega_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) - outer(F_n_alpha_Rot, F_m_alpha_Rot));
+          Fastor::Tensor<double, 3> F_n_alpha_Rot(0.0);
+          Fastor::Tensor<double, 3> F_m_alpha_Rot(0.0);
 
-        //   Fastor::Tensor<double, 3, 3> Schmid_T(0.0);
-
-        //   Schmid_T = outer(F_m_alpha_Rot, F_n_alpha_Rot);
-        //   double tau_alpha = 0.0;
-        //   for (int i = 0; i < 3; i++)
-        //   {
-        //     for (int j = 0; j < 3; j++)
-        //     {
-        //       tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
-        //     }
-        //   }
-
-        //   double k_exponent = MatList[Phase2Material[h]].k_exponent;         // 10.0;//12.0
-        //   double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate; // 1e-3;
-
-        //   gamma_alpha_dots[h][s][cell] = ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s][cell])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
+          for (int i = 0; i < 3; i++)
+          {
+            for (int j = 0; j < 3; j++)
+            { // Rotated slip information
+              F_n_alpha_Rot(i) += Rot_matrix(i, j) * F_n_alpha(j);
+              F_m_alpha_Rot(i) += Rot_matrix(i, j) * F_m_alpha(j);
+            }
+          }
 
 
-        //   sumgamma[cell]+= mag(gamma_alpha_dots[h][s][cell]);//for next time-step
+          P_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) + outer(F_n_alpha_Rot, F_m_alpha_Rot));
+          omega_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) - outer(F_n_alpha_Rot, F_m_alpha_Rot));
 
-        //   F_D_P += (P_alpha * gamma_alpha_dots[h][s][cell]);
-        //   F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s][cell]);
-        //   // }
+          Fastor::Tensor<double, 3, 3> Schmid_T(0.0);
 
-        // } // end of loop over slip systems
+          Schmid_T = outer(F_m_alpha_Rot, F_n_alpha_Rot);
+          double tau_alpha = 0.0;
+          for (int i = 0; i < 3; i++)
+          {
+            for (int j = 0; j < 3; j++)
+            {
+              tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
+            }
+          }
+
+          double k_exponent = MatList[Phase2Material[h]].k_exponent;         // 10.0;//12.0
+          double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate; // 1e-3;
+
+          gamma_alpha_dots[h][s].boundaryFieldRef()[patchI][faceI] = ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s].boundaryField()[patchI][faceI])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
+
+
+          sumgamma.boundaryFieldRef()[patchI][faceI]+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
+
+          F_D_P += (P_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
+          F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
+          // }
+
+        } // end of loop over slip systems
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
@@ -752,14 +752,6 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 
-
-            // dsigmadt.boundaryFieldRef()[patchI][faceI] +=
-            //     2.0*shear_mod.value()*epsilon_dot.boundaryField()[patchI][faceI];
-        
-        
-        
-        
-        
         
         
         }
@@ -783,35 +775,6 @@ forAll(dsigmadt.boundaryField(), patchI)
   }
 
 
-
-
-
-
-
-
-
-//  dimensionedScalar shear_mod ("shear_mod", dimensionSet(1,-1,-2,0,0,0,0),80e9);
-
-// forAll(dsigmadt, cellI)
-// {
-//     dsigmadt[cellI]+=2.0*shear_mod.value()*epsilon_dot[cellI];
-// }
-
-// forAll(dsigmadt.boundaryField(), patchI)
-// {
-//     if
-//     (
-//         !dsigmadt.boundaryField()[patchI].coupled()
-//      && dsigmadt.boundaryField()[patchI].size() > 0
-//     )
-//     {
-//         forAll(dsigmadt.boundaryField()[patchI], faceI)
-//         {
-//             dsigmadt.boundaryFieldRef()[patchI][faceI] +=
-//                 2.0*shear_mod.value()*epsilon_dot.boundaryField()[patchI][faceI];
-//         }
-//     }
-// }
 
 dsigmadt.correctBoundaryConditions();
 
