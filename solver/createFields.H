@@ -147,8 +147,8 @@ volTensorField sigma(
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
-    calculatedFvPatchTensorField::typeName
+    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+    // calculatedFvPatchTensorField::typeName
     );
 
 

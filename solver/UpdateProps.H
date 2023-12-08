@@ -45,7 +45,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         forAll(dsigmadt.boundaryField()[patchI], faceI)
         {
             dsigmadt.boundaryFieldRef()[patchI][faceI] +=
-                shear_mod.value()*epsilon_dot.boundaryField()[patchI][faceI];
+                2.0*shear_mod.value()*epsilon_dot.boundaryField()[patchI][faceI];
         }
     }
 }
