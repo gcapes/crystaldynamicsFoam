@@ -730,7 +730,7 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 
-          // dsigmadt.boundaryField()[patchI][faceI] += (sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]);//Philip, can we assign boundary fields with dot products in?
+          dsigmadt.boundaryFieldRef()[patchI][faceI] += (sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]);//Philip, can we assign boundary fields with dot products in?
 
 
 
