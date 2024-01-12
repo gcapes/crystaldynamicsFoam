@@ -713,7 +713,7 @@ double phi3[N_Ori] = {0.0};
 for (label count_j = 0; count_j < N_Ori; count_j++)
 {
 
-    phi1[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
+    phi1[count_j] =  0.0;//randObj2.scalar01()*2.0*pi.value();
     phi2[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
     phi3[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
 }
@@ -730,7 +730,7 @@ for (label count_j = 0; count_j < N_Ori; count_j++)
 // phi2[2]=0.0;
 // phi3[2]=0.0;
 
-phi1[0] = 0.125 * pi.value();
+phi1[0] = 0.25 * pi.value();
 phi2[0] = 0.0;
 phi3[0] = 0.0;
 
@@ -1028,20 +1028,20 @@ C(2,2,2,2) = C11;
 
 // exit(0);
 
-// volScalarField detRM
-// (
-//     IOobject
-//     (
-//         "detRM",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedScalar("detRM",dimensionSet(0, 0, 0, 0, 0),0.0),
-//                zeroGradientFvPatchTensorField::typeName
-// );
+volTensorField testtraceeps
+(
+    IOobject
+    (
+        "testtraceeps",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedTensor("testtraceeps",dimensionSet(1, -1, -3, 0, 0),tensor::zero)//,
+            //    zeroGradientFvPatchTensorField::typeName
+);
 
 volTensorField omega_dot(
     IOobject(
@@ -1211,7 +1211,7 @@ volTensorField dsigmadt(
         "dsigmadt",
         runTime.timeName(),
         mesh,
-        IOobject::READ_IF_PRESENT,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE),
     mesh,
     dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,

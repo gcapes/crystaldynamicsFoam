@@ -9,7 +9,7 @@
   epsilon_dot = 0.5 * (fvc::grad(U) + TgradU);//- (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
   // epsilon_dot.correctBoundaryConditions();     // already called by line above
 
-  dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma);// - fvc::div(phi,sigma); // -(tr(epsilon_dot)*sigma);
+  dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma) ;//-(tr(epsilon_dot)*sigma);;// 
 
 
 
@@ -399,12 +399,17 @@
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
         D_P_Average += /*PopBal[h][cell] */ F_D_P;
 
+        Fastor::Tensor<double, 3, 3> F_D_E(0.0);
+
+        F_D_E = Fepsilon_dot-F_D_P;
+
       // int Count_Child = 0;
       // for (int Juno = 0; Juno < 3; Juno++)
       // {
       //   for (int Sadie = 0; Sadie < 3; Sadie++)
       //   {
           dsigmadt[cell] += (sigma[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigma[cell]);
+          dsigmadt[cell] -= sigma[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2));
       //     Count_Child++;
       //   }
       // }
@@ -728,9 +733,14 @@ forAll(dsigmadt.boundaryField(), patchI)
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
         D_P_Average += /*PopBal[h][cell] */ F_D_P;
 
+        Fastor::Tensor<double, 3, 3> F_D_E(0.0);
+
+        F_D_E = Fepsilon_dot-F_D_P;
+
 
 
           dsigmadt.boundaryFieldRef()[patchI][faceI] += (sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]);//Philip, can we assign boundary fields with dot products in?
+          dsigmadt.boundaryFieldRef()[patchI][faceI] -= sigma.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2));
 
 
 
@@ -786,6 +796,10 @@ dsigmadt.correctBoundaryConditions();
   sigma = sigma + (1.0 / n_sub_steps) * runTime.deltaT() * (dsigmadt);
   sigma.correctBoundaryConditions();
 
+
+p=-(1.0/3.0)*tr(sigma);
+
+testtraceeps = tr(epsilon_dot-D_P)*sigma;
 
 
 }
