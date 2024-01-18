@@ -33,13 +33,13 @@ solvers
         tolerance        1e-012;
         relTol           0.0;
         smoother         DILUGaussSeidel;
-  */      
+     */   
         
         solver          smoothSolver;
         smoother        GaussSeidel;
-        nSweeps         2;
+        nSweeps         5;
         tolerance       1e-09;
-        relTol          0.01;
+        relTol          0.0;
         
 
         
@@ -224,7 +224,7 @@ solvers
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    5;
+    nOuterCorrectors    10;//10
     nCorrectors         1;
     nNonOrthogonalCorrectors 0;
     
@@ -237,7 +237,7 @@ relaxationFactors
 {
     equations
     {
-        ".*" 0.9;
+     //   ".*" 0.9;
      //   U	0.3;
     }
 }

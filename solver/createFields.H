@@ -713,7 +713,7 @@ double phi3[N_Ori] = {0.0};
 for (label count_j = 0; count_j < N_Ori; count_j++)
 {
 
-    phi1[count_j] =  0.0;//randObj2.scalar01()*2.0*pi.value();
+    phi1[count_j] =  randObj2.scalar01()*2.0*pi.value();
     phi2[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
     phi3[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
 }
@@ -730,9 +730,9 @@ for (label count_j = 0; count_j < N_Ori; count_j++)
 // phi2[2]=0.0;
 // phi3[2]=0.0;
 
-phi1[0] = 0.25 * pi.value();
-phi2[0] = 0.0;
-phi3[0] = 0.0;
+// phi1[0] = 0.25 * pi.value();
+// phi2[0] = 0.0;
+// phi3[0] = 0.0;
 
 PtrList<volScalarField> Rot1(N_Ori); // pointer to phase fields
 
@@ -1176,20 +1176,20 @@ volVectorField divsigma(
                                                                                // zeroGradientFvPatchTensorField::typeName
 );
 
-// volVectorField Euler_Angles
-// (
-//     IOobject
-//     (
-//         "Euler_Angles",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
-//                 //zeroGradientFvPatchTensorField::typeName
-// );
+volVectorField Euler_Angles
+(
+    IOobject
+    (
+        "Euler_Angles",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+        mesh,
+dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
+                //zeroGradientFvPatchTensorField::typeName
+);
 
 // volTensorField testSIG
 // (
