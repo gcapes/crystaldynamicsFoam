@@ -704,19 +704,23 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
 
 Random randObj2(clock::getTime());
 
-double phi1[N_Ori] = {0.0};
+// double phi1[N_Ori] = {0.0};
 
-double phi2[N_Ori] = {0.0};
+// double phi2[N_Ori] = {0.0};
 
-double phi3[N_Ori] = {0.0};
+// double phi3[N_Ori] = {0.0};
 
-for (label count_j = 0; count_j < N_Ori; count_j++)
-{
+List<double> phi1 = GrainProperties.lookup("phi1");
+List<double> phi2 = GrainProperties.lookup("phi2");
+List<double> phi3 = GrainProperties.lookup("phi3");
 
-    phi1[count_j] =  randObj2.scalar01()*2.0*pi.value();
-    phi2[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
-    phi3[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
-}
+// for (label count_j = 0; count_j < N_Ori; count_j++)
+// {
+
+//     phi1[count_j] =  randObj2.scalar01()*2.0*pi.value();
+//     phi2[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
+//     phi3[count_j] = 0.0; // randObj2.scalar01()*2.0*pi.value();
+// }
 
 // phi1[0]=0.0;
 // phi2[0]=0.0;
