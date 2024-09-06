@@ -21,7 +21,7 @@ N_Materials	2;
 
 Phase2Material (1 0 0);
 
-phi1 (0.7 0.0 0.0);
+phi1 (0.2618 0.0 0.0);
 phi2 (0.0 0.0 0.0);
 phi3 (0.0 0.0 0.0);
 
@@ -84,12 +84,12 @@ m11 (0.577350269189626	0.577350269189626	-0.577350269189626);
 
 
 
-initialCRSS	16e6;
+initialCRSS	14e6;
 tau_S	148e6;
 h_0	180e6;
 r	1.1;
-k_exponent	20.0;
-gammadot_0	1e-3;
+k_exponent	5.0;
+gammadot_0	0.0;//1e-3;
 
 }
 
@@ -162,12 +162,12 @@ n17 (-0.425728701208412	-0.737383740733279	0.524423771266707);
 
 
 
-initialCRSS	16e6;
+initialCRSS	100e6;
 tau_S	148e6;
 h_0	180e6;
 r	1.1;
-k_exponent	20.0;
-gammadot_0	1e-3;
+k_exponent	5.0;
+gammadot_0	0.0;//1e-3;
 
 }
 

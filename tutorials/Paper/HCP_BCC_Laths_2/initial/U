@@ -1,0 +1,117 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+
+    Front
+    {
+type codedFixedValue;
+value $internalField;
+name velocityProfilefront;
+
+code
+#{
+vectorField veloc(patch().size(), vector(0, 0, 0));
+scalar radius=0.025e-3;
+scalar Peak=-10.0;
+
+            const vectorField& centre(patch().Cf());
+            forAll(centre, i)
+            {
+                veloc[i].z() =((Peak))*Foam::exp(-1.0*Foam::pow((centre[i].y()-0.1e-3),2.0)/(2.0*radius*radius));
+            }
+
+operator==(veloc);
+#};
+    }
+    Back
+    {
+type codedFixedValue;
+value $internalField;
+name velocityProfileback;
+
+code
+#{
+vectorField veloc(patch().size(), vector(0, 0, 0));
+scalar radius=0.025e-3;
+scalar Peak=10.0;
+
+            const vectorField& centre(patch().Cf());
+            forAll(centre, i)
+            {
+                veloc[i].z() =((Peak))*Foam::exp(-1.0*Foam::pow((centre[i].y()-0.1e-3),2.0)/(2.0*radius*radius));
+            }
+
+operator==(veloc);
+#};
+    }
+    
+    lowerWall
+    {
+type codedFixedValue;
+value $internalField;
+name velocityProfilebottom;
+
+code
+#{
+vectorField veloc(patch().size(), vector(0, 0, 0));
+scalar radius=0.025e-3;
+scalar Peak=-10.0;
+
+            const vectorField& centre(patch().Cf());
+            forAll(centre, i)
+            {
+                veloc[i].y() =((Peak))*Foam::exp(-1.0*Foam::pow((centre[i].z()-0.1e-3),2.0)/(2.0*radius*radius));
+            }
+
+operator==(veloc);
+#};
+    }
+    atmosphere
+    {
+type codedFixedValue;
+value $internalField;
+name velocityProfiletop;
+
+code
+#{
+vectorField veloc(patch().size(), vector(0, 0, 0));
+scalar radius=0.025e-3;
+scalar Peak=10.0;
+
+            const vectorField& centre(patch().Cf());
+            forAll(centre, i)
+            {
+                veloc[i].y() =((Peak))*Foam::exp(-1.0*Foam::pow((centre[i].z()-0.1e-3),2.0)/(2.0*radius*radius));
+            }
+
+operator==(veloc);
+#};
+    }
+    defaultFaces
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //
