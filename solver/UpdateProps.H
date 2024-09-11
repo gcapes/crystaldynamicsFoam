@@ -5,9 +5,8 @@
   // TgradU.correctBoundaryConditions(); // already called by line above
 
   omega_dot = 0.5 * (fvc::grad(U) - TgradU);   // this is the "symm" function, i.e. symm(gradU)
-  // omega_dot.correctBoundaryConditions();       // already called by line above
   epsilon_dot = 0.5 * (fvc::grad(U) + TgradU);//- (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
-  // epsilon_dot.correctBoundaryConditions();     // already called by line above
+
 
   dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma) ;//-(tr(epsilon_dot)*sigma);;// 
 
@@ -16,6 +15,10 @@
   for (label h = 0; h < N_Ori; h++)
   {
     Omega_P[h] *= 0.0;
+    volScalarField & ni = PopBal[h];
+
+    PopBal_av[h] = fvc::average(ni); //takes the average from all cells sharing a face - this way the information about phases in adjacent cells is shared with the local cell
+    PopBal_av[h].correctBoundaryConditions();
   }
 
   D_P *= 0.0;
@@ -46,130 +49,126 @@
 
 
 
-  // // //update hardening rates
-// // Info<<"HERE1"<<endl;
+//   // // //update hardening rates
+// // // Info<<"HERE1"<<endl;
 
-  forAll(mesh.C(), cell)
-  {
-    //   label Mat_name =-1;
-    //   double max_phase = -1.0;
-    for (label h = 0; h < N_Ori; h++)
-    {
-      if (PopBal[h][cell] > SMALL)
-      {
+//   forAll(mesh.C(), cell)
+//   {
+//     //   label Mat_name =-1;
+//     //   double max_phase = -1.0;
+//     for (label h = 0; h < N_Ori; h++)
+//     {
+//       if (PopBal[h][cell] > SMALL)
+//       {
 
-        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-        {
-
-
-          g_alpha_dots[h][S_alpha][cell] *= 0.0;
-
-          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-          {
-
-            //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-            double h_alpha_beta = 0.0;
-            // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
-
-            double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-            argument = max(min(argument,20.0),-20.0);
-            // Pout<<Pstream::myProcNo()<<"Argument: "<<argument<<endl;
-            // Pout<<Pstream::myProcNo()<<"phase: "<<PopBal[h][cell]<<endl;
-
-            // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
-              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-            // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
-            // Pout<<Pstream::myProcNo()<<"test_h_of_gamma: "<<h_of_gamma<<endl;
-            // //   // double h_of_gamma =ho*Foam::pow(((ho*gamma_alphas[Phase2Material[h]][s][cell])/(tau_0*(n_exponent))),n_exponent-1.0);
-            if (S_beta == S_alpha)
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-            }
-            else
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-            }
-
-            g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
-          }
-          double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-          g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
-          //
-        }
-
-    }
-
-    }
-  }
+//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+//         {
 
 
-//Over Boundaries
-forAll(dsigmadt.boundaryField(), patchI)
-{
-    if
-    (
-        !dsigmadt.boundaryField()[patchI].coupled()
-     && dsigmadt.boundaryField()[patchI].size() > 0
-    )
-    {
-        forAll(dsigmadt.boundaryField()[patchI], faceI)
-        {
+//           g_alpha_dots[h][S_alpha][cell] *= 0.0;
+
+//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+//           {
+
+//             //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+//             double h_alpha_beta = 0.0;
+//             // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
+
+//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+//             argument = max(min(argument,20.0),-20.0);
+
+//             // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
+//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+//             if (S_beta == S_alpha)
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+//             }
+//             else
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+//             }
+
+//             g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
+//           }
+//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
+//           g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
+//           //
+//         }
+
+//     }
+
+//     }
+//   }
 
 
-   for (label h = 0; h < N_Ori; h++)
-    {
-            if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
-      {
+// //Over Boundaries
+// forAll(dsigmadt.boundaryField(), patchI)
+// {
+//     if
+//     (
+//         !dsigmadt.boundaryField()[patchI].coupled()
+//      && dsigmadt.boundaryField()[patchI].size() > 0
+//     )
+//     {
+//         forAll(dsigmadt.boundaryField()[patchI], faceI)
+//         {
 
 
-        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-        {
+//    for (label h = 0; h < N_Ori; h++)
+//     {
+//             if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
+//       {
 
 
-          g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
-
-          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-          {
+//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+//         {
 
 
-            double h_alpha_beta = 0.0;
+//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
 
-            double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain.boundaryField()[patchI][faceI]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-            argument = max(min(argument,20.0),-20.0);
-
-              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-
-            if (S_beta == S_alpha)
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-            }
-            else
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-            }
-
-            g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
-          }
-          double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-          g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
-          //
-        }
-
-    }
+//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+//           {
 
 
-    }
+//             double h_alpha_beta = 0.0;
+
+//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain.boundaryField()[patchI][faceI]/*gamma_alphas[h][S_alpha].boundaryField()[patchI][faceI]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+//             argument = max(min(argument,20.0),-20.0);
+
+//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+//             if (S_beta == S_alpha)
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+//             }
+//             else
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+//             }
+
+//             g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
+//           }
+//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
+//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
+//           //
+//         }
+
+//     }
+
+
+//     }
 
 
 
-        }
+//         }
 
-    }
+//     }
 
-}
+// }
 
 
-//END update hardening rates
+// //END update hardening rates
 
 
 
@@ -260,23 +259,38 @@ Euler_Angles*=0.0;
 
       Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
 
-      Rot_matrix(0, 0) = Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
-      Rot_matrix(0, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
-      Rot_matrix(0, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
+      Rot_matrix(0, 0) = test_rot_diff[h][cell].component(0);// Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
+      Rot_matrix(0, 1) = test_rot_diff[h][cell].component(1);//(Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
+      Rot_matrix(0, 2) = test_rot_diff[h][cell].component(2);//(Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
 
-      Rot_matrix(1, 0) = Foam::cos(phi_2_total) * Foam::sin(phi_3_total);
-      Rot_matrix(1, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) + (Foam::cos(phi_1_total) * Foam::cos(phi_3_total));
-      Rot_matrix(1, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) - (Foam::sin(phi_1_total) * Foam::cos(phi_3_total));
+      Rot_matrix(1, 0) = test_rot_diff[h][cell].component(3);//Foam::cos(phi_2_total) * Foam::sin(phi_3_total);
+      Rot_matrix(1, 1) = test_rot_diff[h][cell].component(4);//(Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) + (Foam::cos(phi_1_total) * Foam::cos(phi_3_total));
+      Rot_matrix(1, 2) = test_rot_diff[h][cell].component(5);//(Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) - (Foam::sin(phi_1_total) * Foam::cos(phi_3_total));
 
-      Rot_matrix(2, 0) = -Foam::sin(phi_2_total);
-      Rot_matrix(2, 1) = Foam::sin(phi_1_total) * Foam::cos(phi_2_total);
-      Rot_matrix(2, 2) = Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
+      Rot_matrix(2, 0) = test_rot_diff[h][cell].component(6);//-Foam::sin(phi_2_total);
+      Rot_matrix(2, 1) =test_rot_diff[h][cell].component(7);// Foam::sin(phi_1_total) * Foam::cos(phi_2_total);
+      Rot_matrix(2, 2) = test_rot_diff[h][cell].component(8);//Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
+
+      // Rot_matrix(0, 0) = Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
+      // Rot_matrix(0, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
+      // Rot_matrix(0, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
+
+      // Rot_matrix(1, 0) = Foam::cos(phi_2_total) * Foam::sin(phi_3_total);
+      // Rot_matrix(1, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) + (Foam::cos(phi_1_total) * Foam::cos(phi_3_total));
+      // Rot_matrix(1, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) - (Foam::sin(phi_1_total) * Foam::cos(phi_3_total));
+
+      // Rot_matrix(2, 0) = -Foam::sin(phi_2_total);
+      // Rot_matrix(2, 1) = Foam::sin(phi_1_total) * Foam::cos(phi_2_total);
+      // Rot_matrix(2, 2) = Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
+
+
+      // Fastor::print("Rot Matrix: ",Rot_matrix);
 
       // https://en.wikipedia.org/wiki/Rotation_matrix -
       //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
 
         double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-
+        // Info<<deltaT_<<endl;
         Fastor::Tensor<double, 3, 3> Elastic_Spin_h_deltaT(0.0);
         Fastor::Tensor<double, 3, 3> Elastic_Spin_h_deltaT_sq(0.0);
         int count_index_E = 0;
@@ -285,12 +299,13 @@ Euler_Angles*=0.0;
           for (int jj = 0; jj < 3; jj++)
           {
         // Info<<i<<","<<j<<endl;
-            Elastic_Spin_h_deltaT(ii, jj) = deltaT_*(omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E));
-            // Elastic_Spin_h_sq(ii, jj) = Foam::pow(omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E),2.0);
+            Elastic_Spin_h_deltaT(ii, jj) = (omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E));
+
             count_index_E++;
           }
         }
-
+        // Info<<omega_dot[cell].component(7)<<endl;;
+        // Fastor::print("TEST",Elastic_Spin_h_deltaT);
         Elastic_Spin_h_deltaT_sq = Fastor::matmul(Elastic_Spin_h_deltaT,Elastic_Spin_h_deltaT);  
 
 
@@ -305,11 +320,24 @@ Euler_Angles*=0.0;
       
     //  Fastor::print("I",I_d);
 
-    double X_comps = Foam::sqrt(Foam::pow(Elastic_Spin_h_deltaT(2,1),2.0)
-                    +Foam::pow(Elastic_Spin_h_deltaT(0, 2),2.0)
-                    +Foam::pow(Elastic_Spin_h_deltaT(1,0),2.0));
+    double X_comps = Foam::sqrt(
+                    // Foam::pow(Elastic_Spin_h_deltaT(0,0),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(0, 1),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(0, 2),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 0),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 1),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 2),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(2, 0),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(2, 1),2.0)
+                    // +Foam::pow(Elastic_Spin_h_deltaT(2,2),2.0)
 
-                    // Fastor::print("Elastic_Spin_h_deltaT",Elastic_Spin_h_deltaT);
+                    Foam::pow(Elastic_Spin_h_deltaT(2,1),2.0)
+                    +Foam::pow(Elastic_Spin_h_deltaT(0, 2),2.0)
+                    +Foam::pow(Elastic_Spin_h_deltaT(1,0),2.0)
+                    
+                    );
+
+    //                 Fastor::print("Elastic_Spin_h_deltaT",Elastic_Spin_h_deltaT);
 
     // Info<<"X_comps: "<<X_comps<<endl;
     Fastor::Tensor<double, 3, 3> e_to_the_C(0.0);
@@ -318,17 +346,37 @@ Euler_Angles*=0.0;
       // Info<<"x_comps"<<X_comps<<endl;
     
 
-    e_to_the_C  += ((Foam::sin(X_comps)/X_comps)*Elastic_Spin_h_deltaT) + ((1.0-Foam::cos(X_comps))/Foam::pow(X_comps,2.0))* Elastic_Spin_h_deltaT_sq;
+    e_to_the_C  +=  ((Foam::sin(X_comps*deltaT_)/X_comps)*Elastic_Spin_h_deltaT) + ((1.0-Foam::cos(X_comps*deltaT_))/Foam::pow(X_comps,2.0))* Elastic_Spin_h_deltaT_sq;
 
 
     
     }
-    Rot_matrix_N_plus_one = Fastor::matmul(e_to_the_C,Rot_matrix);
-    // Fastor::print("Rot: ",Rot_matrix);
-    // Fastor::print("e_to_the_C: ",e_to_the_C);
 
-    // Fastor::print("Rot_n+1: ",Rot_matrix_N_plus_one);
+    Rot_matrix_N_plus_one = Fastor::matmul(Rot_matrix,Fastor::transpose(e_to_the_C));//If we define euler angles relative to +ve rotation around axes then this update has to be consistent with this
+    //e_to_the_C is the rotation update, now need to rotate the rotation matrix by this
 
+        // Rot_matrix_N_plus_one = Fastor::matmul(Fastor::transpose(e_to_the_C),Fastor::matmul(Rot_matrix,e_to_the_C));//incremental update of regular tensor
+
+      
+
+    test_rot_diff[h][cell].component(0) = Rot_matrix_N_plus_one(0,0);
+    test_rot_diff[h][cell].component(1) = Rot_matrix_N_plus_one(0,1);
+    test_rot_diff[h][cell].component(2) = Rot_matrix_N_plus_one(0,2);
+    test_rot_diff[h][cell].component(3) = Rot_matrix_N_plus_one(1,0);
+    test_rot_diff[h][cell].component(4) = Rot_matrix_N_plus_one(1,1);
+    test_rot_diff[h][cell].component(5) = Rot_matrix_N_plus_one(1,2);
+    test_rot_diff[h][cell].component(6) = Rot_matrix_N_plus_one(2,0);
+    test_rot_diff[h][cell].component(7) = Rot_matrix_N_plus_one(2,1);
+    test_rot_diff[h][cell].component(8) = Rot_matrix_N_plus_one(2,2);
+    
+    if(cell==240&&h==1){
+      Info<<h<<endl;
+    Fastor::print("Rot: ",Rot_matrix);
+    Fastor::print("e_to_the_C: ",e_to_the_C);
+
+    Fastor::print("Rot_n+1: ",Rot_matrix_N_plus_one);
+    // exit(0);
+    }
 
     // Rot1[h][cell] = ?
     // Rot2[h][cell] = ?
@@ -339,12 +387,22 @@ Euler_Angles*=0.0;
     double phi_angle = 0.0;
 
     if(mag(Rot_matrix_N_plus_one(2,0))!=1.0){
+      // Info<<"HERE"<<endl;
       double theta_1 = -std::asin(Rot_matrix_N_plus_one(2,0));
       double theta_2 = M_PI - theta_1;
       double psi_1 = std::atan2((Rot_matrix_N_plus_one(2,1)/std::cos(theta_1)),(Rot_matrix_N_plus_one(2,2)/std::cos(theta_1)));
       double psi_2 = std::atan2((Rot_matrix_N_plus_one(2,1)/std::cos(theta_2)),(Rot_matrix_N_plus_one(2,2)/std::cos(theta_2)));
       double phi_1 = std::atan2((Rot_matrix_N_plus_one(1,0)/std::cos(theta_1)),(Rot_matrix_N_plus_one(0,0)/std::cos(theta_1)));
       double phi_2 = std::atan2((Rot_matrix_N_plus_one(1,0)/std::cos(theta_2)),(Rot_matrix_N_plus_one(0,0)/std::cos(theta_2)));
+
+      // Info<<"angles"<<endl;
+      // Info<<"theta1: "<<theta_1<<endl;
+      // Info<<"theta_2: "<<theta_2<<endl;
+      // Info<<"psi_1: "<<psi_1<<endl;
+      // Info<<"psi_2: "<<psi_2<<endl;
+      // Info<<"phi_1: "<<phi_1<<endl;
+      // Info<<"phi_2: "<<phi_2<<endl;
+      // Info<<""<<endl;
 
       theta_angle = theta_1;//max(theta_1,theta_2);
       psi_angle = psi_1;//max(psi_1,psi_2);
@@ -371,7 +429,7 @@ Euler_Angles*=0.0;
     Rot3[h][cell] = phi_angle;
 
 
-      if (PopBal[h][cell] > SMALL)
+      if (PopBal_av[h][cell] > SMALL)
       { // if the phase is there, work out the stiffness contribution
 
         for (int i = 0; i < 3; i++)
@@ -409,7 +467,7 @@ Euler_Angles*=0.0;
           }
         }
 
-      }
+      }//
 
         // If grain is there
         // Have the stiffness tensor now
@@ -495,6 +553,7 @@ Euler_Angles*=0.0;
         Fastor::Tensor<double, 3, 3> sig = Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L> /*,Fastor::OIndex<I,J>*/>(Cprime, Fepsilon_dot - F_D_P); ////Double contraction
 
         sigAv += (PopBal[h][cell]/Sum_Phases[cell]) * sig;///Sum_Phases[cell];
+      // }
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
         D_P_Average += /*PopBal[h][cell] */ F_D_P;
 
@@ -724,7 +783,7 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 
-      if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
+      if (PopBal_av[h].boundaryField()[patchI][faceI] > SMALL)
       { // if the phase is there, work out the stiffness contribution
 
         for (int i = 0; i < 3; i++)
@@ -762,7 +821,7 @@ forAll(dsigmadt.boundaryField(), patchI)
           }
         }
 
-      }
+      }//
 
 
 // If grain is there
@@ -851,6 +910,7 @@ forAll(dsigmadt.boundaryField(), patchI)
 
         sigAv += (PopBal[h].boundaryField()[patchI][faceI]/Sum_Phases.boundaryField()[patchI][faceI]) * sig;///Sum_Phases[cell];
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
+      // }
         D_P_Average += /*PopBal[h][cell] */ F_D_P;
 
         Fastor::Tensor<double, 3, 3> F_D_E(0.0);
@@ -914,11 +974,16 @@ dsigmadt.correctBoundaryConditions();
 
 
 
+// //RK4
+
+// //RK4
 
 
   sigma = sigma + (1.0 / n_sub_steps) * runTime.deltaT() * (dsigmadt);
   sigma.correctBoundaryConditions();
 
+D = D + (1.0 / n_sub_steps) * runTime.deltaT() * (U);
+D.correctBoundaryConditions();
 
 p=-(1.0/3.0)*tr(sigma);
 

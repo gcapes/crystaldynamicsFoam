@@ -98,23 +98,26 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.userTimeName() << nl << endl;
 
+        // #include "UEqn.H"
+        #include "setU.H"
 
-
-        while (pimple.loop())
+        while (pimple.loop())//TOM - should U equation go in here or out?
         {
 
         // do
         // {
             #include "UpdateProps.H"
-            // #include "Old_Update.H"
-            #include "UEqn.H"
+            
+            
+
+            
             
             
             
 
-            #include "TEqn.H"
-            #include "rhoEqn.H"
-            #include "Advect.H"
+            // #include "TEqn.H"
+            // #include "rhoEqn.H"
+            // #include "Advect.H"
 
 
         }

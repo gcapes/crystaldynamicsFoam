@@ -94,6 +94,11 @@ double G_Quad=0.0;
     return G_Quad;
 }
 
+tensor Foam::Material::RK4(scalar step_size){
+
+    return tensor::zero;
+}
+
 
 
 

@@ -122,19 +122,19 @@ volVectorField U(
         IOobject::AUTO_WRITE),
     mesh);
 
-// volVectorField D
-// (
-//     IOobject
-//     (
-//         "D",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh,
-//     dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
-// );
+volVectorField D
+(
+    IOobject
+    (
+        "D",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector("D",dimensionSet(0, 1, 0, 0, 0),vector::zero)
+);
 
 Info << "Reading field Temperature\n"
      << endl;
@@ -315,63 +315,7 @@ for (label c = 0; c < N_Ori; c++)
 
 Fastor::Tensor<double, 3, 3, 3, 3> Cprime2[N_Mats]; // array of tensor objects
 
-// int N_Slips = 12;
 
-// vector m_alpha[N_Mats][N_Slips]; //slip direction
-
-// vector n_alpha[N_Mats][N_Slips];//slip plane normal
-
-//  vector n1(0,	0.707,	-0.707);
-//  vector n2(-0.707,0.0,0.707);
-//  vector n3(0.707,-0.707,0.0);
-//   vector n4(0,-0.707,-0.707);
-//   vector n5(0.707,0.0,0.707);
-//  vector n6(-0.707,0.707,0.0);
-//   vector n7(0,0.707,-0.707);
-//   vector n8(0.707,0.0,0.707);
-//  vector n9(-0.707,-0.707,0.0);
-//   vector n10(0,-0.707,-0.707);
-//  vector n11(-0.707,0.0,0.707);
-//   vector n12(0.707,0.707,0.0);
-
-// n_alpha[0]=n1;
-// n_alpha[1]=n2;
-// n_alpha[2]=n3;
-// n_alpha[3]=n4;
-// n_alpha[4]=n5;
-// n_alpha[5]=n6;
-// n_alpha[6]=n7;
-// n_alpha[7]=n8;
-// n_alpha[8]=n9;
-// n_alpha[9]=n10;
-// n_alpha[10]=n11;
-// n_alpha[11]=n12;
-
-//  vector m1(0.577,0.577,0.577)	;
-// vector m2(0.577,0.577,0.577)	;
-// vector m3(0.577,0.577,0.577)	;
-// vector m4(-0.577,-0.577,0.577);
-// vector m5(-0.577,-0.577,0.577);
-// vector m6(-0.577,-0.577,0.577);
-// vector m7(-0.577,0.577,0.577)	;
-// vector m8(-0.577,0.577,0.577)	;
-// vector m9(-0.577,0.577,0.577)	;
-// vector m10(0.577,-0.577,0.577)	;
-// vector m11(0.577,-0.577,0.577)	;
-// vector m12(0.577,-0.577,0.577)	;
-
-// m_alpha[0] = m1;
-// m_alpha[1] = m2;
-// m_alpha[2] = m3;
-// m_alpha[3] = m4;
-// m_alpha[4] = m5;
-// m_alpha[5] = m6;
-// m_alpha[6] = m7;
-// m_alpha[7] = m8;
-// m_alpha[8] = m9;
-// m_alpha[9] = m10;
-// m_alpha[10] = m11;
-// m_alpha[11] = m12;
 
 std::vector<Material> MatList(N_Mats, Material());
 
@@ -648,6 +592,33 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
             zeroGradientFvPatchScalarField::typeName));
 }
 
+PtrList<volScalarField> PopBal_av(N_Ori);
+
+for(label count = 0; count < N_Ori; count++)
+{
+
+    word name_ni_av ("n_av" + name(count));
+
+    PopBal_av.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ni_av,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("niav",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
 Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
 {
@@ -801,234 +772,9 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
             zeroGradientFvPatchScalarField::typeName));
 }
 
-// forAll(mesh.C(), cell)
-// {
+// Material TEST();
 
-// for (label h = 0; h < N_Ori; h++)
-// {
-// // ROT_1[cell]+=PopBal[h][cell]*phi1[h];
-// // ROT_2[cell]+=PopBal[h][cell]*phi2[h];
-// // ROT_3[cell]+=PopBal[h][cell]*phi3[h];
-
-// Rot1[h][cell] = phi1[h];
-// Rot2[h][cell] = phi2[h];
-// Rot3[h][cell] = phi3[h];
-
-// }
-
-// }
-
-// volScalarField ROT_1//rotation about x
-// (
-//     IOobject
-//     (
-//         "ROT.1",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh,
-//     dimensionedScalar("ROT.1",dimensionSet(0, 0, 0, 0, 0),0.0),
-//              zeroGradientFvPatchScalarField::typeName
-// );
-
-// volScalarField ROT_2//rotation about y
-// (
-//     IOobject
-//     (
-//         "ROT.2",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh,
-//     dimensionedScalar("ROT.2",dimensionSet(0, 0, 0, 0, 0),0.0),
-//              zeroGradientFvPatchScalarField::typeName
-// );
-
-// volScalarField ROT_3//rotation about z
-// (
-//     IOobject
-//     (
-//         "ROT.3",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh,
-//     dimensionedScalar("ROT.3",dimensionSet(0, 0, 0, 0, 0),0.0),
-//              zeroGradientFvPatchScalarField::typeName
-// );
-
-// forAll(mesh.C(), cell)
-// {
-
-// for (label h = 0; h < N_Ori; h++)
-// {
-// ROT_1[cell]+=PopBal[h][cell]*phi1[h];
-// ROT_2[cell]+=PopBal[h][cell]*phi2[h];
-// ROT_3[cell]+=PopBal[h][cell]*phi3[h];
-// }
-
-// }
-
-// tensor rot[N_Ori]={tensor::zero};
-
-// for (label i = 0; i < N_Ori; i++)
-// {
-
-//  tensor temprot(
-//     Foam::cos(phi2[i])*Foam::cos(phi3[i]),
-//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))-(Foam::cos(phi1[i])*Foam::sin(phi3[i])),//-Foam::cos(phi3)*Foam::sin(phi2),
-//     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::cos(phi3[i]))+(Foam::sin(phi1[i])*Foam::sin(phi3[i])),//Foam::sin(phi2)*Foam::sin(phi3),
-
-//     Foam::cos(phi2[i])*Foam::sin(phi3[i]),
-//     (Foam::sin(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))+(Foam::cos(phi1[i])*Foam::cos(phi3[i])),
-//     (Foam::cos(phi1[i])*Foam::sin(phi2[i])*Foam::sin(phi3[i]))-(Foam::sin(phi1[i])*Foam::cos(phi3[i])),
-
-//     -Foam::sin(phi2[i]),
-//     Foam::sin(phi1[i])*Foam::cos(phi2[i]),
-//     Foam::cos(phi1[i])*Foam::cos(phi2[i])
-// );//https://en.wikipedia.org/wiki/Rotation_matrix -
-// //"represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z" - phi1 ==alpha, phi2==beta,phi3==gamma
-
-// rot[i]=temprot;
-// }
-
-// Info<<"TEST: "<<rot[1]<<endl;
-// Info<<"TEST: "<<rot[1].component(4)<<endl;
-// exit(0);
-
-// Fastor::Tensor<double,3,3,3,3> C(0.0);//elasticity matrix in the grain reference
-
-//   double C11 = 107.3e9;
-//   double C12 = 60.9e9;
-//   double C44 = 128.3e9;
-
-// //Cubic
-
-//   C(0,0,0,0)=C11;
-//   C(1,1,1,1)=C11;
-//   C(2,2,2,2)=C11;
-
-//   C(1,0,1,0)=C44;
-//   C(2,0,2,0)=C44;
-//   C(0,0,1,1)=C12;
-//   C(1,0,0,1)=C44;
-//   C(0,0,2,2)=C12;
-//   C(2,0,0,2)=C44;
-//   C(0,1,1,0)=C44;
-//   C(1,1,0,0)=C12;
-//   C(0,1,0,1)=C44;
-//   C(2,1,2,1)=C44;
-//   C(1,1,2,2)=C12;
-//   C(2,1,1,2)=C44;
-//   C(0,2,2,0)=C44;
-//   C(2,2,0,0)=C12;
-//   C(1,2,2,1)=C44;
-//   C(2,2,1,1)=C12;
-//   C(0,2,0,2)=C44;
-//   C(1,2,1,2)=C44;
-
-/*
-//ISOTROPIC
-
-C(0,0,0,0) = C11;
-C(0,1,0,1) = C11;
-C(0,2,0,2) = C11;
-
-C(1,0,1,0) = C11;
-C(1,1,1,1) = C11;
-C(1,2,1,2) = C11;
-
-C(2,0,2,0) = C11;
-C(2,1,2,1) = C11;
-C(2,2,2,2) = C11;
-*/
-
-// Fastor::Tensor<double,3,3,3,3> Cprime2[N_Ori];//array of tensor objects
-
-// for (label h = 0; h < N_Ori; h++)
-// {
-
-// Fastor::Tensor<double,3,3,3,3> Cprime_temp(0.0);
-
-//   Fastor::Tensor<double,3,3> Rot_matrix(0.0);
-
-//   Rot_matrix(0,0)=rot[h].component(0);
-//   Rot_matrix(0,1)=rot[h].component(1);
-//   Rot_matrix(0,2)=rot[h].component(2);
-//   Rot_matrix(1,0)=rot[h].component(3);
-//   Rot_matrix(1,1)=rot[h].component(4);
-//   Rot_matrix(1,2)=rot[h].component(5);
-//   Rot_matrix(2,0)=rot[h].component(6);
-//   Rot_matrix(2,1)=rot[h].component(7);
-//   Rot_matrix(2,2)=rot[h].component(8);
-
-//   // Rotate To Global needReference
-//   for(int i = 0 ; i < 3 ; i++ ){
-//   for(int j = 0 ; j < 3 ; j++ ){
-//     for(int k = 0 ; k < 3 ; k++ ){
-//       for(int l = 0 ;l  < 3 ; l++ ){
-
-//         double value =0.0;
-//         for(int m = 0 ; m < 3 ; m++ ){
-//           for(int n = 0 ; n < 3 ; n++ ){
-//             for(int p = 0 ; p < 3 ; p++ ){
-//               for(int q = 0 ;q  < 3 ; q++ ){
-
-//                     value+=Rot_matrix(i,m)*Rot_matrix(j,n)*Rot_matrix(k,p)*Rot_matrix(l,q)*C(m,n,p,q);
-
-//                     }
-//                   }
-//                 }
-//               }
-
-//               // value*=PopBal[h][cell];
-
-//         Cprime_temp(i,j,k,l)=value;
-
-//       }
-//     }
-//   }
-// }
-
-// // if(i==0){
-// //     Cprime_temp(0,0,0,0)=2.35;
-// // }
-// // if(i==1){
-// //     Cprime_temp(0,0,0,0)=247.65;
-// // }
-
-// Cprime2[h]=Cprime_temp;
-// }
-// Info<<"HERE5"<<endl;
-// Cprime2[N_Ori] now has all the grain elasticity tensors
-
-// Fastor::print("Test1",Cprime2[0](0,0,0,0));
-// Fastor::print("Test1",Cprime2[1](0,0,0,0));
-// Fastor::print("Test1",Cprime2[0](0,0,0,1));
-// Fastor::print("Test1",Cprime2[2](0,0,0,0));
-
-// exit(0);
-
-// volTensorField Global_Orientation_Tensor
-// (
-//     IOobject
-//     (
-//         "Global_Orientation_Tensor",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedTensor("Global_Orientation_Tensor",dimensionSet(0, 0, 0, 0, 0),tensor::zero),
-//                zeroGradientFvPatchTensorField::typeName
-// );
+// Info<<MatList[0].RK4()<<endl;
 
 // exit(0);
 
@@ -1053,7 +799,7 @@ volTensorField omega_dot(
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::NO_WRITE),
+        IOobject::AUTO_WRITE),
     mesh,
     dimensionedTensor("omega_dot", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
     // zeroGradientFvPatchTensorField::typeName
@@ -1110,63 +856,7 @@ volTensorField sigma(
     // zeroGradientFvPatchTensorField::typeName
     );
 
-//     volVectorField sigma_col1(
-//     IOobject(
-//         "sigma_col1",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         IOobject::NO_WRITE),
-//     mesh,
-//     dimensionedVector("sigma1", dimensionSet(1, -1, -2, 0, 0), vector::zero),
-//     zeroGradientFvPatchVectorField::typeName);
 
-//     volVectorField sigma_col2(
-//     IOobject(
-//         "sigma_col2",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         IOobject::NO_WRITE),
-//     mesh,
-//     dimensionedVector("sigma2", dimensionSet(1, -1, -2, 0, 0), vector::zero),
-//     zeroGradientFvPatchVectorField::typeName);
-
-//     volVectorField sigma_col3(
-//     IOobject(
-//         "sigma_col3",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         IOobject::NO_WRITE),
-//     mesh,
-//     dimensionedVector("sigma3", dimensionSet(1, -1, -2, 0, 0), vector::zero),
-//     zeroGradientFvPatchVectorField::typeName);
-
-
-// sigma_col1.component(0) = sigma.component(0);
-// sigma_col1.component(1) = sigma.component(3);
-// sigma_col1.component(2) = sigma.component(6);
-
-// sigma_col2.component(0) = sigma.component(1);
-// sigma_col2.component(1) = sigma.component(4);
-// sigma_col2.component(2) = sigma.component(7);
-
-// sigma_col3.component(0) = sigma.component(2);
-// sigma_col3.component(1) = sigma.component(5);
-// sigma_col3.component(2) = sigma.component(8);
-
-
-// volTensorField sigmaav(
-//     IOobject(
-//         "sigmaav",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::NO_WRITE),
-//     mesh,
-//     dimensionedTensor("sigmaav", dimensionSet(1, -1, -2, 0, 0), tensor::zero),
-//     zeroGradientFvPatchTensorField::typeName);
 
 volVectorField divsigma(
     IOobject(
@@ -1239,9 +929,204 @@ volTensorField dsigmadt(
 
 #include "createPhi.H"
 
-/*
-label pRefCell = 0;
-scalar pRefValue = 0.0;
-setRefCell(p, mesh.solution().dict().subDict("PISO"), pRefCell, pRefValue);
-mesh.schemes().setFluxRequired(p.name());
-*/
+
+
+// volTensorField test_rot_diff
+// (
+//     IOobject
+//     (
+//         "test_rot_diff",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//         mesh,
+// dimensionedTensor("test_rot_diff",dimensionSet(0, 0, 0, 0, 0),(tensor::zero))//,
+//                 //zeroGradientFvPatchTensorField::typeName
+// );
+
+PtrList<volTensorField> test_rot_diff(N_Ori); // pointer to phase fields
+
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
+{
+
+    word name_ni("testRot." + name(count));
+
+    test_rot_diff.set(
+        count,
+        new volTensorField(
+            IOobject(
+                name_ni,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
+            mesh,
+            dimensionedTensor("ni", dimensionSet(0, 0, 0, 0, 0), (tensor::zero)),
+            zeroGradientFvPatchTensorField::typeName));
+}
+
+
+  forAll(mesh.C(), cell)
+  {
+
+    for (label h = 0; h < N_Ori; h++)
+    {
+
+      double phi_1_total = phi1[h]; // ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
+
+      double phi_2_total = phi2[h]; // ROT_2[cell];// phi2[h] ;//+ omega_tot[cell].component(2);
+
+      double phi_3_total = phi3[h];
+
+      Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
+
+      Rot_matrix(0, 0) = Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
+      Rot_matrix(0, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
+      Rot_matrix(0, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
+
+      Rot_matrix(1, 0) = Foam::cos(phi_2_total) * Foam::sin(phi_3_total);
+      Rot_matrix(1, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) + (Foam::cos(phi_1_total) * Foam::cos(phi_3_total));
+      Rot_matrix(1, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) - (Foam::sin(phi_1_total) * Foam::cos(phi_3_total));
+
+      Rot_matrix(2, 0) = -Foam::sin(phi_2_total);
+      Rot_matrix(2, 1) = Foam::sin(phi_1_total) * Foam::cos(phi_2_total);
+      Rot_matrix(2, 2) = Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
+
+
+    // if(cell==240){
+    //     Info<<h<<endl;
+    // Fastor::print("Rot: ",Rot_matrix);
+    // }
+
+
+      test_rot_diff[h][cell].component(0)=Rot_matrix(0, 0);
+      test_rot_diff[h][cell].component(1)=Rot_matrix(0, 1);
+      test_rot_diff[h][cell].component(2)=Rot_matrix(0, 2);
+      test_rot_diff[h][cell].component(3)=Rot_matrix(1, 0);
+      test_rot_diff[h][cell].component(4)=Rot_matrix(1, 1);
+      test_rot_diff[h][cell].component(5)=Rot_matrix(1, 2);
+      test_rot_diff[h][cell].component(6)=Rot_matrix(2, 0);
+      test_rot_diff[h][cell].component(7)=Rot_matrix(2, 1);
+      test_rot_diff[h][cell].component(8)=Rot_matrix(2, 2);
+
+    }
+
+  }
+
+
+
+
+
+
+
+
+
+
+// forAll(mesh.C(), cell)
+//   {
+//     // test_rot_diff[cell].component(0)=1.0;
+//     // test_rot_diff[cell].component(4)=2.0;
+//     // test_rot_diff[cell].component(8)=3.0;
+
+//     test_rot_diff[0][cell].component(0)=1.0/Foam::sqrt(2.0);
+//     test_rot_diff[0][cell].component(1)=1.0/Foam::sqrt(6.0);
+//     test_rot_diff[0][cell].component(2)=1.0/Foam::sqrt(3.0);
+//     test_rot_diff[0][cell].component(3)=-1.0/Foam::sqrt(2.0);
+//     test_rot_diff[0][cell].component(4)=1.0/Foam::sqrt(6.0);
+//     test_rot_diff[0][cell].component(5)=1.0/Foam::sqrt(3.0);
+//     test_rot_diff[0][cell].component(6)=0.0;
+//     test_rot_diff[0][cell].component(7)=-2.0/Foam::sqrt(6.0);
+//     test_rot_diff[0][cell].component(8)=1.0/Foam::sqrt(3.0);
+//   }
+
+
+
+// Fastor::Tensor<double, 3, 3> TEST_1(0.0);
+
+// TEST_1(0,0) = -1.0;
+// TEST_1(0,1) = 2.0;
+// TEST_1(0,2) = 3.0;
+// TEST_1(1,0) = 4.0;
+// TEST_1(1,1) = -5.0;
+// TEST_1(1,2) = 6.0;
+// TEST_1(2,0) = 7.0;
+// TEST_1(2,1) = 8.0;
+// TEST_1(2,2) = 9.0;
+
+// Fastor::Tensor<double, 3, 3> TEST_2(0.0);
+
+// TEST_2(0,0) = 2.0;
+// TEST_2(0,1) = -3.0;
+// TEST_2(0,2) = -4.0;
+// TEST_2(1,0) = 5.0;
+// TEST_2(1,1) = -6.0;
+// TEST_2(1,2) = 7.0;
+// TEST_2(2,0) = 8.0;
+// TEST_2(2,1) = -9.0;
+// TEST_2(2,2) = 10.0;
+
+// Fastor::print(Fastor::matmul(TEST_1,TEST_2));
+
+
+
+// tensor T1(-1.0,2.0,3.0,4.0,-5.0,6.0,7.0,8.0,9.0);
+// tensor T2(2.0,-3.0,-4.0,5.0,-6.0,7.0,8.0,-9.0,10.0);
+
+// Info<<"Foam dot "<<(T1 & T2);
+
+// exit(0);
+
+
+// tensor T3(1.0,0.0,0.0,0.0,0.9397,-0.3420,0.0,0.3420,0.9397);
+// tensor T4(1.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,3.0);
+
+// Info<<"Foam dot "<<((T3 & T4) & T3.T());
+
+// exit(0);
+
+
+// //// TRYING TO MAKE SENSE OF ANGLES//
+    // double phi_1_total1=phi1[1];//0.0314159;//0.5*M_PI;
+    // double phi_2_total1=phi2[1];
+    // double phi_3_total1=phi3[1];
+
+    //   Fastor::Tensor<double, 3, 3> Rot_matrixtest1(0.0);
+
+    //   Rot_matrixtest1(0, 0) = Foam::cos(phi_2_total1) * Foam::cos(phi_3_total1);
+    //   Rot_matrixtest1(0, 1) = (Foam::sin(phi_1_total1) * Foam::sin(phi_2_total1) * Foam::cos(phi_3_total1)) - (Foam::cos(phi_1_total1) * Foam::sin(phi_3_total1));
+    //   Rot_matrixtest1(0, 2) = (Foam::cos(phi_1_total1) * Foam::sin(phi_2_total1) * Foam::cos(phi_3_total1)) + (Foam::sin(phi_1_total1) * Foam::sin(phi_3_total1));
+
+    //   Rot_matrixtest1(1, 0) = Foam::cos(phi_2_total1) * Foam::sin(phi_3_total1);
+    //   Rot_matrixtest1(1, 1) = (Foam::sin(phi_1_total1) * Foam::sin(phi_2_total1) * Foam::sin(phi_3_total1)) + (Foam::cos(phi_1_total1) * Foam::cos(phi_3_total1));
+    //   Rot_matrixtest1(1, 2) = (Foam::cos(phi_1_total1) * Foam::sin(phi_2_total1) * Foam::sin(phi_3_total1)) - (Foam::sin(phi_1_total1) * Foam::cos(phi_3_total1));
+
+    //   Rot_matrixtest1(2, 0) = -Foam::sin(phi_2_total1);
+    //   Rot_matrixtest1(2, 1) = Foam::sin(phi_1_total1) * Foam::cos(phi_2_total1);
+    //   Rot_matrixtest1(2, 2) = Foam::cos(phi_1_total1) * Foam::cos(phi_2_total1);
+
+
+
+    // double phi_1_total2=phi1[1]-0.7*M_PI;//0.5*M_PI;//0.0314159;//0.5*M_PI;//after 1e-7
+    // double phi_2_total2=phi2[1];
+    // double phi_3_total2=phi3[1];
+
+    //   Fastor::Tensor<double, 3, 3> Rot_matrixtest(0.0);
+
+    //   Rot_matrixtest(0, 0) = Foam::cos(phi_2_total2) * Foam::cos(phi_3_total2);
+    //   Rot_matrixtest(0, 1) = (Foam::sin(phi_1_total2) * Foam::sin(phi_2_total2) * Foam::cos(phi_3_total2)) - (Foam::cos(phi_1_total2) * Foam::sin(phi_3_total2));
+    //   Rot_matrixtest(0, 2) = (Foam::cos(phi_1_total2) * Foam::sin(phi_2_total2) * Foam::cos(phi_3_total2)) + (Foam::sin(phi_1_total2) * Foam::sin(phi_3_total2));
+
+    //   Rot_matrixtest(1, 0) = Foam::cos(phi_2_total2) * Foam::sin(phi_3_total2);
+    //   Rot_matrixtest(1, 1) = (Foam::sin(phi_1_total2) * Foam::sin(phi_2_total2) * Foam::sin(phi_3_total2)) + (Foam::cos(phi_1_total2) * Foam::cos(phi_3_total2));
+    //   Rot_matrixtest(1, 2) = (Foam::cos(phi_1_total2) * Foam::sin(phi_2_total2) * Foam::sin(phi_3_total2)) - (Foam::sin(phi_1_total2) * Foam::cos(phi_3_total2));
+
+    //   Rot_matrixtest(2, 0) = -Foam::sin(phi_2_total2);
+    //   Rot_matrixtest(2, 1) = Foam::sin(phi_1_total2) * Foam::cos(phi_2_total2);
+    //   Rot_matrixtest(2, 2) = Foam::cos(phi_1_total2) * Foam::cos(phi_2_total2);
+
+    // Fastor::print("rot matrix initial: ",Rot_matrixtest1);
+    // Fastor::print("rot matrix aftre - pi/2: ",Rot_matrixtest);
+
+    //   exit(0);

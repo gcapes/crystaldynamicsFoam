@@ -51,11 +51,11 @@ namespace Foam
 extern "C"
 {
     // dynamicCode:
-    // SHA1 = 9b422f8cadbc73c636689cd219d93c7810e6102b
+    // SHA1 = ca23f9ebec2b768e9b9166a0624cdf8f995459ba
     //
     // unique function name that can be checked if the correct library version
     // has been loaded
-    void velocityProfilefront_9b422f8cadbc73c636689cd219d93c7810e6102b(bool load)
+    void velocityProfilefront_ca23f9ebec2b768e9b9166a0624cdf8f995459ba(bool load)
     {
         if (load)
         {
@@ -78,7 +78,7 @@ makeRemovablePatchTypeField
 
 
 const char* const velocityProfilefrontFixedValueFvPatchVectorField::SHA1sum =
-    "9b422f8cadbc73c636689cd219d93c7810e6102b";
+    "ca23f9ebec2b768e9b9166a0624cdf8f995459ba";
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -94,7 +94,7 @@ velocityProfilefrontFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b"
+        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
             " from patch/DimensionedField\n";
     }
 }
@@ -112,7 +112,7 @@ velocityProfilefrontFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b"
+        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
             " from patch/dictionary\n";
     }
 }
@@ -131,7 +131,7 @@ velocityProfilefrontFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b"
+        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
             " from patch/DimensionedField/mapper\n";
     }
 }
@@ -148,7 +148,7 @@ velocityProfilefrontFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b "
+        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba "
             "as copy/DimensionedField\n";
     }
 }
@@ -161,7 +161,7 @@ velocityProfilefrontFixedValueFvPatchVectorField::
 {
     if (false)
     {
-        Info<<"destroy velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b\n";
+        Info<<"destroy velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba\n";
     }
 }
 
@@ -177,20 +177,26 @@ void velocityProfilefrontFixedValueFvPatchVectorField::updateCoeffs()
 
     if (false)
     {
-        Info<<"updateCoeffs velocityProfilefront sha1: 9b422f8cadbc73c636689cd219d93c7810e6102b\n";
+        Info<<"updateCoeffs velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba\n";
     }
 
 //{{{ begin code
     #line 33 "/home/tomflint/OpenFOAM/custom/Euler_Solid_Mech/tutorials/Paper/HCP_BCC_Laths_2/0/U/boundaryField/Front"
 vectorField veloc(patch().size(), vector(0, 0, 0));
-scalar radius=0.025e-3;
+scalar radius=0.05e-3;
 scalar Peak=-10.0;
+scalar P =5.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)
             {
-                veloc[i].z() =((Peak))*Foam::exp(-1.0*Foam::pow((centre[i].y()-0.1e-3),2.0)/(2.0*radius*radius));
+                veloc[i].z() =((Peak))*Foam::exp(-Foam::pow(1.0*Foam::pow((centre[i].y()-0.1e-3),2.0)/(2.0*radius*radius),P));
+            if(centre[i].y()<0.005e-3||centre[i].y()>0.195e-3)
+            {
+            veloc[i].z() =0.0;
             }
+            }
+            
 
 operator==(veloc);
 //}}} end code

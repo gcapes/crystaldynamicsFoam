@@ -96,6 +96,8 @@ namespace Foam
 
   double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
 
+  tensor RK4(scalar step_size);
+
 };
 
 

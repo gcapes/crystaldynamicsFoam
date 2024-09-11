@@ -1,6 +1,6 @@
 # dynamicCode:
-# SHA1 = 9b422f8cadbc73c636689cd219d93c7810e6102b
+# SHA1 = ca23f9ebec2b768e9b9166a0624cdf8f995459ba
 
 codedFixedValueFvPatchFieldTemplate.C
 
-LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libvelocityProfilefront_9b422f8cadbc73c636689cd219d93c7810e6102b
+LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libvelocityProfilefront_ca23f9ebec2b768e9b9166a0624cdf8f995459ba
