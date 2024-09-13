@@ -98,30 +98,33 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.userTimeName() << nl << endl;
 
-        // #include "UEqn.H"
-        #include "setU.H"
+        
 
-        while (pimple.loop())//TOM - should U equation go in here or out?
+        while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
 
         // do
         // {
+            // #include "UpdateProps.H"
+            
+            #include "UEqn.H"
+        // #include "setU.H"
+            
+
             #include "UpdateProps.H"
+            #include "StressUpdate.H"
             
             
 
-            
-            
-            
-            
-
-            // #include "TEqn.H"
-            // #include "rhoEqn.H"
-            // #include "Advect.H"
+            #include "TEqn.H"
+            #include "rhoEqn.H"
+            #include "Advect.H"
 
 
         }
 
+        
+        #include "RotationUpdate.H"
         
     // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
 
