@@ -90,8 +90,8 @@ initialCRSS	8e6;
 tau_S	148e6;
 h_0	180e6;
 r	1.1;
-k_exponent	2.0;
-gammadot_0	1e-1;
+k_exponent	3.0;
+gammadot_0	1e-3;
 
 }
 
@@ -168,8 +168,8 @@ initialCRSS	100e6;
 tau_S	148e6;
 h_0	180e6;
 r	1.1;
-k_exponent	2.0;
-gammadot_0	1e-1;
+k_exponent	3.0;
+gammadot_0	1e-3;
 
 }
 

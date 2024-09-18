@@ -12,10 +12,9 @@
 
   epsilon_dot = 0.5 * (TgradU + fvc::grad(U));//- (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
 
+  // dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma) ;//-(tr(epsilon_dot)*sigma);;// 
 
-  dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma) ;//-(tr(epsilon_dot)*sigma);;// 
-
-
+dsigmadt*=0.0;
 
 
 
@@ -63,7 +62,7 @@
 
 
 //   // // //update hardening rates
-// // // Info<<"HERE1"<<endl;
+// // // // Info<<"HERE1"<<endl;
 
 //   forAll(mesh.C(), cell)
 //   {
@@ -242,6 +241,7 @@
     label largest_field=-1;
     double current_largest_value = -1.0;
 
+    sumgamma[cell]*=0.0;
     for (label h = 0; h < N_Ori; h++)
     {
 
@@ -526,12 +526,14 @@
           Fastor::Tensor<double, 3, 3> Schmid_T(0.0);
 
           Schmid_T = outer(F_m_alpha_Rot, F_n_alpha_Rot);
+          
           double tau_alpha = 0.0;
           for (int i = 0; i < 3; i++)
           {
             for (int j = 0; j < 3; j++)
             {
-              tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
+              // tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
+              tau_alpha += Fsigma(i, j)* P_alpha(i, j);
             }
           }
 
@@ -574,18 +576,10 @@
 
         F_D_E = Fepsilon_dot-F_D_P;
 
-      // int Count_Child = 0;
-      // for (int Juno = 0; Juno < 3; Juno++)
-      // {
-      //   for (int Sadie = 0; Sadie < 3; Sadie++)
-      //   {
-          dsigmadt[cell] += (sigma[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigma[cell]);
-          dsigmadt[cell] -= sigma[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2));
-      //     Count_Child++;
-      //   }
-      // }
+          dsigmadt[cell] -=(PopBal[h][cell]/Sum_Phases[cell]) *((sigma[cell] & omega_dot[cell]) + (omega_dot[cell] & sigma[cell])) ;//-(tr(epsilon_dot)*sigma);;// 
+          dsigmadt[cell] += (PopBal[h][cell]/Sum_Phases[cell]) *((sigma[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigma[cell]));
+          dsigmadt[cell] -= (PopBal[h][cell]/Sum_Phases[cell]) *(sigma[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
-      
 
 
 
@@ -657,7 +651,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         label largest_field=-1;
     double current_largest_value = -1.0;
 
-
+    sumgamma.boundaryFieldRef()[patchI][faceI]*=0.0;
     for (label h = 0; h < N_Ori; h++)
     {
 
@@ -883,7 +877,8 @@ forAll(dsigmadt.boundaryField(), patchI)
           {
             for (int j = 0; j < 3; j++)
             {
-              tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
+              // tau_alpha += Fsigma(i, j)* Schmid_T(i, j);//Fsigmaav(i,j) 
+              tau_alpha += Fsigma(i, j)* P_alpha(i, j);//Fsigmaav(i,j) 
             }
           }
 
@@ -929,8 +924,9 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 
-          dsigmadt.boundaryFieldRef()[patchI][faceI] += (sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]);//Philip, can we assign boundary fields with dot products in?
-          dsigmadt.boundaryFieldRef()[patchI][faceI] -= sigma.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2));
+          dsigmadt.boundaryFieldRef()[patchI][faceI] -=(PopBal[h].boundaryField()[patchI][faceI]/Sum_Phases.boundaryField()[patchI][faceI]) *((sigma.boundaryField()[patchI][faceI] & omega_dot.boundaryField()[patchI][faceI]) + (omega_dot.boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]));
+          dsigmadt.boundaryFieldRef()[patchI][faceI] += (PopBal[h].boundaryField()[patchI][faceI]/Sum_Phases.boundaryField()[patchI][faceI]) *((sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]));//Philip, can we assign boundary fields with dot products in?
+          dsigmadt.boundaryFieldRef()[patchI][faceI] -= (PopBal[h].boundaryField()[patchI][faceI]/Sum_Phases.boundaryField()[patchI][faceI]) *(sigma.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
 
 

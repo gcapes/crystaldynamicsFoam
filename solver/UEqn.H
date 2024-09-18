@@ -1,4 +1,4 @@
-
+const surfaceTensorField sigma_f(fvc::interpolate(sigma));
 
 fvVectorMatrix UEqn(
     fvm::ddt(rho, U) 

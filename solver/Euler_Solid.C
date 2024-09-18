@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
         while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
-
+            const volTensorField dsigold(dsigmadt);
         // do
         // {
             // #include "UpdateProps.H"
@@ -113,18 +113,23 @@ int main(int argc, char *argv[])
 
             #include "UpdateProps.H"
             #include "StressUpdate.H"
-            
+            // #include "Advect.H"
             
 
-            #include "TEqn.H"
-            #include "rhoEqn.H"
-            #include "Advect.H"
+            // Info<<"residualsig: "<<gMax((dsigmadt && dsigmadt)-(dsigold && dsigold));
+            //  dsigmadtDIFF = (dsigmadt && dsigmadt)-(dsigold && dsigold);
 
 
         }
 
+            #include "PF.H"
+            #include "TEqn.H"
+            #include "rhoEqn.H"
+            
+
         
         #include "RotationUpdate.H"
+        #include "Advect.H"
         
     // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
 

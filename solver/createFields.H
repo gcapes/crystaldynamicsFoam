@@ -962,6 +962,18 @@ volTensorField dsigmadt(
     // zeroGradientFvPatchTensorField::typeName
     );
 
+    // volTensorField dsigmadtDIFF(
+    // IOobject(
+    //     "dsigmadtDIFF",
+    //     runTime.timeName(),
+    //     mesh,
+    //     IOobject::NO_READ,
+    //     IOobject::AUTO_WRITE),
+    // mesh,
+    // dimensionedTensor("dsigmadtDIFF", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
+    // // zeroGradientFvPatchTensorField::typeName
+    // );
+
 // volTensorField dsigmadt_crystal
 // (
 //     IOobject

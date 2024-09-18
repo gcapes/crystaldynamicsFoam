@@ -12,4 +12,22 @@ p=-(1.0/3.0)*tr(sigma);
 testtraceeps = tr(epsilon_dot-D_P)*sigma;
 
 
+/*
+
+    fvTensorMatrix  sigmaEqn
+    (
+        fvm::ddt(sigma)
+        ==
+        (dsigmadt)
+
+    );
+
+    sigmaEqn.relax();
+
+    sigmaEqn.solve();
+    sigma.correctBoundaryConditions();
+
+*/
+
+
 }
