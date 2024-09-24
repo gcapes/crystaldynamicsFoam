@@ -14,7 +14,7 @@
 
         solve(
             fvm::ddt(rho, ni) + fvm::div(rhoPhi, ni)
-            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
+            - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
             // RHS
         );
         ni.correctBoundaryConditions();
@@ -41,6 +41,30 @@
                 temp_holder[celli] *= (1.0 / Sum_Phases[celli]);
             }
         }
+
+            forAll(Sum_Phases.boundaryField(), patchI)
+{
+    if
+    (
+        !Sum_Phases.boundaryField()[patchI].coupled()
+     && Sum_Phases.boundaryField()[patchI].size() > 0
+    )
+    {
+        forAll(Sum_Phases.boundaryField()[patchI], faceI)
+        {
+
+            if (Sum_Phases.boundaryField()[patchI][faceI] > 0.0)
+        {
+            temp_holder.boundaryFieldRef()[patchI][faceI] *= (1.0 / Sum_Phases.boundaryField()[patchI][faceI]);
+        }
+
+        }
+
+    }
+
+}
+
+
         ni = temp_holder;
     }
 

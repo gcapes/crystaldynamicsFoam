@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         leastSquares;//Gauss linear;//cellLimited Gauss linear 1.0;;//leastSquares;//
+    default         Gauss linear;//leastSquares;//Gauss linear;////leastSquares;//
 }
 
 divSchemes
@@ -35,6 +35,7 @@ divSchemes
     div(U)	Gauss linear;//cubic;
     
     div(sigma)	Gauss linear;
+    div(sigmatemp)	Gauss linear;
     //div(testSIG)	Gauss linear;//cubic;
     
     div(interpolate(U),rho)	Gauss linear;

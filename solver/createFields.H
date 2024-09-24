@@ -642,32 +642,32 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
             zeroGradientFvPatchScalarField::typeName));
 }
 
-PtrList<volScalarField> PopBal_av(N_Ori);
+// PtrList<volScalarField> PopBal_av(N_Ori);
 
-for(label count = 0; count < N_Ori; count++)
-{
+// for(label count = 0; count < N_Ori; count++)
+// {
 
-    word name_ni_av ("n_av" + name(count));
+//     word name_ni_av ("n_av" + name(count));
 
-    PopBal_av.set
-    (
-        count,
-        new volScalarField
-        (
-            IOobject
-            (
-                name_ni_av,
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh,
-            dimensionedScalar("niav",dimensionSet(0, 0, 0, 0, 0),0.0),
-            zeroGradientFvPatchScalarField::typeName
-        )
-    );
-}
+//     PopBal_av.set
+//     (
+//         count,
+//         new volScalarField
+//         (
+//             IOobject
+//             (
+//                 name_ni_av,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::NO_READ,
+//                 IOobject::NO_WRITE
+//             ),
+//             mesh,
+//             dimensionedScalar("niav",dimensionSet(0, 0, 0, 0, 0),0.0),
+//             zeroGradientFvPatchScalarField::typeName
+//         )
+//     );
+// }
 
 Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
@@ -695,6 +695,31 @@ for (label count = 0; count < N_Ori; count++)
             temp_holder[celli] *= (1.0 / Sum_Phases[celli]);
         }
     }
+
+    forAll(Sum_Phases.boundaryField(), patchI)
+{
+    if
+    (
+        !Sum_Phases.boundaryField()[patchI].coupled()
+     && Sum_Phases.boundaryField()[patchI].size() > 0
+    )
+    {
+        forAll(Sum_Phases.boundaryField()[patchI], faceI)
+        {
+
+            if (Sum_Phases.boundaryField()[patchI][faceI] > 0.0)
+        {
+            temp_holder.boundaryFieldRef()[patchI][faceI] *= (1.0 / Sum_Phases.boundaryField()[patchI][faceI]);
+        }
+
+        }
+
+    }
+
+}
+
+
+
     ni = temp_holder;
 }
 
@@ -906,6 +931,18 @@ volTensorField sigma(
     // zeroGradientFvPatchTensorField::typeName
     );
 
+    // volTensorField sigmatemp(
+    // IOobject(
+    //     "sigmatemp",
+    //     runTime.timeName(),
+    //     mesh,
+    //     IOobject::READ_IF_PRESENT,
+    //     IOobject::AUTO_WRITE),
+    // mesh,
+    // dimensionedTensor("sigmatemp", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+    // // zeroGradientFvPatchTensorField::typeName
+    // );
+
 
 
 volVectorField divsigma(
@@ -958,8 +995,8 @@ volTensorField dsigmadt(
         IOobject::NO_READ,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
-    // zeroGradientFvPatchTensorField::typeName
+    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero),
+    zeroGradientFvPatchTensorField::typeName
     );
 
     // volTensorField dsigmadtDIFF(

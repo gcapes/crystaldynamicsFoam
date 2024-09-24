@@ -32,3 +32,5 @@ U.correctBoundaryConditions();
 
 rhoPhi = fvc::interpolate(rho) * phi; // fvc::flux(U);
 K = 0.5 * magSqr(U);
+
+// sigmatemp*=0.0;
