@@ -19,29 +19,29 @@
 
 
 // //FOR HARDENING
-    for (label i = 0; i < N_Ori; i++)//advect hardened fields
-    {
-        for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
-        {
+    // for (label i = 0; i < N_Ori; i++)//advect hardened fields
+    // {
+    //     for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
+    //     {
 
-            // volScalarField & ni = PopBal[count];
-            volScalarField &g_a = g_alphas[i][countS];
+    //         // volScalarField & ni = PopBal[count];
+    //         volScalarField &g_a = g_alphas[i][countS];
 
-            solve(
-                fvm::ddt(rho, g_a) + fvm::div(rhoPhi, g_a)
-                - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), g_a) 
-                 ==
-                (rho * g_alpha_dots[i][countS])
-                // RHS
-            );
-            // g_a.correctBoundaryConditions();
-            // Sum_Phases += ni;
+    //         solve(
+    //             fvm::ddt(rho, g_a) + fvm::div(rhoPhi, g_a)
+    //             - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), g_a) 
+    //              ==
+    //             (rho * g_alpha_dots[i][countS])
+    //             // RHS
+    //         );
+    //         // g_a.correctBoundaryConditions();
+    //         // Sum_Phases += ni;
 
-            // Info << "Max phase field(" << count << ") = " << gMax(ni) << endl;
-            // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
-        }
-    }
-    // advect hardedned fields
+    //         // Info << "Max phase field(" << count << ") = " << gMax(ni) << endl;
+    //         // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
+    //     }
+    // }
+    // // advect hardedned fields
 
     // for (label i = 0; i < N_Ori; i++)
     // {

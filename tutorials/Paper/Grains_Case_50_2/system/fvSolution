@@ -20,20 +20,20 @@ solvers
 
     U
     {
-    /*
+    
         solver          PBiCGStab;
         preconditioner  DILU;
         tolerance       1e-12;
         minIter         1;
         maxIter         5000;//2
-      */ 
+      
         
-    
+    /*
         solver           GAMG;
         tolerance        1e-012;
         relTol           0.0;
         smoother         DILUGaussSeidel;
-        
+        */ 
         /*
         solver          smoothSolver;
         smoother        GaussSeidel;

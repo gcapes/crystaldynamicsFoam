@@ -642,32 +642,32 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
             zeroGradientFvPatchScalarField::typeName));
 }
 
-// PtrList<volScalarField> PopBal_av(N_Ori);
+PtrList<volScalarField> PopBal_av(N_Ori);
 
-// for(label count = 0; count < N_Ori; count++)
-// {
+for(label count = 0; count < N_Ori; count++)
+{
 
-//     word name_ni_av ("n_av" + name(count));
+    word name_ni_av ("n_av" + name(count));
 
-//     PopBal_av.set
-//     (
-//         count,
-//         new volScalarField
-//         (
-//             IOobject
-//             (
-//                 name_ni_av,
-//                 runTime.timeName(),
-//                 mesh,
-//                 IOobject::NO_READ,
-//                 IOobject::NO_WRITE
-//             ),
-//             mesh,
-//             dimensionedScalar("niav",dimensionSet(0, 0, 0, 0, 0),0.0),
-//             zeroGradientFvPatchScalarField::typeName
-//         )
-//     );
-// }
+    PopBal_av.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_ni_av,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("niav",dimensionSet(0, 0, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
 
 Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
@@ -722,6 +722,22 @@ for (label count = 0; count < N_Ori; count++)
 
     ni = temp_holder;
 }
+
+
+
+volScalarField GBREF
+(
+    IOobject
+    (
+        "GBREF",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("GBREF",dimensionSet(0,0,0,0,0),0.0)
+);
 
 
 
@@ -995,8 +1011,8 @@ volTensorField dsigmadt(
         IOobject::NO_READ,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero),
-    zeroGradientFvPatchTensorField::typeName
+    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
     );
 
     // volTensorField dsigmadtDIFF(
