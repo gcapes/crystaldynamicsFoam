@@ -164,7 +164,8 @@ Euler_Angles*=0.0;
       double phi_1 = std::atan2((Rot_matrix_N_plus_one(1,0)/std::cos(theta_1)),(Rot_matrix_N_plus_one(0,0)/std::cos(theta_1)));
       double phi_2 = std::atan2((Rot_matrix_N_plus_one(1,0)/std::cos(theta_2)),(Rot_matrix_N_plus_one(0,0)/std::cos(theta_2)));
 
-      // Info<<"angles"<<endl;
+      // if(cell==240/*&&h==1*/){
+      // Info<<"angles "<<h<<" "<<endl;
       // Info<<"theta1: "<<theta_1<<endl;
       // Info<<"theta_2: "<<theta_2<<endl;
       // Info<<"psi_1: "<<psi_1<<endl;
@@ -172,6 +173,7 @@ Euler_Angles*=0.0;
       // Info<<"phi_1: "<<phi_1<<endl;
       // Info<<"phi_2: "<<phi_2<<endl;
       // Info<<""<<endl;
+      // }
 
       theta_angle = theta_1;//max(theta_1,theta_2);
       psi_angle = psi_1;//max(psi_1,psi_2);
