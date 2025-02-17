@@ -947,6 +947,18 @@ volTensorField sigma(
     // zeroGradientFvPatchTensorField::typeName
     );
 
+// volTensorField sigmadiff(
+//     IOobject(
+//         "sigmadiff",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE),
+//     mesh,
+//     dimensionedTensor("sisigmadiffgmadiff", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+//     // zeroGradientFvPatchTensorField::typeName
+//     );
+
     // volTensorField sigmatemp(
     // IOobject(
     //     "sigmatemp",
@@ -1132,11 +1144,24 @@ volTensorField dsigmadt(
 
 
 
+// Fastor::Tensor<double, 3> TEST1(0.0);
+// Fastor::Tensor<double, 3> TEST2(0.0);
+
+// TEST1(0) = 2.0;
+// TEST1(1) = 4.0;
+// TEST1(2) = 5.0;
+
+// TEST2(0) = 3.0;
+// TEST2(1) = 7.0;
+// TEST2(2) = 8.0;
 
 
+// Fastor::print(TEST1);
+// Fastor::print(TEST2);
+// Fastor::print(outer(TEST1,TEST2));
 
 
-
+// exit(0);
 
 
 // forAll(mesh.C(), cell)

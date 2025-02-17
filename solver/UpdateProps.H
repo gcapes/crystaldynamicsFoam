@@ -252,7 +252,7 @@ GBREF*=0.0;
       {
         // Info<<i<<","<<j<<endl;
         Fepsilon_dot(i, j) = epsilon_dot[cell].component(count_index);
-        Fsigma(i, j) = sigma[cell].component(count_index);
+        Fsigma(i, j) = sigtemp[cell].component(count_index);
         // Fsigmaav(i, j) = sigmaav[cell].component(count_index);
 
         count_index++;
@@ -446,9 +446,9 @@ GBREF*=0.0;
 
         F_D_E = Fepsilon_dot-F_D_P;
 
-          dsigmadt[cell] -=(PopBal[h][cell]) *((sigma[cell] & omega_dot[cell]) + (omega_dot[cell] & sigma[cell])) ;//-(tr(epsilon_dot)*sigma);;// 
-          dsigmadt[cell] += (PopBal[h][cell]) *((sigma[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigma[cell]));
-          dsigmadt[cell] -= (PopBal[h][cell]) *(sigma[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
+          dsigmadt[cell] -=(PopBal[h][cell]) *((sigtemp[cell] & omega_dot[cell]) + (omega_dot[cell] & sigtemp[cell])) ;//-(tr(epsilon_dot)*sigma);;// 
+          dsigmadt[cell] += (PopBal[h][cell]) *((sigtemp[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigtemp[cell]));
+          dsigmadt[cell] -= (PopBal[h][cell]) *(sigtemp[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
 
 
@@ -506,7 +506,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       {
         // Info<<i<<","<<j<<endl;
         Fepsilon_dot(i, j) = epsilon_dot.boundaryField()[patchI][faceI].component(count_index);
-        Fsigma(i, j) = sigma.boundaryField()[patchI][faceI].component(count_index);
+        Fsigma(i, j) = sigtemp.boundaryField()[patchI][faceI].component(count_index);
         // Fsigmaav(i, j) = sigmaav[cell].component(count_index);
 
         count_index++;
@@ -701,9 +701,9 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 ///////Sum_Phases.boundaryField()[patchI][faceI]
 
-          dsigmadt.boundaryFieldRef()[patchI][faceI] -=(PopBal[h].boundaryField()[patchI][faceI]) *((sigma.boundaryField()[patchI][faceI] & omega_dot.boundaryField()[patchI][faceI]) + (omega_dot.boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]));
-          dsigmadt.boundaryFieldRef()[patchI][faceI] += (PopBal[h].boundaryField()[patchI][faceI]) *((sigma.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigma.boundaryField()[patchI][faceI]));//Philip, can we assign boundary fields with dot products in?
-          dsigmadt.boundaryFieldRef()[patchI][faceI] -= (PopBal[h].boundaryField()[patchI][faceI]) *(sigma.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
+          dsigmadt.boundaryFieldRef()[patchI][faceI] -=(PopBal[h].boundaryField()[patchI][faceI]) *((sigtemp.boundaryField()[patchI][faceI] & omega_dot.boundaryField()[patchI][faceI]) + (omega_dot.boundaryField()[patchI][faceI] & sigtemp.boundaryField()[patchI][faceI]));
+          dsigmadt.boundaryFieldRef()[patchI][faceI] += (PopBal[h].boundaryField()[patchI][faceI]) *((sigtemp.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigtemp.boundaryField()[patchI][faceI]));//Philip, can we assign boundary fields with dot products in?
+          dsigmadt.boundaryFieldRef()[patchI][faceI] -= (PopBal[h].boundaryField()[patchI][faceI]) *(sigtemp.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
 
 

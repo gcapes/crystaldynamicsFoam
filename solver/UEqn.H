@@ -4,7 +4,8 @@ fvVectorMatrix UEqn(
     fvm::ddt(rho, U) 
     + fvm::div(rhoPhi, U) 
     // +fvc::div(rho * (U*U))
-    - fvc::div(sigma)
+    // - fvc::div(sigma)
+    - fvc::div(sigtemp,"div(sigma)")
     // ==
 
 );

@@ -100,9 +100,11 @@ int main(int argc, char *argv[])
 
         
 
+        volTensorField sigtemp(sigma);
+
         while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
-            const volTensorField dsigold(dsigmadt);
+            //const volTensorField dsigold(dsigmadt);
         // do
         // {
             // #include "UpdateProps.H"
