@@ -163,7 +163,7 @@ forAll(dsigmadt.boundaryField(), patchI)
               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
             }
 
-            g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
+            g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h].boundaryField()[patchI][faceI]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
           }
           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
@@ -421,6 +421,8 @@ forAll(dsigmadt.boundaryField(), patchI)
 
         } // end of loop over slip systems
 
+        sumgamma[cell]*=PopBal[h][cell];
+
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
         {
@@ -672,6 +674,7 @@ forAll(dsigmadt.boundaryField(), patchI)
           // }
 
         } // end of loop over slip systems
+        sumgamma.boundaryFieldRef()[patchI][faceI]*=PopBal[h].boundaryField()[patchI][faceI];
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)

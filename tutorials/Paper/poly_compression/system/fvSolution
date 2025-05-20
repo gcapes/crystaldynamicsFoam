@@ -31,7 +31,7 @@ solvers
     
         solver           GAMG;
         tolerance        1e-012;
-        relTol           0.0;
+        relTol           0.05;
         smoother         DILUGaussSeidel;
         
         /*

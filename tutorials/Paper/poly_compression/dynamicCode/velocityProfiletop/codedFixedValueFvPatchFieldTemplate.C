@@ -181,7 +181,7 @@ void velocityProfiletopFixedValueFvPatchVectorField::updateCoeffs()
     }
 
 //{{{ begin code
-    #line 115 "/home/tomflint/OpenFOAM/custom/Euler_Solid_Mech/tutorials/Paper/poly_compression/0/U/boundaryField/atmosphere"
+    #line 115 "/home/mbcx7tf3/OpenFOAM/custom/Eulerian_Mechanics/tutorials/Paper/poly_compression/0/U/boundaryField/atmosphere"
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=10.0;

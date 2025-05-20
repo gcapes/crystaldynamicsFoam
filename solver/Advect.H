@@ -2,7 +2,7 @@
 
 
 
-    fvScalarMatrix  AdvAccStrainEqn
+    fvScalarMatrix  AdvAccStrainEqn //total slip is conserved
     (
         fvm::ddt(rho,Acc_Strain)
         + fvm::div(rhoPhi, Acc_Strain)
@@ -11,6 +11,18 @@
         (rho*sumgamma)//epsilon_dot_P_VM
 
     );
+
+
+    //     fvScalarMatrix  AdvAccStrainEqn
+    // (
+    //     fvm::ddt(Acc_Strain)
+    //     + fvm::div(phi, Acc_Strain)
+    //     // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Acc_Strain) 
+    //     ==
+    //     (sumgamma)//epsilon_dot_P_VM
+
+    // );
+
 
     AdvAccStrainEqn.relax();
 
@@ -41,19 +53,54 @@
             // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
         }
     }
-    // // advect hardedned fields
 
-    // for (label i = 0; i < N_Ori; i++)
+    // for (label i = 0; i < N_Ori; i++)//advect hardened fields
     // {
     //     for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
     //     {
 
     //         // volScalarField & ni = PopBal[count];
+    //         volScalarField &g_a = g_alphas[i][countS];
+
+    //         solve(
+    //             fvm::ddt(g_a) + fvm::div(phi, g_a)
+    //             // - fvm::SuSp(fvc::ddt(rho) + fvc::div(phi), g_a) 
+    //              ==
+    //             (g_alpha_dots[i][countS])
+    //             // RHS
+    //         );
+    //         g_a.correctBoundaryConditions();
+    //         // Sum_Phases += ni;
+
+    //         // Info << "Max phase field(" << count << ") = " << gMax(ni) << endl;
+    //         // Info << "Min phase field(" << count << ") = " << gMin(ni) << endl;
+    //     }
+    // }
+
+    // // advect hardedned fields
+
+
+
+
+
+
+
+
+
+                                //advect slip (not neded as we just advect the total slip for hardening)
+    // for (label i = 0; i < N_Ori; i++)
+    // {
+    //     // volScalarField & ni = PopBal[i];
+
+    //     for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
+    //     {
+
+             
     //         volScalarField &gam_a = gamma_alphas[i][countS];
 
     //         solve(
     //             fvm::ddt(rho, gam_a) + fvm::div(rhoPhi, gam_a) ==
-    //             (rho * gamma_alpha_dots[i][countS])
+    //             (rho * /*ni*/ gamma_alpha_dots[i][countS])
     //             // RHS
     //         );
     //         // g_a.correctBoundaryConditions();

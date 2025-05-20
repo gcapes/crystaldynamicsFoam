@@ -35,6 +35,9 @@ divSchemes
     div(U)	Gauss linear;//cubic;
     
     div(sigma)	Gauss linear;
+    div(phi,sigma)	Gauss ROUNDAplus;//
+    
+    
     div(sigmatemp)	Gauss linear;
     //div(testSIG)	Gauss linear;//cubic;
     
