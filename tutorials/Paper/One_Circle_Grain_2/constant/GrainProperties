@@ -85,11 +85,11 @@ n11	(0.707    0.707    0.0);
 
 
 
-initialCRSS	160e6;
-tau_S	148e7;
-h_0	180e7;
-r	1.1;
-k_exponent	10.0;
+initialCRSS	16e6;
+tau_S	148e6;
+h_0	180e6;
+r	1.2;
+k_exponent	50.0;
 gammadot_0	1e-3;
 
 }

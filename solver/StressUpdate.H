@@ -8,7 +8,9 @@
   // sigma = sigma + (1.0 / n_sub_steps)*  runTime.deltaT() * (dsigmadt);
   // sigma.correctBoundaryConditions();
 
-  sigtemp = sigma +runTime.deltaT() * (dsigmadt);
+// fvc::div(phi,sigma);
+
+  sigtemp = sigma +runTime.deltaT() * (dsigmadt);//+fvc::div(phi,sigma)
   sigtemp.correctBoundaryConditions();
 // D = D + (1.0 / n_sub_steps) * runTime.deltaT() * (U);
 // D.correctBoundaryConditions();

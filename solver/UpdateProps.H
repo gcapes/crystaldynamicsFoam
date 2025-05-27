@@ -358,7 +358,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         Fastor::Tensor<double, 3, 3> F_D_P(0.0);
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
-        
+        double SUMGAMMA=0.0;
         for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
 
@@ -413,7 +413,8 @@ forAll(dsigmadt.boundaryField(), patchI)
           gamma_alpha_dots[h][s][cell] = ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s][cell])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
 
 
-          sumgamma[cell]+= mag(gamma_alpha_dots[h][s][cell]);//for next time-step
+          // sumgamma[cell]+= mag(gamma_alpha_dots[h][s][cell]);//for next time-step
+          SUMGAMMA+=mag(gamma_alpha_dots[h][s][cell]);//for next time-step;
 
           F_D_P += (P_alpha * gamma_alpha_dots[h][s][cell]);
           F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s][cell]);
@@ -421,7 +422,7 @@ forAll(dsigmadt.boundaryField(), patchI)
 
         } // end of loop over slip systems
 
-        sumgamma[cell]*=PopBal[h][cell];
+        sumgamma[cell]+=PopBal[h][cell]*SUMGAMMA;
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
@@ -442,7 +443,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         sigAv += (PopBal[h][cell]) * sig;///Sum_Phases[cell];
       // }
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
-        D_P_Average += /*PopBal[h][cell] */ F_D_P;
+        D_P_Average += PopBal[h][cell] * F_D_P;
 
         Fastor::Tensor<double, 3, 3> F_D_E(0.0);
 
@@ -614,7 +615,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         Fastor::Tensor<double, 3, 3> F_D_P(0.0);
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
-
+      double SUMGAMMA=0.0;
       for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
 
@@ -667,14 +668,16 @@ forAll(dsigmadt.boundaryField(), patchI)
           gamma_alpha_dots[h][s].boundaryFieldRef()[patchI][faceI] = ref_shear_rate * Foam::pow((mag(tau_alpha / g_alphas[h][s].boundaryField()[patchI][faceI])), k_exponent) * sign(tau_alpha); // source term for RHS of g_alpha equations
 
 
-          sumgamma.boundaryFieldRef()[patchI][faceI]+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
+          // sumgamma.boundaryFieldRef()[patchI][faceI]+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
+
+          SUMGAMMA+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
 
           F_D_P += (P_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
           F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
           // }
 
         } // end of loop over slip systems
-        sumgamma.boundaryFieldRef()[patchI][faceI]*=PopBal[h].boundaryField()[patchI][faceI];
+        sumgamma.boundaryFieldRef()[patchI][faceI]+=PopBal[h].boundaryField()[patchI][faceI]*SUMGAMMA;
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
@@ -696,7 +699,7 @@ forAll(dsigmadt.boundaryField(), patchI)
         sigAv += (PopBal[h].boundaryField()[patchI][faceI]) * sig;///Sum_Phases[cell];
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
       // }
-        D_P_Average += /*PopBal[h][cell] */ F_D_P;
+        D_P_Average += PopBal[h].boundaryField()[patchI][faceI]  * F_D_P;
 
         Fastor::Tensor<double, 3, 3> F_D_E(0.0);
 
