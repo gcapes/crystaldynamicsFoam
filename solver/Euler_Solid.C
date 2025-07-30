@@ -100,14 +100,21 @@ int main(int argc, char *argv[])
 
         
 
-        volTensorField sigtemp(sigma);
+        // volTensorField sigtemp(sigma);
+          for (label i = 0; i < N_Ori; i++)
+            {
+                sigtemp[i]=sigma[i];
+                sigtemp[i].correctBoundaryConditions();
+            }
+            sigmaGlobaltemp = sigmaGlobal;
+            sigmaGlobaltemp.correctBoundaryConditions();
 
         while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
             //const volTensorField dsigold(dsigmadt);
         // do
         // {
-            // #include "UpdateProps.H"
+
             
             #include "UEqn.H"
         // #include "setU.H"
@@ -115,12 +122,6 @@ int main(int argc, char *argv[])
 
             #include "UpdateProps.H"
             #include "StressUpdate.H"
-            // #include "Advect.H"
-            
-
-            // Info<<"residualsig: "<<gMax((dsigmadt && dsigmadt)-(dsigold && dsigold));
-            //  dsigmadtDIFF = (dsigmadt && dsigmadt)-(dsigold && dsigold);
-
 
         }
 

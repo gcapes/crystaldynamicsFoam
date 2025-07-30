@@ -935,17 +935,41 @@ volScalarField Acc_Strain(
     zeroGradientFvPatchScalarField::typeName
     );
 
-volTensorField sigma(
+volTensorField sigmaGlobal(
     IOobject(
-        "sigma",
+        "sigmaGlobal",
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE),
     mesh,
-    dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+    dimensionedTensor("sigmaGlobal", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
     // zeroGradientFvPatchTensorField::typeName
     );
+
+    volTensorField sigmaGlobaltemp(
+    IOobject(
+        "sigmaGlobaltemp",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedTensor("sigmaGlobaltemp", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+    // zeroGradientFvPatchTensorField::typeName
+    );
+
+// volTensorField sigma(
+//     IOobject(
+//         "sigma",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE),
+//     mesh,
+//     dimensionedTensor("sigma", dimensionSet(1, -1, -2, 0, 0), tensor::zero)//,
+//     // zeroGradientFvPatchTensorField::typeName
+//     );
 
 // volTensorField sigmadiff(
 //     IOobject(
@@ -1015,44 +1039,104 @@ dimensionedVector("Euler_Angles",dimensionSet(0, 0, 0, 0, 0),vector::zero)//,
 //                 //zeroGradientFvPatchTensorField::typeName
 // );
 
-volTensorField dsigmadt(
-    IOobject(
-        "dsigmadt",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE),
-    mesh,
-    dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
-    // zeroGradientFvPatchTensorField::typeName
-    );
-
-    // volTensorField dsigmadtDIFF(
-    // IOobject(
-    //     "dsigmadtDIFF",
-    //     runTime.timeName(),
-    //     mesh,
-    //     IOobject::NO_READ,
-    //     IOobject::AUTO_WRITE),
-    // mesh,
-    // dimensionedTensor("dsigmadtDIFF", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
-    // // zeroGradientFvPatchTensorField::typeName
-    // );
-
-// volTensorField dsigmadt_crystal
-// (
-//     IOobject
-//     (
-//         "dsigmadt_crystal",
+// volTensorField dsigmadt(
+//     IOobject(
+//         "dsigmadt",
 //         runTime.timeName(),
 //         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         IOobject::AUTO_WRITE
-//     ),
-//         mesh,
-// dimensionedTensor("dsigmadt_crystal",dimensionSet(1, -1, -3, 0, 0),tensor::zero),
-//                 zeroGradientFvPatchTensorField::typeName
-// );
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE),
+//     mesh,
+//     dimensionedTensor("dsigmadt", dimensionSet(1, -1, -3, 0, 0), tensor::zero)//,
+//     // zeroGradientFvPatchTensorField::typeName
+//     );
+
+
+
+
+
+PtrList<volTensorField> dsigmadt(N_Ori);
+
+for (label count = 0; count < N_Ori; count++)
+{
+    word name_ni("dsigmadt." + Foam::name(count));
+    
+    dsigmadt.set(
+        count,
+        new volTensorField(
+            IOobject(
+                name_ni,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedTensor(
+                "dsigmadt", 
+                dimensionSet(1, -1, -3, 0, 0), 
+                tensor::zero  // Note: tensor::zero, not Tensor::zero
+            )//,
+            // zeroGradientFvPatchTensorField::typeName
+        )
+    );
+}
+
+
+PtrList<volTensorField> sigtemp(N_Ori);
+
+for (label count = 0; count < N_Ori; count++)
+{
+    word name_ni("sigtemp." + Foam::name(count));
+    
+    sigtemp.set(
+        count,
+        new volTensorField(
+            IOobject(
+                name_ni,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedTensor(
+                "sigtemp", 
+                dimensionSet(1, -1, -2, 0, 0), 
+                tensor::zero  // Note: tensor::zero, not Tensor::zero
+            )//,
+            // zeroGradientFvPatchTensorField::typeName
+        )
+    );
+}
+
+
+PtrList<volTensorField> sigma(N_Ori);
+
+for (label count = 0; count < N_Ori; count++)
+{
+    word name_ni("sigma." + Foam::name(count));
+    
+    sigma.set(
+        count,
+        new volTensorField(
+            IOobject(
+                name_ni,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedTensor(
+                "sigma", 
+                dimensionSet(1, -1, -2, 0, 0), 
+                tensor::zero  // Note: tensor::zero, not Tensor::zero
+            )//,
+            // zeroGradientFvPatchTensorField::typeName
+        )
+    );
+}
 
 #include "createPhi.H"
 

@@ -218,15 +218,15 @@ Euler_Angles*=0.0;
 
 
 //Over Boundaries
-forAll(dsigmadt.boundaryField(), patchI)
+forAll(T.boundaryField(), patchI)
 {
     if
     (
-        !dsigmadt.boundaryField()[patchI].coupled()
-     && dsigmadt.boundaryField()[patchI].size() > 0
+        !T.boundaryField()[patchI].coupled()
+     && T.boundaryField()[patchI].size() > 0
     )
     {
-        forAll(dsigmadt.boundaryField()[patchI], faceI)
+        forAll(T.boundaryField()[patchI], faceI)
         {
 
 

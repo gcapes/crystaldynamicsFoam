@@ -5,7 +5,7 @@
 
     const volScalarField rhoCv(rho*Cv);
 
-    const volVectorField SigU(sigma & U);
+    const volVectorField SigU(sigmaGlobal & U);
 
     // const volScalarField 
     // DP = (sigma && fvc::grad(U));
@@ -21,7 +21,7 @@
             +fvc::ddt(rho, K)
             + fvm::div(rhophicv, T)
             +fvc::div(rhoPhi,K)
-            -fvc::div(SigU)
+            -fvc::div(SigU,"div((sigma&U))")
             // -DP
             - fvm::Sp(fvc::ddt(rhoCv) + fvc::div(rhophicv), T)
             - fvc::Sp(fvc::ddt(rho) + fvc::div(rhoPhi), K)

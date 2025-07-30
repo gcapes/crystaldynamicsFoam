@@ -1,11 +1,11 @@
-const surfaceTensorField sigma_f(fvc::interpolate(sigma));
+// const surfaceTensorField sigma_f(fvc::interpolate(sigma));
 
 fvVectorMatrix UEqn(
     fvm::ddt(rho, U) 
     + fvm::div(rhoPhi, U) 
     // +fvc::div(rho * (U*U))
     // - fvc::div(sigma)
-    - fvc::div(sigtemp,"div(sigma)")
+    - fvc::div(sigmaGlobaltemp,"div(sigma)")
     // ==
 
 );

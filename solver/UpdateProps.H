@@ -13,9 +13,9 @@ omega_dot.correctBoundaryConditions();
 
   epsilon_dot = 0.5 * (TgradU + fvc::grad(U));//- (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
 epsilon_dot.correctBoundaryConditions();
-  // dsigmadt = -(sigma & omega_dot) + (omega_dot & sigma) ;//-(tr(epsilon_dot)*sigma);;// 
 
-dsigmadt*=0.0;
+
+// dsigmadt*=0.0;
 
 
 
@@ -27,6 +27,7 @@ dsigmadt*=0.0;
 GBREF*=0.0;
   for (label h = 0; h < N_Ori; h++)
   {
+    dsigmadt[h]*=0.0;
     Omega_P[h] *= 0.0;
     volScalarField & ni = PopBal[h];
 
@@ -66,122 +67,122 @@ GBREF*=0.0;
 
 
 // // //   // // //update hardening rates
-// // // // // // Info<<"HERE1"<<endl;
+// // // // // // // Info<<"HERE1"<<endl;
 
-  forAll(mesh.C(), cell)
-  {
-    //   label Mat_name =-1;
-    //   double max_phase = -1.0;
-    for (label h = 0; h < N_Ori; h++)
-    {
-      if (PopBal[h][cell] > SMALL)
-      {
+//   forAll(mesh.C(), cell)
+//   {
+//     //   label Mat_name =-1;
+//     //   double max_phase = -1.0;
+//     for (label h = 0; h < N_Ori; h++)
+//     {
+//       if (PopBal[h][cell] > SMALL)
+//       {
 
-        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-        {
-
-
-          g_alpha_dots[h][S_alpha][cell] *= 0.0;
-
-          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-          {
-
-            //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-            double h_alpha_beta = 0.0;
-            // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
-
-            double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-            argument = max(min(argument,20.0),-20.0);
-
-            // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
-              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-
-            if (S_beta == S_alpha)
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-            }
-            else
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-            }
-
-            g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
-          }
-          double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-          g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
-          //
-        }
-
-    }
-
-    }
-  }
+//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+//         {
 
 
-//Over Boundaries
-forAll(dsigmadt.boundaryField(), patchI)
-{
-    if
-    (
-        !dsigmadt.boundaryField()[patchI].coupled()
-     && dsigmadt.boundaryField()[patchI].size() > 0
-    )
-    {
-        forAll(dsigmadt.boundaryField()[patchI], faceI)
-        {
+//           g_alpha_dots[h][S_alpha][cell] *= 0.0;
+
+//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+//           {
+
+//             //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+//             double h_alpha_beta = 0.0;
+//             // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
+
+//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+//             argument = max(min(argument,20.0),-20.0);
+
+//             // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
+//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+//             if (S_beta == S_alpha)
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+//             }
+//             else
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+//             }
+
+//             g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
+//           }
+//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
+//           g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
+//           //
+//         }
+
+//     }
+
+//     }
+//   }
 
 
-   for (label h = 0; h < N_Ori; h++)
-    {
-            if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
-      {
+// //Over Boundaries
+// forAll(dsigmadt.boundaryField(), patchI)
+// {
+//     if
+//     (
+//         !dsigmadt.boundaryField()[patchI].coupled()
+//      && dsigmadt.boundaryField()[patchI].size() > 0
+//     )
+//     {
+//         forAll(dsigmadt.boundaryField()[patchI], faceI)
+//         {
 
 
-        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-        {
+//    for (label h = 0; h < N_Ori; h++)
+//     {
+//             if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
+//       {
 
 
-          g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
-
-          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-          {
+//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+//         {
 
 
-            double h_alpha_beta = 0.0;
+//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
 
-            double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain.boundaryField()[patchI][faceI]/*gamma_alphas[h][S_alpha].boundaryField()[patchI][faceI]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-            argument = max(min(argument,20.0),-20.0);
-
-              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-
-            if (S_beta == S_alpha)
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-            }
-            else
-            {
-              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-            }
-
-            g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h].boundaryField()[patchI][faceI]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
-          }
-          double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-          g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
-          //
-        }
-
-    }
+//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+//           {
 
 
-    }
+//             double h_alpha_beta = 0.0;
+
+//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain.boundaryField()[patchI][faceI]/*gamma_alphas[h][S_alpha].boundaryField()[patchI][faceI]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+//             argument = max(min(argument,20.0),-20.0);
+
+//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+//             if (S_beta == S_alpha)
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+//             }
+//             else
+//             {
+//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+//             }
+
+//             g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h].boundaryField()[patchI][faceI]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
+//           }
+//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
+//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
+//           //
+//         }
+
+//     }
+
+
+//     }
 
 
 
-        }
+//         }
 
-    }
+//     }
 
-}
+// }
 
 
 // // //END update hardening rates
@@ -252,7 +253,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       {
         // Info<<i<<","<<j<<endl;
         Fepsilon_dot(i, j) = epsilon_dot[cell].component(count_index);
-        Fsigma(i, j) = sigtemp[cell].component(count_index);
+        // Fsigma(i, j) = sigtemp[cell].component(count_index);
         // Fsigmaav(i, j) = sigmaav[cell].component(count_index);
 
         count_index++;
@@ -260,7 +261,7 @@ forAll(dsigmadt.boundaryField(), patchI)
     }
 
 
-    Fastor::Tensor<double, 3, 3> sigAv(0.0);
+    // Fastor::Tensor<double, 3, 3> sigAv(0.0);
     Fastor::Tensor<double, 3, 3> D_P_Average(0.0);
 
     label largest_field=-1;
@@ -275,6 +276,23 @@ forAll(dsigmadt.boundaryField(), patchI)
       
         largest_field = h;
       }
+
+
+          int count_index_siglocal = 0;
+    for (int i = 0; i < 3; i++)
+    {
+      for (int j = 0; j < 3; j++)
+      {
+        // Info<<i<<","<<j<<endl;
+        
+        Fsigma(i, j) = sigtemp[h][cell].component(count_index_siglocal);
+        
+
+        count_index_siglocal++;
+      }
+    }
+
+
 
       Fastor::Tensor<double, 3, 3, 3, 3> Cprime(0.0); // global stiffness at this cell
 
@@ -311,8 +329,8 @@ forAll(dsigmadt.boundaryField(), patchI)
       Rot_matrix(2, 2) = Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
 
 
-      if (PopBal[h][cell] > SMALL)
-      { // if the phase is there, work out the stiffness contribution
+      // if (PopBal[h][cell] > SMALL)
+      // { // if the phase is there, work out the stiffness contribution
 
         for (int i = 0; i < 3; i++)
         {
@@ -349,7 +367,7 @@ forAll(dsigmadt.boundaryField(), patchI)
           }
         }
 
-      }//
+      // }//
 
         // If grain is there
         // Have the stiffness tensor now
@@ -440,17 +458,28 @@ forAll(dsigmadt.boundaryField(), patchI)
         };
         Fastor::Tensor<double, 3, 3> sig = Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L> /*,Fastor::OIndex<I,J>*/>(Cprime, Fepsilon_dot - F_D_P); ////Double contraction
         // Fastor::Tensor<double, 3, 3> sig = 80e9*(Fepsilon_dot - F_D_P);
-        sigAv += (PopBal[h][cell]) * sig;///Sum_Phases[cell];
+        // sigAv += (PopBal[h][cell]) * sig;///Sum_Phases[cell];
       // }
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
         D_P_Average += PopBal[h][cell] * F_D_P;
 
-        Fastor::Tensor<double, 3, 3> F_D_E(0.0);
+        // Fastor::Tensor<double, 3, 3> F_D_E(0.0);
 
-        F_D_E = Fepsilon_dot-F_D_P;
+        // F_D_E = Fepsilon_dot-F_D_P;
 
-          dsigmadt[cell] -=(PopBal[h][cell]) *((sigtemp[cell] & omega_dot[cell]) + (omega_dot[cell] & sigtemp[cell])) ;//-(tr(epsilon_dot)*sigma);;// 
-          dsigmadt[cell] += (PopBal[h][cell]) *((sigtemp[cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigtemp[cell]));
+       label count_indexnew = 0;
+      for (int i = 0; i < 3; i++)
+      {
+        for (int j = 0; j < 3; j++)
+        {
+
+          dsigmadt[h][cell].component(count_indexnew) = sig(i, j); // sig(i,j);
+        count_indexnew++;
+        }
+      }
+
+          dsigmadt[h][cell] -=((sigtemp[h][cell] & omega_dot[cell]) + (omega_dot[cell] & sigtemp[h][cell])) ;//-(tr(epsilon_dot)*sigma);;// 
+          dsigmadt[h][cell] += ((sigtemp[h][cell] & Omega_P[h][cell]) - (Omega_P[h][cell] & sigtemp[h][cell]));
           // dsigmadt[cell] -= (PopBal[h][cell]) *(sigtemp[cell]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
 
@@ -469,7 +498,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       for (int j = 0; j < 3; j++)
       {
 
-        dsigmadt[cell].component(count_index) += sigAv(i, j); // sig(i,j);
+        // dsigmadt[cell].component(count_index) += sigAv(i, j); // sig(i,j);
         D_P[cell].component(count_index) = D_P_Average(i, j); // F_D_P(i,j);
         count_index++;
       }
@@ -487,15 +516,15 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 //Over Boundaries
-forAll(dsigmadt.boundaryField(), patchI)
+forAll(T.boundaryField(), patchI)
 {
     if
     (
-        !dsigmadt.boundaryField()[patchI].coupled()
-     && dsigmadt.boundaryField()[patchI].size() > 0
+        !T.boundaryField()[patchI].coupled()
+     && T.boundaryField()[patchI].size() > 0
     )
     {
-        forAll(dsigmadt.boundaryField()[patchI], faceI)
+        forAll(T.boundaryField()[patchI], faceI)
         {
 
 
@@ -509,7 +538,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       {
         // Info<<i<<","<<j<<endl;
         Fepsilon_dot(i, j) = epsilon_dot.boundaryField()[patchI][faceI].component(count_index);
-        Fsigma(i, j) = sigtemp.boundaryField()[patchI][faceI].component(count_index);
+        // Fsigma(i, j) = sigtemp.boundaryField()[patchI][faceI].component(count_index);
         // Fsigmaav(i, j) = sigmaav[cell].component(count_index);
 
         count_index++;
@@ -517,7 +546,7 @@ forAll(dsigmadt.boundaryField(), patchI)
     }
 
 
-    Fastor::Tensor<double, 3, 3> sigAv(0.0);
+    // Fastor::Tensor<double, 3, 3> sigAv(0.0);
     Fastor::Tensor<double, 3, 3> D_P_Average(0.0);
 
 
@@ -535,6 +564,19 @@ forAll(dsigmadt.boundaryField(), patchI)
         largest_field = h;
       }
 
+
+int count_index = 0;
+    for (int i = 0; i < 3; i++)
+    {
+      for (int j = 0; j < 3; j++)
+      {
+       
+        Fsigma(i, j) = sigtemp[h].boundaryField()[patchI][faceI].component(count_index);
+        // Fsigmaav(i, j) = sigmaav[cell].component(count_index);
+
+        count_index++;
+      }
+    }
 
 
        Fastor::Tensor<double, 3, 3, 3, 3> Cprime(0.0); // global stiffness at this cell
@@ -567,8 +609,8 @@ forAll(dsigmadt.boundaryField(), patchI)
 
 
 
-      if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
-      { // if the phase is there, work out the stiffness contribution
+      // if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
+      // { // if the phase is there, work out the stiffness contribution
 
         for (int i = 0; i < 3; i++)
         {
@@ -605,7 +647,7 @@ forAll(dsigmadt.boundaryField(), patchI)
           }
         }
 
-      }//
+      // }//
 
 
 // If grain is there
@@ -696,19 +738,31 @@ forAll(dsigmadt.boundaryField(), patchI)
         Fastor::Tensor<double, 3, 3> sig = Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L> /*,Fastor::OIndex<I,J>*/>(Cprime, Fepsilon_dot - F_D_P); ////Double contraction
         // Fastor::Tensor<double, 3, 3> sig = 80e9*(Fepsilon_dot - F_D_P);
 
-        sigAv += (PopBal[h].boundaryField()[patchI][faceI]) * sig;///Sum_Phases[cell];
+        // sigAv += (PopBal[h].boundaryField()[patchI][faceI]) * sig;///Sum_Phases[cell];
         // Omega_P_Average+=PopBal[h][cell]*F_Omega_P;
       // }
         D_P_Average += PopBal[h].boundaryField()[patchI][faceI]  * F_D_P;
 
-        Fastor::Tensor<double, 3, 3> F_D_E(0.0);
+        // Fastor::Tensor<double, 3, 3> F_D_E(0.0);
 
-        F_D_E = Fepsilon_dot-F_D_P;
+        // F_D_E = Fepsilon_dot-F_D_P;
 
-///////Sum_Phases.boundaryField()[patchI][faceI]
 
-          dsigmadt.boundaryFieldRef()[patchI][faceI] -=(PopBal[h].boundaryField()[patchI][faceI]) *((sigtemp.boundaryField()[patchI][faceI] & omega_dot.boundaryField()[patchI][faceI]) + (omega_dot.boundaryField()[patchI][faceI] & sigtemp.boundaryField()[patchI][faceI]));
-          dsigmadt.boundaryFieldRef()[patchI][faceI] += (PopBal[h].boundaryField()[patchI][faceI]) *((sigtemp.boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigtemp.boundaryField()[patchI][faceI]));//Philip, can we assign boundary fields with dot products in?
+
+          label  count_indexnew = 0;
+    for (int i = 0; i < 3; i++)
+    {
+      for (int j = 0; j < 3; j++)
+      {
+
+        dsigmadt[h].boundaryFieldRef()[patchI][faceI].component(count_indexnew) = sig(i, j); // sig(i,j);
+        // D_P.boundaryFieldRef()[patchI][faceI].component(count_indexnew) = D_P_Average(i, j); // F_D_P(i,j);
+        count_indexnew++;
+      }
+    }
+
+          dsigmadt[h].boundaryFieldRef()[patchI][faceI] -=((sigtemp[h].boundaryField()[patchI][faceI] & omega_dot.boundaryField()[patchI][faceI]) + (omega_dot.boundaryField()[patchI][faceI] & sigtemp[h].boundaryField()[patchI][faceI]));
+          dsigmadt[h].boundaryFieldRef()[patchI][faceI] += ((sigtemp[h].boundaryField()[patchI][faceI] & Omega_P[h].boundaryField()[patchI][faceI]) - (Omega_P[h].boundaryField()[patchI][faceI] & sigtemp[h].boundaryField()[patchI][faceI]));//Philip, can we assign boundary fields with dot products in?
           // dsigmadt.boundaryFieldRef()[patchI][faceI] -= (PopBal[h].boundaryField()[patchI][faceI]) *(sigtemp.boundaryField()[patchI][faceI]*(F_D_E(0,0)+F_D_E(1,1)+F_D_E(2,2)));
 
 
@@ -726,7 +780,7 @@ forAll(dsigmadt.boundaryField(), patchI)
       for (int j = 0; j < 3; j++)
       {
 
-        dsigmadt.boundaryFieldRef()[patchI][faceI].component(count_index) += sigAv(i, j); // sig(i,j);
+        // dsigmadt.boundaryFieldRef()[patchI][faceI].component(count_index) += sigAv(i, j); // sig(i,j);
         D_P.boundaryFieldRef()[patchI][faceI].component(count_index) = D_P_Average(i, j); // F_D_P(i,j);
         count_index++;
       }
@@ -757,26 +811,13 @@ forAll(dsigmadt.boundaryField(), patchI)
   }
 
 
-
-dsigmadt.correctBoundaryConditions();
-
-
-
-
-// //RK4
-
-// //RK4
+ for (label i = 0; i < N_Ori; i++)
+  {
+dsigmadt[i].correctBoundaryConditions();
+  }
 
 
-//   sigma = sigma + (1.0 / n_sub_steps)*  runTime.deltaT() * (dsigmadt);
-//   sigma.correctBoundaryConditions();
 
-// D = D + (1.0 / n_sub_steps) * runTime.deltaT() * (U);
-// D.correctBoundaryConditions();
-
-// p=-(1.0/3.0)*tr(sigma);
-
-// testtraceeps = tr(epsilon_dot-D_P)*sigma;
 
 
 }
