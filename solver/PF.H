@@ -1,6 +1,6 @@
 {
 
-
+// Info<<rhoPhi<<endl;
 
     Sum_Phases *= 0.0;
     for (label count = 0; count < N_Ori; count++)
@@ -14,7 +14,7 @@
 
         solve(
             fvm::ddt(rho, ni) + fvm::div(rhoPhi, ni)
-            - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
+            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
             // RHS
         );
         ni.correctBoundaryConditions();

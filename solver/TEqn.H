@@ -22,9 +22,9 @@
             + fvm::div(rhophicv, T)
             +fvc::div(rhoPhi,K)
             -fvc::div(SigU,"div((sigma&U))")
-            // -DP
-            - fvm::Sp(fvc::ddt(rhoCv) + fvc::div(rhophicv), T)
-            - fvc::Sp(fvc::ddt(rho) + fvc::div(rhoPhi), K)
+
+            // - fvm::Sp(fvc::ddt(rhoCv) + fvc::div(rhophicv), T)
+            // - fvc::Sp(fvc::ddt(rho) + fvc::div(rhoPhi), K)
             - fvm::laplacian(kappa, T)
 
         );

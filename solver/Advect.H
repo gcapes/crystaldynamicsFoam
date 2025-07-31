@@ -6,7 +6,7 @@
     (
         fvm::ddt(rho,Acc_Strain)
         + fvm::div(rhoPhi, Acc_Strain)
-        - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Acc_Strain) 
+        // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Acc_Strain) 
         ==
         (rho*sumgamma)//epsilon_dot_P_VM
 
@@ -121,7 +121,7 @@
 
         solve(
             fvm::ddt(rho, Rot1_) + fvm::div(rhoPhi, Rot1_)
-            - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot1_) 
+            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot1_) 
 
 
         );
@@ -129,7 +129,7 @@
 
         solve(
             fvm::ddt(rho, Rot2_) + fvm::div(rhoPhi, Rot2_) 
-            - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot2_)
+            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot2_)
 
 
         );
@@ -137,7 +137,7 @@
 
         solve(
             fvm::ddt(rho, Rot3_) + fvm::div(rhoPhi, Rot3_)
-            - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot3_) 
+            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), Rot3_) 
 
 
         );
