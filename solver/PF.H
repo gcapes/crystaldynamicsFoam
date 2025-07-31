@@ -14,8 +14,7 @@
 
         solve(
             fvm::ddt(rho, ni) + fvm::div(rhoPhi, ni)
-            // - fvm::SuSp(fvc::ddt(rho) + fvc::div(rhoPhi), ni)
-            // RHS
+
         );
         ni.correctBoundaryConditions();
         Sum_Phases += ni;
