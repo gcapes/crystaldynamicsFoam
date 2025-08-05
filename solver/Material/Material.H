@@ -59,6 +59,12 @@ namespace Foam
   public:
   string Mat_type;
 
+  scalar rho_0;
+
+  scalar Cv;
+
+  scalar kappa;
+
   int N_Slips;
 
   std::vector<vector> SP_norm;

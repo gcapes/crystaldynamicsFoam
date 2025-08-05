@@ -1,7 +1,7 @@
 {
 
     
-    const surfaceScalarField rhophicv(/*fvc::interpolate(Cv)*/ Cv*rhoPhi);
+    const surfaceScalarField rhophicv(fvc::interpolate(Cv)*rhoPhi);
 
     const volScalarField rhoCv(rho*Cv);
 
@@ -19,7 +19,7 @@
         (
             fvm::ddt(rhoCv,T)
             +fvc::ddt(rho, K)
-            + fvm::div(rhophicv, T)
+            + fvm::div(rhophicv, T,"div((Cv*rhoPhi),T)")
             +fvc::div(rhoPhi,K)
             -fvc::div(SigU,"div((sigma&U))")
 

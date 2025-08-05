@@ -1,6 +1,28 @@
 {
 
 
+kappa*=0.0;
+Cv*=0.0;
+
+    for (label h = 0; h < N_Ori; h++)
+    {
+
+dimensionedScalar dimkappa("dimkappa", dimensionSet(1, 1, -3, -1, 0), 1.0);
+
+dimensionedScalar dimcv("dimcv", dimensionSet(0, 2, -2, -1, 0), 1.0);
+
+
+
+kappa+=PopBal[h]*MatList[Phase2Material[h]].kappa*dimkappa;
+
+Cv+=PopBal[h]*MatList[Phase2Material[h]].Cv*dimcv;
+
+
+    }
+
+
+
+
   // gradU = fvc::grad(U);
   // gradU.correctBoundaryConditions();
 
@@ -67,125 +89,134 @@ GBREF*=0.0;
 
 
 // // //   // // //update hardening rates
-// // // // // // // Info<<"HERE1"<<endl;
+// // // // // // Info<<"HERE1"<<endl;
 
-//   forAll(mesh.C(), cell)
-//   {
-//     //   label Mat_name =-1;
-//     //   double max_phase = -1.0;
-//     for (label h = 0; h < N_Ori; h++)
-//     {
-//       if (PopBal[h][cell] > SMALL)
-//       {
+  forAll(mesh.C(), cell)
+  {
+    //   label Mat_name =-1;
+    //   double max_phase = -1.0;
+    for (label h = 0; h < N_Ori; h++)
+    {
+      // if (PopBal[h][cell] > SMALL)
+      // {
+          double total_slip_on_phi = 0.0;
+          for (int slip_it = 0; slip_it < MatList[Phase2Material[h]].N_Slips; slip_it++)
+        {
+          total_slip_on_phi+=mag(gamma_alphas[h][slip_it][cell]);
+        }
 
-//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-//         {
-
-
-//           g_alpha_dots[h][S_alpha][cell] *= 0.0;
-
-//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-//           {
-
-//             //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
-//             double h_alpha_beta = 0.0;
-//             // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
-
-//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain[cell]/*gamma_alphas[h][S_alpha][cell]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-//             argument = max(min(argument,20.0),-20.0);
-
-//             // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
-//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-
-//             if (S_beta == S_alpha)
-//             {
-//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-//             }
-//             else
-//             {
-//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-//             }
-
-//             g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
-//           }
-//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-//           g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
-//           //
-//         }
-
-//     }
-
-//     }
-//   }
+        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+        {
 
 
-// //Over Boundaries
-// forAll(dsigmadt.boundaryField(), patchI)
-// {
-//     if
-//     (
-//         !dsigmadt.boundaryField()[patchI].coupled()
-//      && dsigmadt.boundaryField()[patchI].size() > 0
-//     )
-//     {
-//         forAll(dsigmadt.boundaryField()[patchI], faceI)
-//         {
+          g_alpha_dots[h][S_alpha][cell] *= 0.0;
+
+          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+          {
+
+            //   // double h_of_gamma = ho*Foam::pow(1.0/(Foam::cosh((ho*Acc_Strain[cell])/(ta_s-tau_0))),2.0);
+            double h_alpha_beta = 0.0;
+            // Pout<<Pstream::myProcNo()<<"test_strain: "<<Acc_Strain[cell]<<endl;
+
+            double argument = (MatList[Phase2Material[h]].h_0 * total_slip_on_phi) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+            // argument = max(min(argument,20.0),-20.0);
+
+            // double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh((MatList[Phase2Material[h]].h_0 * gamma_alphas[h][S_alpha][cell]) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS))), 2.0);
+              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+            if (S_beta == S_alpha)
+            {
+              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+            }
+            else
+            {
+              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+            }
+
+            g_alpha_dots[h][S_alpha][cell] += /*PopBal[h][cell]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta][cell];
+          }
+          // double deltaT_ =  runTime.deltaT().value(); 
+          // g_alpha_dots[h][S_alpha][cell]=max(min(g_alpha_dots[h][S_alpha][cell],0.99/deltaT_),-0.99/deltaT_);
+          //
+        }
+
+    // }
+
+    }
+  }
 
 
-//    for (label h = 0; h < N_Ori; h++)
-//     {
-//             if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
-//       {
+//Over Boundaries
+forAll(T.boundaryField(), patchI)
+{
+    if
+    (
+        !T.boundaryField()[patchI].coupled()
+     && T.boundaryField()[patchI].size() > 0
+    )
+    {
+        forAll(T.boundaryField()[patchI], faceI)
+        {
 
 
-//         for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-//         {
+   for (label h = 0; h < N_Ori; h++)
+    {
+      //       if (PopBal[h].boundaryField()[patchI][faceI] > SMALL)
+      // {
+          double total_slip_on_phi = 0.0;
+          for (int slip_it = 0; slip_it < MatList[Phase2Material[h]].N_Slips; slip_it++)
+        {
+          total_slip_on_phi+=mag(gamma_alphas[h][slip_it].boundaryField()[patchI][faceI]);
+        }
+
+        for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
+        {
 
 
-//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
+          g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] *= 0.0;
 
-//           for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-//           {
-
-
-//             double h_alpha_beta = 0.0;
-
-//             double argument = (MatList[Phase2Material[h]].h_0 * Acc_Strain.boundaryField()[patchI][faceI]/*gamma_alphas[h][S_alpha].boundaryField()[patchI][faceI]*/) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
-//             argument = max(min(argument,20.0),-20.0);
-
-//               double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
-
-//             if (S_beta == S_alpha)
-//             {
-//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
-//             }
-//             else
-//             {
-//               h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
-//             }
-
-//             g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h].boundaryField()[patchI][faceI]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
-//           }
-//           double deltaT_ = (1.0 / n_sub_steps) * runTime.deltaT().value(); 
-//           g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
-//           //
-//         }
-
-//     }
+          for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
+          {
 
 
-//     }
+            double h_alpha_beta = 0.0;
+
+            double argument = (MatList[Phase2Material[h]].h_0 * total_slip_on_phi) / (MatList[Phase2Material[h]].tau_S - MatList[Phase2Material[h]].initial_CRSS);
+            // argument = max(min(argument,20.0),-20.0);
+
+              double h_of_gamma = MatList[Phase2Material[h]].h_0 * Foam::pow(1.0 / (Foam::cosh(argument)), 2.0);            
+
+            if (S_beta == S_alpha)
+            {
+              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r + (1.0 - MatList[Phase2Material[h]].r));
+            }
+            else
+            {
+              h_alpha_beta = h_of_gamma * (MatList[Phase2Material[h]].r);
+            }
+
+            g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI] += /*PopBal[h].boundaryField()[patchI][faceI]*/(h_alpha_beta)*gamma_alpha_dots[h][S_beta].boundaryField()[patchI][faceI];
+          }
+          // double deltaT_ =  runTime.deltaT().value(); 
+          // g_alpha_dots[h][S_alpha].boundaryFieldRef()[patchI][faceI]=max(min(g_alpha_dots[h][S_alpha].boundaryField()[patchI][faceI],0.99/deltaT_),-0.99/deltaT_);
+          //
+        }
+
+    // }
+
+
+    }
 
 
 
-//         }
+        }
 
-//     }
+    }
 
-// }
+}
 
 
-// // //END update hardening rates
+// //END update hardening rates
 
 
 
@@ -267,7 +298,7 @@ GBREF*=0.0;
     label largest_field=-1;
     double current_largest_value = -1.0;
 
-    sumgamma[cell]*=0.0;
+    // sumgamma[cell]*=0.0;
     for (label h = 0; h < N_Ori; h++)
     {
 
@@ -376,7 +407,7 @@ GBREF*=0.0;
         Fastor::Tensor<double, 3, 3> F_D_P(0.0);
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
-        double SUMGAMMA=0.0;
+        // double SUMGAMMA=0.0;
         for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
 
@@ -432,7 +463,7 @@ GBREF*=0.0;
 
 
           // sumgamma[cell]+= mag(gamma_alpha_dots[h][s][cell]);//for next time-step
-          SUMGAMMA+=mag(gamma_alpha_dots[h][s][cell]);//for next time-step;
+          // SUMGAMMA+=mag(gamma_alpha_dots[h][s][cell]);//for next time-step;
 
           F_D_P += (P_alpha * gamma_alpha_dots[h][s][cell]);
           F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s][cell]);
@@ -440,7 +471,7 @@ GBREF*=0.0;
 
         } // end of loop over slip systems
 
-        sumgamma[cell]+=PopBal[h][cell]*SUMGAMMA;
+        // sumgamma[cell]+=PopBal[h][cell]*SUMGAMMA;
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
@@ -553,7 +584,7 @@ forAll(T.boundaryField(), patchI)
         label largest_field=-1;
     double current_largest_value = -1.0;
 
-    sumgamma.boundaryFieldRef()[patchI][faceI]*=0.0;
+    // sumgamma.boundaryFieldRef()[patchI][faceI]*=0.0;
     for (label h = 0; h < N_Ori; h++)
     {
 
@@ -657,7 +688,7 @@ int count_index = 0;
         Fastor::Tensor<double, 3, 3> F_D_P(0.0);
         Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
 
-      double SUMGAMMA=0.0;
+      // double SUMGAMMA=0.0;
       for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
 
@@ -712,14 +743,14 @@ int count_index = 0;
 
           // sumgamma.boundaryFieldRef()[patchI][faceI]+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
 
-          SUMGAMMA+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
+          // SUMGAMMA+= mag(gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);//for next time-step
 
           F_D_P += (P_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
           F_Omega_P += (omega_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI]);
           // }
 
         } // end of loop over slip systems
-        sumgamma.boundaryFieldRef()[patchI][faceI]+=PopBal[h].boundaryField()[patchI][faceI]*SUMGAMMA;
+        // sumgamma.boundaryFieldRef()[patchI][faceI]+=PopBal[h].boundaryField()[patchI][faceI]*SUMGAMMA;
 
         int OP_index = 0;
         for (int i = 0; i < 3; i++)
