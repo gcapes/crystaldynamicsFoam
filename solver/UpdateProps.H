@@ -889,7 +889,7 @@ int count_index = 0;
     {
       g_alpha_dots[i][countS].correctBoundaryConditions();
       gamma_alpha_dots[i][countS].correctBoundaryConditions();
-      // gamma_alphas[i][countS].correctBoundaryConditions();
+      gamma_alphas[i][countS].correctBoundaryConditions();
       g_alphas[i][countS].correctBoundaryConditions();
     }
   }
@@ -897,6 +897,7 @@ int count_index = 0;
 
  for (label i = 0; i < N_Ori; i++)
   {
+    Omega_P[i].correctBoundaryConditions();
 dsigmadt[i].correctBoundaryConditions();
   }
 
