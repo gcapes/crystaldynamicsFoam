@@ -43,9 +43,14 @@ Authors
 #include "pimpleControl.H"
 #include "fvModels.H"
 #include "fvConstraints.H"
+#include "CorrectPhi.H"
+
+#include "Material.H"
 
 
 #include <Fastor/Fastor.h> 
+#include <random>
+#include <math.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,61 +77,74 @@ int main(int argc, char *argv[])
 
     while (pimple.run(runTime))
     {
+
+        // int iCorr = 0;
+        scalar initialResidual = 0;
+
+        // int nCorr = 20;
+        // scalar convergenceTolerance(1e-9);
+
+        scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
+
+
+
         #include "readDyMControls.H"
+        #include "CourantNo.H"
+        #include "setDeltaT.H"
 
-
-            #include "CourantNo.H"
-         //   #include "alphaCourantNo.H"
-       //  #include "setDeltaT.H"
 
 
         runTime++;
 
         Info<< "Time = " << runTime.userTimeName() << nl << endl;
 
-        // --- Pressure-velocity PIMPLE corrector loop
         
 
-        
+        // volTensorField sigtemp(sigma);
+          for (label i = 0; i < N_Ori; i++)
+            {
+                sigtemp[i]=sigma[i];
+                sigtemp[i].correctBoundaryConditions();
+            }
+            sigmaGlobaltemp = sigmaGlobal;
+            sigmaGlobaltemp.correctBoundaryConditions();
 
-
-
-sigma.correctBoundaryConditions();
-
-        while (pimple.loop())
+        while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
-         
+            //const volTensorField dsigold(dsigmadt);
+        // do
+        // {
+
+            
+            #include "UEqn.H"
+        // #include "setU.H"
+            
 
             #include "UpdateProps.H"
-            
-   
-            
-
-            #include "UEqn.H"
-            #include "rhoEqn.H"
-
-            // #include "TEqn.H"
-
-            
-
-            
-
-        //     while (pimple.correct())
-        //     {
-
-        //     // if (pimple.finalNonOrthogonalIter())
-        // // {
-        //     // #include "rhoEqn.H"
-        // // }
-
-        //     }
+            #include "StressUpdate.H"
 
         }
 
+            #include "PF.H"
+            #include "TEqn.H"
+            #include "rhoEqn.H"
+            
+
+        
+        #include "RotationUpdate.H"
+        #include "Advect.H"
+        
+    // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
+
+            
+
+        // #include "TEqn.H"
+        
+
         
 
 
-        #include "TEqn.H"
+
 
         
 

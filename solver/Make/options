@@ -1,7 +1,18 @@
 EXE_INC = \
+    -Wno-old-style-cast \
+    -IMaterial/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/meshTools/lnInclude
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -DFASTOR_ENABLE_RUNTIME_CHECKS=0	\
+    -DNDEBUG	\
+    -march=native
 
 EXE_LIBS = \
     -lfiniteVolume \
-    -lmeshTools
+    -lfvModels \
+    -lfvConstraints \
+    -lmeshTools \
+    -lsampling \
+    -L$(FOAM_USER_LIBBIN) \
+    -lMaterial
