@@ -51,11 +51,11 @@ namespace Foam
 extern "C"
 {
     // dynamicCode:
-    // SHA1 = f36afe845c8c53106fb7821b305f622b42a286be
+    // SHA1 = 80c32dee65116160907ad417bdf4837fafeb633f
     //
     // unique function name that can be checked if the correct library version
     // has been loaded
-    void velocityProfilebottom_f36afe845c8c53106fb7821b305f622b42a286be(bool load)
+    void velocityProfilebottom_80c32dee65116160907ad417bdf4837fafeb633f(bool load)
     {
         if (load)
         {
@@ -78,7 +78,7 @@ makeRemovablePatchTypeField
 
 
 const char* const velocityProfilebottomFixedValueFvPatchVectorField::SHA1sum =
-    "f36afe845c8c53106fb7821b305f622b42a286be";
+    "80c32dee65116160907ad417bdf4837fafeb633f";
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -94,7 +94,7 @@ velocityProfilebottomFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be"
+        Info<<"construct velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f"
             " from patch/DimensionedField\n";
     }
 }
@@ -112,7 +112,7 @@ velocityProfilebottomFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be"
+        Info<<"construct velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f"
             " from patch/dictionary\n";
     }
 }
@@ -131,7 +131,7 @@ velocityProfilebottomFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be"
+        Info<<"construct velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f"
             " from patch/DimensionedField/mapper\n";
     }
 }
@@ -148,7 +148,7 @@ velocityProfilebottomFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be "
+        Info<<"construct velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f "
             "as copy/DimensionedField\n";
     }
 }
@@ -161,7 +161,7 @@ velocityProfilebottomFixedValueFvPatchVectorField::
 {
     if (false)
     {
-        Info<<"destroy velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be\n";
+        Info<<"destroy velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f\n";
     }
 }
 
@@ -177,7 +177,7 @@ void velocityProfilebottomFixedValueFvPatchVectorField::updateCoeffs()
 
     if (false)
     {
-        Info<<"updateCoeffs velocityProfilebottom sha1: f36afe845c8c53106fb7821b305f622b42a286be\n";
+        Info<<"updateCoeffs velocityProfilebottom sha1: 80c32dee65116160907ad417bdf4837fafeb633f\n";
     }
 
 //{{{ begin code
@@ -185,7 +185,7 @@ void velocityProfilebottomFixedValueFvPatchVectorField::updateCoeffs()
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=-10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)

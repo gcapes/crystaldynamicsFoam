@@ -33,7 +33,7 @@ code
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=-10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)
@@ -60,7 +60,7 @@ code
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)
@@ -88,7 +88,7 @@ code
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=-10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)
@@ -115,7 +115,7 @@ code
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)

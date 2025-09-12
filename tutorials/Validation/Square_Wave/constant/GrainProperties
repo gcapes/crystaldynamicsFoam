@@ -25,8 +25,20 @@ phi1 (0.0 0.0 0.0);
 phi2 (0.0 0.0 0.0);
 phi3 (0.0 0.0 0.0);
 
+
+
+n_constitutive_substeps	1;
+
+
+
 Material.0 //Isotropic
 {
+
+Cv	500;
+
+kappa	20.0;
+
+rho_0	7800;
 
   C0000    80e9;	//	1.40E11; 	9.20E10;	1.11E11
   C0101    80e9;
@@ -83,6 +95,12 @@ gammadot_0	0.0;//1e-3;
 
 Material.1	// W
 {
+
+Cv	500;
+
+kappa	20.0;
+
+rho_0	7800;
 
   
   C0000    50.1e10;

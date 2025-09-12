@@ -51,11 +51,11 @@ namespace Foam
 extern "C"
 {
     // dynamicCode:
-    // SHA1 = 7856814850f823b634d101147649803b95345fc3
+    // SHA1 = bc515a23290e9dce7137ea0d43c5fec6d647e1f5
     //
     // unique function name that can be checked if the correct library version
     // has been loaded
-    void velocityProfileback_7856814850f823b634d101147649803b95345fc3(bool load)
+    void velocityProfileback_bc515a23290e9dce7137ea0d43c5fec6d647e1f5(bool load)
     {
         if (load)
         {
@@ -78,7 +78,7 @@ makeRemovablePatchTypeField
 
 
 const char* const velocityProfilebackFixedValueFvPatchVectorField::SHA1sum =
-    "7856814850f823b634d101147649803b95345fc3";
+    "bc515a23290e9dce7137ea0d43c5fec6d647e1f5";
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -94,7 +94,7 @@ velocityProfilebackFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3"
+        Info<<"construct velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5"
             " from patch/DimensionedField\n";
     }
 }
@@ -112,7 +112,7 @@ velocityProfilebackFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3"
+        Info<<"construct velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5"
             " from patch/dictionary\n";
     }
 }
@@ -131,7 +131,7 @@ velocityProfilebackFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3"
+        Info<<"construct velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5"
             " from patch/DimensionedField/mapper\n";
     }
 }
@@ -148,7 +148,7 @@ velocityProfilebackFixedValueFvPatchVectorField
 {
     if (false)
     {
-        Info<<"construct velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3 "
+        Info<<"construct velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5 "
             "as copy/DimensionedField\n";
     }
 }
@@ -161,7 +161,7 @@ velocityProfilebackFixedValueFvPatchVectorField::
 {
     if (false)
     {
-        Info<<"destroy velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3\n";
+        Info<<"destroy velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5\n";
     }
 }
 
@@ -177,7 +177,7 @@ void velocityProfilebackFixedValueFvPatchVectorField::updateCoeffs()
 
     if (false)
     {
-        Info<<"updateCoeffs velocityProfileback sha1: 7856814850f823b634d101147649803b95345fc3\n";
+        Info<<"updateCoeffs velocityProfileback sha1: bc515a23290e9dce7137ea0d43c5fec6d647e1f5\n";
     }
 
 //{{{ begin code
@@ -185,7 +185,7 @@ void velocityProfilebackFixedValueFvPatchVectorField::updateCoeffs()
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=10.0;
-scalar P =5.0;
+scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
             forAll(centre, i)

@@ -202,9 +202,9 @@ solvers
 
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-12;
-        minIter         1;
-        maxIter         5000;//2
+        tolerance       1e-8;
+        relTol          0.01;
+        maxIter         1000;
 
     }
     
@@ -212,9 +212,9 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-12;
-        minIter         1;
-        maxIter         5000;//2
+        tolerance       1e-8;
+        relTol          0.01;
+        maxIter         1000;
     }
 
     
@@ -224,7 +224,7 @@ solvers
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    5;//10
+    nOuterCorrectors    3;//10
     nCorrectors         1;
     nNonOrthogonalCorrectors 0;
     
