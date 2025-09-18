@@ -1,3 +1,0 @@
-Euler_Solid.C
-
-EXE = $(FOAM_USER_APPBIN)/Euler_Solid_MechFoam

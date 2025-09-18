@@ -777,6 +777,28 @@ for (label count = 0; count < N_Ori; count++) // how to assign the popbal array 
             );
 }
 
+PtrList<volTensorField> Plastic_Strain(N_Ori); // pointer to phase fields
+
+for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
+{
+
+    word name_Plastic_Strain("Plastic_Strain." + name(count));
+
+    Plastic_Strain.set(
+        count,
+        new volTensorField(
+            IOobject(
+                name_Plastic_Strain,
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
+            mesh,
+            dimensionedTensor("Plastic_Strain", dimensionSet(0, 0, -1, 0, 0), tensor::zero)//,
+            // zeroGradientFvPatchTensorField::typeName
+            )
+            );
+}
 
 Random randObj2(clock::getTime());
 

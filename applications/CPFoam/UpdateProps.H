@@ -33,6 +33,7 @@ GBREF*=0.0;
   {
     dsigmadt[h]*=0.0;
     Omega_P[h] *= 0.0;
+    Plastic_Strain[h]*=0.0;
     volScalarField & ni = PopBal[h];
 
     GBREF+=ni*ni;
@@ -538,7 +539,7 @@ forAll(T.boundaryField(), patchI)
       {
         for (int j = 0; j < 3; j++)
         {
-
+          Plastic_Strain[active_phases[h]][cell].component(count_indexnew) = F_D_P(i, j);
           dsigmadt[active_phases[h]][cell].component(count_indexnew) = sig(i, j); // sig(i,j);
         count_indexnew++;
         }
@@ -836,7 +837,7 @@ int count_index = 0;
     {
       for (int j = 0; j < 3; j++)
       {
-
+        Plastic_Strain[active_phases[h]].boundaryFieldRef()[patchI][faceI].component(count_indexnew) = F_D_P(i, j);
         dsigmadt[active_phases[h]].boundaryFieldRef()[patchI][faceI].component(count_indexnew) = sig(i, j); // sig(i,j);
         // D_P.boundaryFieldRef()[patchI][faceI].component(count_indexnew) = D_P_Average(i, j); // F_D_P(i,j);
         count_indexnew++;

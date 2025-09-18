@@ -2,7 +2,7 @@
 
 
 
-// //FOR HARDENING
+
     for (label i = 0; i < N_Ori; i++)//advect hardened fields
     {
         for (label countS = 0; countS < MatList[Phase2Material[i]].N_Slips; countS++)
