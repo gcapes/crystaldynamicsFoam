@@ -204,7 +204,7 @@ Euler_Angles*=0.0;
 
     }
 
-          Euler_Angles[cell].component(0) = Rot1[largest_field][cell];
+      Euler_Angles[cell].component(0) = Rot1[largest_field][cell];
       Euler_Angles[cell].component(1) = Rot2[largest_field][cell];
       Euler_Angles[cell].component(2) = Rot3[largest_field][cell];
 
@@ -245,7 +245,7 @@ forAll(T.boundaryField(), patchI)
       }
 
 
-          double phi_1_total = Rot1[h].boundaryField()[patchI][faceI]; // ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
+      double phi_1_total = Rot1[h].boundaryField()[patchI][faceI]; // ROT_1[cell];// phi1[h] ;//+ omega_tot[cell].component(5);
 
       double phi_2_total = Rot2[h].boundaryField()[patchI][faceI]; // ROT_2[cell];// phi2[h] ;//+ omega_tot[cell].component(2);
 
@@ -385,7 +385,14 @@ forAll(T.boundaryField(), patchI)
 }//END OVER BOUNDARIES
 
   
+Euler_Angles.correctBoundaryConditions();
 
+    for (label h = 0; h < N_Ori; h++)
+    {
+        Rot1[h].correctBoundaryConditions();
+        Rot2[h].correctBoundaryConditions();
+        Rot3[h].correctBoundaryConditions();
+    }
 
 
 }

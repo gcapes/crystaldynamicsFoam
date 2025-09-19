@@ -32,7 +32,7 @@ volTensorField sigma_working = sigtemp[h];  // Start from current trial state
             sigma_working += sub_dt * ((sigma_working & Omega_P[h]) - 
                                      (Omega_P[h] & sigma_working));
 
-            sigma_working -= sub_dt *   sigma_working*tr(epsilon_dot-Plastic_Strain[h]);                      
+            // sigma_working -= sub_dt *   sigma_working*tr(epsilon_dot-Plastic_Strain[h]);                      
 
 
 
