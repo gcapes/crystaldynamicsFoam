@@ -126,8 +126,6 @@ int main(int argc, char *argv[])
             #include "UpdateProps.H"
             #include "StressUpdate.H"
 
-            #include "RotationUpdate.H"
-
         }
 
             #include "PF.H"
@@ -136,7 +134,7 @@ int main(int argc, char *argv[])
             
 
         
-        // #include "RotationUpdate.H"
+        #include "RotationUpdate.H"
         #include "Advect.H"
         
     // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
