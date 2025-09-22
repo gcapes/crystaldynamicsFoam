@@ -119,5 +119,52 @@
         Rot3_.correctBoundaryConditions();
     }
 
+
+
+
+Euler_Angles*=0.0;
+D_P*=0.0;
+
+  forAll(mesh.C(), cell)
+  {
+
+        label largest_field=-1;
+    double current_largest_value = -1.0;
+
+    for (label h = 0; h < N_Ori; h++)
+    {
+
+      if(PopBal[h][cell]>current_largest_value){
+        current_largest_value = PopBal[h][cell];
+      
+        largest_field = h;
+      }
+
+
+
+
+
+        D_P[cell]+=PopBal[h][cell]*Plastic_Strain[h][cell];
+
+
+    }
+      Euler_Angles[cell].component(0) = Rot1[largest_field][cell];
+      Euler_Angles[cell].component(1) = Rot2[largest_field][cell];
+      Euler_Angles[cell].component(2) = Rot3[largest_field][cell];
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 }

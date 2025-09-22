@@ -28,18 +28,6 @@ Euler_Angles*=0.0;
 
             Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
 
-      // Rot_matrix(0, 0) = test_rot_diff[h][cell].component(0);// Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
-      // Rot_matrix(0, 1) = test_rot_diff[h][cell].component(1);//(Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
-      // Rot_matrix(0, 2) = test_rot_diff[h][cell].component(2);//(Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
-
-      // Rot_matrix(1, 0) = test_rot_diff[h][cell].component(3);//Foam::cos(phi_2_total) * Foam::sin(phi_3_total);
-      // Rot_matrix(1, 1) = test_rot_diff[h][cell].component(4);//(Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) + (Foam::cos(phi_1_total) * Foam::cos(phi_3_total));
-      // Rot_matrix(1, 2) = test_rot_diff[h][cell].component(5);//(Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::sin(phi_3_total)) - (Foam::sin(phi_1_total) * Foam::cos(phi_3_total));
-
-      // Rot_matrix(2, 0) = test_rot_diff[h][cell].component(6);//-Foam::sin(phi_2_total);
-      // Rot_matrix(2, 1) =test_rot_diff[h][cell].component(7);// Foam::sin(phi_1_total) * Foam::cos(phi_2_total);
-      // Rot_matrix(2, 2) = test_rot_diff[h][cell].component(8);//Foam::cos(phi_1_total) * Foam::cos(phi_2_total);
-
       Rot_matrix(0, 0) = Foam::cos(phi_2_total) * Foam::cos(phi_3_total);
       Rot_matrix(0, 1) = (Foam::sin(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) - (Foam::cos(phi_1_total) * Foam::sin(phi_3_total));
       Rot_matrix(0, 2) = (Foam::cos(phi_1_total) * Foam::sin(phi_2_total) * Foam::cos(phi_3_total)) + (Foam::sin(phi_1_total) * Foam::sin(phi_3_total));
@@ -68,14 +56,13 @@ Euler_Angles*=0.0;
         {
           for (int jj = 0; jj < 3; jj++)
           {
-        // Info<<i<<","<<j<<endl;
+
             Elastic_Spin_h_deltaT(ii, jj) = (omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E));//shouldnt be the elastic spin, should be the total spin elastic + plastic
 
             count_index_E++;
           }
         }
-        // Info<<omega_dot[cell].component(7)<<endl;;
-        // Fastor::print("TEST",Elastic_Spin_h_deltaT);
+
         Elastic_Spin_h_deltaT_sq = Fastor::matmul(Elastic_Spin_h_deltaT,Elastic_Spin_h_deltaT);  
 
 
@@ -91,15 +78,6 @@ Euler_Angles*=0.0;
     //  Fastor::print("I",I_d);
 
     double X_comps = Foam::sqrt(
-                    // Foam::pow(Elastic_Spin_h_deltaT(0,0),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(0, 1),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(0, 2),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 0),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 1),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(1, 2),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(2, 0),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(2, 1),2.0)
-                    // +Foam::pow(Elastic_Spin_h_deltaT(2,2),2.0)
 
                     Foam::pow(Elastic_Spin_h_deltaT(2,1),2.0)
                     +Foam::pow(Elastic_Spin_h_deltaT(0, 2),2.0)
@@ -279,7 +257,7 @@ forAll(T.boundaryField(), patchI)
           for (int jj = 0; jj < 3; jj++)
           {
         // Info<<i<<","<<j<<endl;
-            Elastic_Spin_h_deltaT(ii, jj) = deltaT_*(omega_dot.boundaryField()[patchI][faceI].component(count_index_E) - Omega_P[h].boundaryField()[patchI][faceI].component(count_index_E));//should not be elastic, should be total
+            Elastic_Spin_h_deltaT(ii, jj) = (omega_dot.boundaryField()[patchI][faceI].component(count_index_E) - Omega_P[h].boundaryField()[patchI][faceI].component(count_index_E));//should not be elastic, should be total
             // Elastic_Spin_h_sq(ii, jj) = Foam::pow(omega_dot[cell].component(count_index_E) - Omega_P[h][cell].component(count_index_E),2.0);
             count_index_E++;
           }

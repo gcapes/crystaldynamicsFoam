@@ -181,7 +181,7 @@ void velocityProfilebottomFixedValueFvPatchVectorField::updateCoeffs()
     }
 
 //{{{ begin code
-    #line 88 "/home/mbcx7tf3/OpenFOAM/custom/Eulerian_Mechanics/tutorials/Validation/One_Circle_Squash/0/U/boundaryField/lowerWall"
+    #line 88 "/home/tomflint/OpenFOAM/custom/Euler_Solid_Mech/tutorials/Validation/One_Circle_Squash/0/U/boundaryField/lowerWall"
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=-50.0;
