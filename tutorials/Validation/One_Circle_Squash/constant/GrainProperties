@@ -106,7 +106,7 @@ initialCRSS	160e6;
 tau_S	2000e6;
 h_0	1000e6;
 r	1.4;
-k_exponent	25.0;
+k_exponent	50.0;
 gammadot_0	1e-3;
 
 }
@@ -168,7 +168,7 @@ tau_S	2000e6;
 h_0	1000e6;
 r	1.1;
 k_exponent	10.0;
-gammadot_0	1.0e-3;
+gammadot_0	0.0;
 
 }
 
