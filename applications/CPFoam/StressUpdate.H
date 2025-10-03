@@ -2,36 +2,36 @@
     sigmaGlobaltemp *= 0.0;
     
     // Create working copies of rotation fields for PIMPLE iterations
-    static PtrList<volScalarField> Rot1_working;
-    static PtrList<volScalarField> Rot2_working;
-    static PtrList<volScalarField> Rot3_working;
+    //  PtrList<volScalarField> Rot1_working;
+    //  PtrList<volScalarField> Rot2_working;
+    // PtrList<volScalarField> Rot3_working;
     
-    // Initialize working rotations at start of PIMPLE loop
-    if (pimpleIter == 1) 
-    {
-        Rot1_working.clear();
-        Rot2_working.clear();
-        Rot3_working.clear();
-        Rot1_working.resize(N_Ori);
-        Rot2_working.resize(N_Ori);
-        Rot3_working.resize(N_Ori);
+    // // Initialize working rotations at start of PIMPLE loop
+    // if (pimpleIter == 1) 
+    // {
+    //     Rot1_working.clear();
+    //     Rot2_working.clear();
+    //     Rot3_working.clear();
+    //     Rot1_working.resize(N_Ori);
+    //     Rot2_working.resize(N_Ori);
+    //     Rot3_working.resize(N_Ori);
         
-        for (label h = 0; h < N_Ori; h++)
-        {
-            Rot1_working.set(
-                h,
-                new volScalarField(Rot1[h])
-            );
-            Rot2_working.set(
-                h,
-                new volScalarField(Rot2[h])
-            );
-            Rot3_working.set(
-                h,
-                new volScalarField(Rot3[h])
-            );
-        }
-    }
+    //     for (label h = 0; h < N_Ori; h++)
+    //     {
+    //         Rot1_working.set(
+    //             h,
+    //             new volScalarField(Rot1[h])
+    //         );
+    //         Rot2_working.set(
+    //             h,
+    //             new volScalarField(Rot2[h])
+    //         );
+    //         Rot3_working.set(
+    //             h,
+    //             new volScalarField(Rot3[h])
+    //         );
+    //     }
+    // }
 
     for (label h = 0; h < N_Ori; h++)
     {
@@ -112,9 +112,9 @@
                     }
                     
                     // Use WORKING rotation for this phase
-                    double phi_1 = Rot1_working[h][cell];
-                    double phi_2 = Rot2_working[h][cell];
-                    double phi_3 = Rot3_working[h][cell];
+                    double phi_1 = Rot1[h][cell];
+                    double phi_2 = Rot2[h][cell];
+                    double phi_3 = Rot3[h][cell];
                     
                     Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
                     Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
@@ -308,9 +308,9 @@ accumulated_plastic_spin[cell].component(count_index) +=
                             }
                             
                             // Use WORKING rotation for boundary
-                            double phi_1 = Rot1_working[h].boundaryField()[patchI][faceI];
-                            double phi_2 = Rot2_working[h].boundaryField()[patchI][faceI];
-                            double phi_3 = Rot3_working[h].boundaryField()[patchI][faceI];
+                            double phi_1 = Rot1[h].boundaryField()[patchI][faceI];
+                            double phi_2 = Rot2[h].boundaryField()[patchI][faceI];
+                            double phi_3 = Rot3[h].boundaryField()[patchI][faceI];
                             
                             Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
                             Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
@@ -441,16 +441,21 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
             // Step 2: Update stress for this sub-step
             // volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt.value() * (step + 1));
             volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt * (step + 1));
+            omega_p_rate.correctBoundaryConditions();
             
             sigma_working += sub_dt * dsigmadt_local;
             sigma_working -= sub_dt * ((sigma_working & omega_dot) + (omega_dot & sigma_working));
             sigma_working += sub_dt * ((sigma_working & omega_p_rate) - (omega_p_rate & sigma_working));
             
+            sigma_working.correctBoundaryConditions();
+
             // Step 3: Update hardening values for next sub-step
             for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
             {
                 g_alphas_working[s] += sub_dt * g_alpha_dots[h][s];
+                g_alphas_working[s].correctBoundaryConditions();  // 
                 gamma_alphas[h][s] += sub_dt * gamma_alpha_dots[h][s];
+                gamma_alphas[h][s].correctBoundaryConditions();  //
             }
         } // End sub-stepping loop
         
@@ -462,6 +467,7 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
         for (label s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
         {
             g_alphas[h][s] = g_alphas_working[s];
+            g_alphas[h][s].correctBoundaryConditions();  //
         }
         
         // Store plastic deformation rates (average over time step)
@@ -472,8 +478,8 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
         // Process cells
         forAll(mesh.C(), cell)
         {
-            if (PopBal_av[h][cell] > 0.0)
-            {
+            // if (PopBal_av[h][cell] > 0.0)
+            // {
                 // Calculate total elastic spin over full time step
                 Fastor::Tensor<double, 3, 3> Elastic_Spin(0.0);
                 int count_index_E = 0;
@@ -500,6 +506,8 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
                     Foam::pow(Elastic_Spin(0,2), 2.0) +
                     Foam::pow(Elastic_Spin(1,0), 2.0));
                 //* runTime.deltaT().value()
+
+                // Info<<X_comps<<endl;
                 Fastor::Tensor<double, 3, 3> e_to_the_C = I_d;
                 if (X_comps > SMALL) {
                     e_to_the_C += (Foam::sin(X_comps* runTime.deltaT().value()) / X_comps) * Elastic_Spin + 
@@ -507,9 +515,9 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
                 }
                 
                 // Get current WORKING rotation matrix
-                double phi_1 = Rot1_working[h][cell];
-                double phi_2 = Rot2_working[h][cell];
-                double phi_3 = Rot3_working[h][cell];
+                double phi_1 = Rot1[h][cell];
+                double phi_2 = Rot2[h][cell];
+                double phi_3 = Rot3[h][cell];
                 
                 Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
                 Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
@@ -563,10 +571,10 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
                 }
                 
                 // Update WORKING rotation fields
-                Rot1_working[h][cell] = psi_angle;
-                Rot2_working[h][cell] = theta_angle;
-                Rot3_working[h][cell] = phi_angle;
-            }
+                Rot1[h][cell] = psi_angle;
+                Rot2[h][cell] = theta_angle;
+                Rot3[h][cell] = phi_angle;
+            // }
         }
         
         // Process boundaries for rotation update
@@ -577,8 +585,8 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
             {
                 forAll(T.boundaryField()[patchI], faceI)
                 {
-                    if (PopBal_av[h].boundaryField()[patchI][faceI] > 0.0)
-                    {
+                    // if (PopBal_av[h].boundaryField()[patchI][faceI] > 0.0)
+                    // {
                         // Calculate total elastic spin over full time step for boundary
                         Fastor::Tensor<double, 3, 3> Elastic_Spin(0.0);
                         int count_index_E = 0;
@@ -612,9 +620,9 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
                         }
                         
                         // Get current WORKING rotation matrix for boundary
-                        double phi_1 = Rot1_working[h].boundaryField()[patchI][faceI];
-                        double phi_2 = Rot2_working[h].boundaryField()[patchI][faceI];
-                        double phi_3 = Rot3_working[h].boundaryField()[patchI][faceI];
+                        double phi_1 = Rot1[h].boundaryField()[patchI][faceI];
+                        double phi_2 = Rot2[h].boundaryField()[patchI][faceI];
+                        double phi_3 = Rot3[h].boundaryField()[patchI][faceI];
                         
                         Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
                         Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
@@ -668,18 +676,18 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
                         }
                         
                         // Update WORKING rotation fields for boundary
-                        Rot1_working[h].boundaryFieldRef()[patchI][faceI] = psi_angle;
-                        Rot2_working[h].boundaryFieldRef()[patchI][faceI] = theta_angle;
-                        Rot3_working[h].boundaryFieldRef()[patchI][faceI] = phi_angle;
-                    }
+                        Rot1[h].boundaryFieldRef()[patchI][faceI] = psi_angle;
+                        Rot2[h].boundaryFieldRef()[patchI][faceI] = theta_angle;
+                        Rot3[h].boundaryFieldRef()[patchI][faceI] = phi_angle;
+                    // }
                 }
             }
         }
         
         // Correct boundary conditions for working rotations
-        Rot1_working[h].correctBoundaryConditions();
-        Rot2_working[h].correctBoundaryConditions();
-        Rot3_working[h].correctBoundaryConditions();
+        Rot1[h].correctBoundaryConditions();
+        Rot2[h].correctBoundaryConditions();
+        Rot3[h].correctBoundaryConditions();
         
         // Accumulate global stress
         sigmaGlobaltemp += PopBal[h] * sigtemp[h];
@@ -699,9 +707,9 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
             sigma[h].correctBoundaryConditions();
             
             // Commit rotations
-            Rot1[h] = Rot1_working[h];
-            Rot2[h] = Rot2_working[h];
-            Rot3[h] = Rot3_working[h];
+            // Rot1[h] = Rot1_working[h];
+            // Rot2[h] = Rot2_working[h];
+            // Rot3[h] = Rot3_working[h];
 
             Rot1[h].correctBoundaryConditions();
             Rot2[h].correctBoundaryConditions();

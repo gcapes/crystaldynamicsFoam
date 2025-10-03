@@ -27,10 +27,17 @@ phi1 (0.0 0.04 0.0 0.0);
 phi2 (0.0 0.548 0.0 0.0);
 phi3 (0.0 1.9 0.0 0.0);
 
-
+n_constitutive_substeps 2;
 
 Material.0 //FCC Titanium
 {
+
+Cv	500;
+
+kappa	20.0;
+
+rho_0	7500;
+
 
   C0000    155.554e9;
   C1111    155.554e9;
@@ -97,6 +104,14 @@ gammadot_0	0.0;
 
 Material.1	// HCP
 {
+
+
+Cv	500;
+
+kappa	20.0;
+
+rho_0	7500;
+
 
   
 C0000 194.305e9;
