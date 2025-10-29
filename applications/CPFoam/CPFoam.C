@@ -35,20 +35,20 @@ Authors
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "dynamicFvMesh.H"
 #include "EulerDdtScheme.H"
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
 //#include "pisoControl.H"
 #include "pimpleControl.H"
-#include "fvModels.H"
-#include "fvConstraints.H"
+#include "fvOptions.H"
 #include "CorrectPhi.H"
 
 #include "Material.H"
 
 
-#include <Fastor/Fastor.h> 
+#include "Fastor.h" 
 #include <random>
 #include <math.h>
 
@@ -56,7 +56,14 @@ Authors
 
 int main(int argc, char *argv[])
 {
-#include "postProcess.H"
+
+        argList::addNote
+    (
+        "Solver for"
+    );
+
+    
+    #include "postProcess.H"
 
     #include "setRootCaseLists.H"
     #include "createTime.H"
@@ -75,7 +82,7 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    while (pimple.run(runTime))
+    while (runTime.run())
     {
 
         // int iCorr = 0;
@@ -94,9 +101,9 @@ int main(int argc, char *argv[])
 
 
 
-        runTime++;
+        ++runTime;
 
-        Info<< "Time = " << runTime.userTimeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << nl << endl;
 
         
 
@@ -112,15 +119,19 @@ int main(int argc, char *argv[])
         while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
         {
             pimpleIter++;
-            // Info<< "PIMPLE iteration: " << pimpleIter << endl;
 
-            //const volTensorField dsigold(dsigmadt);
-        // do
-        // {
+            volVectorField U_old = U;
+            U_old.correctBoundaryConditions();
 
             
             #include "UEqn.H"
         // #include "setU.H"
+
+            if (!pimple.finalIter()) 
+            {
+        U = pimple_relax_U*U + (1.0-pimple_relax_U)* U_old;  // Relaxation
+        U.correctBoundaryConditions();
+            }
             
 
             #include "UpdateProps.H"

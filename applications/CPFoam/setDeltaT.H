@@ -33,7 +33,7 @@ Description
 
 if (adjustTimeStep)
 {
-    scalar deltaT = maxCo*runTime.deltaTValue()/(CoNum + small);
+    scalar deltaT = maxCo*runTime.deltaTValue()/(CoNum + SMALL);
     deltaT = min(deltaT, maxTimeStep/*fvModels.maxDeltaT()*/);
     deltaT = min
     (

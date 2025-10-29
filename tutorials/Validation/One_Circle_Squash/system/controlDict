@@ -41,7 +41,7 @@ writeFormat     ascii;
 
 writePrecision  10;
 
-writeCompression uncompressed;
+writeCompression off;
 
 timeFormat      general;
 
@@ -54,7 +54,7 @@ adjustTimeStep  yes;
 maxCo           0.1;//0.1;
 maxAlphaCo      0.1;
 
-maxDeltaT       1.0e-10;
+maxDeltaT       0.25e-10;
 
 
 // ************************************************************************* //

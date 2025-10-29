@@ -26,7 +26,9 @@ IOdictionary controlDict(
 
 dictionary &PimpleDICT = solutionDict.subDict("PIMPLE");
 
-int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+// int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+
+scalar pimple_relax_U = PimpleDICT.lookupOrDefault<scalar>("relaxU", 0.5);
 
 // scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 

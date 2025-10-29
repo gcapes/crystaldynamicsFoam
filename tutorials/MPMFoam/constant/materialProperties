@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2506                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      materialProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Define materials used in simulation
+
+    material0
+    {
+        // Material type: elastic, elastoPlastic, neoHookean
+        type            elastic;
+        
+        // Density [kg/m^3]
+        rho             1000.0;
+        
+        // Young's modulus [Pa]
+        E               1.0e6;
+        
+        // Poisson's ratio [-]
+        nu              0.3;
+        
+        // For elastoPlastic materials:
+        // yieldStress     1.0e5;   // [Pa]
+        // hardeningModulus 1.0e4;  // [Pa]
+    }
+;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

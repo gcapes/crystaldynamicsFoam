@@ -224,11 +224,11 @@ solvers
 PIMPLE
 {
     momentumPredictor   no;
-    nOuterCorrectors    3;//10
+    nOuterCorrectors    10;//10
     nCorrectors         1;
     nNonOrthogonalCorrectors 0;
     
-
+    relaxU              0.5;  //Relaxation for momentum-stress coupling between pimple iterations
     
     
 }

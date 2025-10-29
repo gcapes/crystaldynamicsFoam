@@ -697,13 +697,16 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
     sigmaGlobaltemp.correctBoundaryConditions();
     
     // Update committed state ONLY on final PIMPLE iteration
-    if (pimple.finalPimpleIter())
+    if (pimple.finalIter())
     {
         Info << "Updating committed fields on final PIMPLE iteration" << endl;
         for (label h = 0; h < N_Ori; h++)
         {
-            // Commit stress
+            // Commit stress with relaxation
             sigma[h] = sigtemp[h];
+
+
+
             sigma[h].correctBoundaryConditions();
             
             // Commit rotations
