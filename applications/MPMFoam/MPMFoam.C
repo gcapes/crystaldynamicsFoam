@@ -32,6 +32,9 @@ Authors
 #include "MaterialPointParcel.H"
 #include "Material.H"
 
+#include "IFstream.H"
+#include "OFstream.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
         "Material Point Method solver with crystal plasticity"
     );
     
-    #include "postProcess.H"
+    // #include "postProcess.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -54,6 +57,8 @@ int main(int argc, char *argv[])
     
         // Read material properties
     #include "readMaterialProperties.H"
+
+    #include "readGrainProperties.H"
 
     // Create material point cloud
     #include "createMPMCloud.H"
@@ -290,43 +295,110 @@ int main(int argc, char *argv[])
 
 
 
-        // Step 3: Compute nodal velocities and apply body forces
-        Info<< "Step 3: Computing nodal velocities and forces" << endl;
-        // const pointMesh& pMesh = pointMesh::New(mesh);
-        // const labelList& meshPoints = pMesh.meshPoints();
-        
+// Step 3: Compute total nodal forces
+Info<< "Step 3: Computing nodal forces" << endl;
+
+// Internal forces (from stress) already added in Step 2 P2G
+// Add external body forces
 forAll(nodalMass, pointI)
 {
     if (nodalMass[pointI] > SMALL)
     {
-        // Compute velocity from momentum
+        // F_external = m*g (gravity)
+        nodalForce[pointI] += nodalMass[pointI] * g.value();
+        
+        // Could add other external forces here:
+        // nodalForce[pointI] += tractionForce[pointI];
+        // nodalForce[pointI] += dampingForce[pointI];
+    }
+}
+
+// Step 4: Update nodal momentum (explicit forward Euler)
+Info<< "Step 4: Updating nodal momentum (dynamic)" << endl;
+
+forAll(nodalMass, pointI)
+{
+    if (nodalMass[pointI] > SMALL)
+    {
+        // CRITICAL: Update momentum first!
+        // p^(n+1) = p^n + dt * F
+        nodalMomentum[pointI] += dt * nodalForce[pointI];
+        
+        // Then compute velocity from updated momentum
+        // v^(n+1) = p^(n+1) / m
         nodalVelocity[pointI] = nodalMomentum[pointI] / nodalMass[pointI];
         
-        // Add gravitational body force
-        nodalForce[pointI] += nodalMass[pointI] * g.value();
+        // Acceleration for G2P transfer
+        // a = F/m
+        nodalAcceleration[pointI] = nodalForce[pointI] / nodalMass[pointI];
     }
     else
     {
+        nodalMomentum[pointI] = Zero;
         nodalVelocity[pointI] = Zero;
         nodalAcceleration[pointI] = Zero;
     }
 }
-        
-Info<< "Step 4: Updating nodal momentum" << endl;
-forAll(nodalMass, pointI)
+
+// Apply boundary conditions AFTER momentum update
+#include "applyMPMBoundaryConditions.H"
+
+
+
+
+Info<< "Step 4b: Synchronizing 2D node pairs" << endl;
+
+// Find Front and Back patches
+label frontID = boundaryMesh.findPatchID("Front");
+label backID = boundaryMesh.findPatchID("Back");
+
+if (frontID != -1 && backID != -1)
 {
-    if (nodalMass[pointI] > SMALL)
+    const labelList& frontPoints = boundaryMesh[frontID].meshPoints();
+    const labelList& backPoints = boundaryMesh[backID].meshPoints();
+    
+    // For each front point, find corresponding back point
+    forAll(frontPoints, i)
     {
-        // Compute acceleration
-        nodalAcceleration[pointI] = nodalForce[pointI] / nodalMass[pointI];
+        label frontPt = frontPoints[i];
+        const vector& frontPos = mesh.points()[frontPt];
         
-        // Update velocity
-        nodalVelocity[pointI] += dt * nodalAcceleration[pointI];
+        // Find back point with same Y-Z
+        forAll(backPoints, j)
+        {
+            label backPt = backPoints[j];
+            const vector& backPos = mesh.points()[backPt];
+            
+            // Check if Y-Z match (X differs)
+            if (mag(frontPos.y() - backPos.y()) < 1e-10 &&
+                mag(frontPos.z() - backPos.z()) < 1e-10)
+            {
+                // Average properties between front-back pair
+                scalar avgMass = 0.5 * (nodalMass[frontPt] + nodalMass[backPt]);
+                vector avgVel = 0.5 * (nodalVelocity[frontPt] + nodalVelocity[backPt]);
+                vector avgMom = 0.5 * (nodalMomentum[frontPt] + nodalMomentum[backPt]);
+                vector avgAccel = 0.5 * (nodalAcceleration[frontPt] + nodalAcceleration[backPt]);
+                
+                // Synchronize
+                nodalMass[frontPt] = avgMass;
+                nodalMass[backPt] = avgMass;
+                
+                nodalVelocity[frontPt] = avgVel;
+                nodalVelocity[backPt] = avgVel;
+                
+                nodalMomentum[frontPt] = avgMom;
+                nodalMomentum[backPt] = avgMom;
+                
+                nodalAcceleration[frontPt] = avgAccel;
+                nodalAcceleration[backPt] = avgAccel;
+                
+                break;
+            }
+        }
     }
 }
-        
-        // Apply essential boundary conditions
-        #include "applyMPMBoundaryConditions.H"
+
+
         
         // Step 5: Update particle kinematics
         Info<< "Step 5: Updating particle kinematics" << endl;
@@ -362,6 +434,7 @@ forAll(nodalMass, pointI)
             
             // Perform constitutive update (includes crystal plasticity)
             p.constitutiveUpdate(dt, matProps);
+            // p.computeElasticStress(matProps);//just elastic for debugging
         }
         
         // Step 8: Update history variables and check failure

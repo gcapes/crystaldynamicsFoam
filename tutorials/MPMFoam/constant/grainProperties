@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2506                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      grainProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+assignmentMethod    regions;
+
+grains
+{
+    grain0
+    {
+        grainID     0;
+        materialID  0;
+        region
+        {
+            min     (-1.00000000e-08 -1.00000000e-08 -1.00000000e-08);
+            max     (1.00000000e-08 2.00010000e-04 1.00000000e-04);
+        }
+        orientation
+        {
+            phi1    0.0;
+            Phi     0.0;
+            phi2    0.0;
+        }
+    }
+
+    grain1
+    {
+        grainID     1;
+        materialID  1;
+        region
+        {
+            min     (-1.00000000e-08 -1.00000000e-08 1.00000100e-04);
+            max     (1.00000000e-08 2.00010000e-04 2.00010000e-04);
+        }
+        orientation
+        {
+            phi1    45.0;
+            Phi     90.0;
+            phi2    30.0;
+        }
+    }
+}
+
+// ************************************************************************* //

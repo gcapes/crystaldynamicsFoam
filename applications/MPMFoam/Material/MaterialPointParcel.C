@@ -69,8 +69,6 @@ Foam::MaterialPointParcel::MaterialPointParcel
 
 
 
-
-
 void Foam::MaterialPointParcel::shapeFunctions
 (
     const fvMesh& mesh,
@@ -79,105 +77,209 @@ void Foam::MaterialPointParcel::shapeFunctions
     labelList& nodeIDs
 ) const
 {
-    // Get particle position and cell
-    const vector& xp = position();
-    label celli = cell();
+    label cellI = cell();
+    // const cell& c = mesh.cells()[cellI];
     
-    // Validate cell index
-    if (celli < 0 || celli >= mesh.nCells())
-    {
-        FatalErrorInFunction
-            << "Particle has invalid cell index: " << celli << nl
-            << "Particle position: " << xp << nl
-            << exit(FatalError);
-    }
+    // Get cell vertices (nodes)
+    const labelList& cellPoints = mesh.cellPoints()[cellI];
+    label nNodes = cellPoints.size();
     
-    // Get nodes of this cell
-    const labelList& cellPoints = mesh.cellPoints()[celli];
-    const label nNodes = cellPoints.size();
-    
-    // Resize output arrays
+    nodeIDs = cellPoints;
     N.setSize(nNodes);
     gradN.setSize(nNodes);
-    nodeIDs.setSize(nNodes);
     
-    // =================================================================
-    // INVERSE DISTANCE WEIGHTING
-    // N_i = (1/r_i) / sum(1/r_j)
-    // where r_i = distance from particle to node i
-    // =================================================================
+    const vector& particlePos = position();
     
-    scalar sumWeights = 0.0;
-    scalar minDist = GREAT;
-    label closestNode = -1;
+    // Get cell bounds
+    vector cellMin(GREAT, GREAT, GREAT);
+    vector cellMax(-GREAT, -GREAT, -GREAT);
     
-    // First pass: compute weights
     forAll(cellPoints, i)
     {
-        label pointI = cellPoints[i];
-        nodeIDs[i] = pointI;
+        const vector& pt = mesh.points()[cellPoints[i]];
+        cellMin = min(cellMin, pt);
+        cellMax = max(cellMax, pt);
+    }
+    
+    vector cellSize = cellMax - cellMin;
+    
+    // Normalized particle position within cell [-1,1]
+    // Component-wise division
+    vector xi;
+    xi.x() = 2.0 * (particlePos.x() - cellMin.x()) / (cellSize.x() + SMALL) - 1.0;
+    xi.y() = 2.0 * (particlePos.y() - cellMin.y()) / (cellSize.y() + SMALL) - 1.0;
+    xi.z() = 2.0 * (particlePos.z() - cellMin.z()) / (cellSize.z() + SMALL) - 1.0;
+    
+    // Clamp to ensure particle is within cell
+    xi.x() = max(-1.0, min(1.0, xi.x()));
+    xi.y() = max(-1.0, min(1.0, xi.y()));
+    xi.z() = max(-1.0, min(1.0, xi.z()));
+    
+    // Trilinear shape functions for hexahedron
+    // Node numbering: 0-3 bottom, 4-7 top (standard OpenFOAM hex)
+    if (nNodes == 8)
+    {
+        // Shape functions
+        N[0] = 0.125 * (1-xi.x()) * (1-xi.y()) * (1-xi.z());
+        N[1] = 0.125 * (1+xi.x()) * (1-xi.y()) * (1-xi.z());
+        N[2] = 0.125 * (1+xi.x()) * (1+xi.y()) * (1-xi.z());
+        N[3] = 0.125 * (1-xi.x()) * (1+xi.y()) * (1-xi.z());
+        N[4] = 0.125 * (1-xi.x()) * (1-xi.y()) * (1+xi.z());
+        N[5] = 0.125 * (1+xi.x()) * (1-xi.y()) * (1+xi.z());
+        N[6] = 0.125 * (1+xi.x()) * (1+xi.y()) * (1+xi.z());
+        N[7] = 0.125 * (1-xi.x()) * (1+xi.y()) * (1+xi.z());
         
-        // Get node position
-        const vector& xn = mesh.points()[pointI];
+        // Shape function derivatives in parametric space
+        // dN/dxi, dN/deta, dN/dzeta
+        List<vector> dN_dxi(8);
         
-        // Distance from particle to node
-        scalar dist = mag(xp - xn);
+        dN_dxi[0] = vector(-0.125*(1-xi.y())*(1-xi.z()), -0.125*(1-xi.x())*(1-xi.z()), -0.125*(1-xi.x())*(1-xi.y()));
+        dN_dxi[1] = vector( 0.125*(1-xi.y())*(1-xi.z()), -0.125*(1+xi.x())*(1-xi.z()), -0.125*(1+xi.x())*(1-xi.y()));
+        dN_dxi[2] = vector( 0.125*(1+xi.y())*(1-xi.z()),  0.125*(1+xi.x())*(1-xi.z()), -0.125*(1+xi.x())*(1+xi.y()));
+        dN_dxi[3] = vector(-0.125*(1+xi.y())*(1-xi.z()),  0.125*(1-xi.x())*(1-xi.z()), -0.125*(1-xi.x())*(1+xi.y()));
+        dN_dxi[4] = vector(-0.125*(1-xi.y())*(1+xi.z()), -0.125*(1-xi.x())*(1+xi.z()),  0.125*(1-xi.x())*(1-xi.y()));
+        dN_dxi[5] = vector( 0.125*(1-xi.y())*(1+xi.z()), -0.125*(1+xi.x())*(1+xi.z()),  0.125*(1+xi.x())*(1-xi.y()));
+        dN_dxi[6] = vector( 0.125*(1+xi.y())*(1+xi.z()),  0.125*(1+xi.x())*(1+xi.z()),  0.125*(1+xi.x())*(1+xi.y()));
+        dN_dxi[7] = vector(-0.125*(1+xi.y())*(1+xi.z()),  0.125*(1-xi.x())*(1+xi.z()),  0.125*(1-xi.x())*(1+xi.y()));
         
-        // Track closest node
-        if (dist < minDist)
+        // Transform derivatives to physical space: ∇N = J^(-T) * ∇_ξ N
+        // where J is the Jacobian matrix dx/dxi
+        
+        // Simple approximation: assume uniform cell
+        // J^(-T) ≈ diag(2/Lx, 2/Ly, 2/Lz)
+        forAll(gradN, nodeI)
         {
-            minDist = dist;
-            closestNode = i;
+            gradN[nodeI].x() = dN_dxi[nodeI].x() * 2.0 / (cellSize.x() + SMALL);
+            gradN[nodeI].y() = dN_dxi[nodeI].y() * 2.0 / (cellSize.y() + SMALL);
+            gradN[nodeI].z() = dN_dxi[nodeI].z() * 2.0 / (cellSize.z() + SMALL);
+        }
+    }
+    else
+    {
+        // For other cell shapes, use simple inverse distance weighting
+        forAll(N, nodeI)
+        {
+            vector toNode = mesh.points()[cellPoints[nodeI]] - particlePos;
+            scalar dist = mag(toNode) + SMALL;
+            
+            // Inverse distance weighting
+            N[nodeI] = 1.0 / (dist + SMALL);
+            gradN[nodeI] = -toNode / (dist * dist * dist + SMALL);
         }
         
-        // Inverse distance weight (with small regularization)
-        scalar weight = 1.0 / (dist + 1e-20);
-        N[i] = weight;
-        sumWeights += weight;
+        // Normalize
+        scalar sumN = sum(N) + SMALL;
+        N /= sumN;
     }
-    
-    // Special case: particle very close to a node
-    if (minDist < 1e-10)
-    {
-        // Use delta function (all weight on closest node)
-        N = 0.0;
-        N[closestNode] = 1.0;
-        gradN = vector::zero;
-        return;
-    }
-    
-    // Normalize shape functions (now they sum to 1)
-    N /= sumWeights;
-    
-    // =================================================================
-    // COMPUTE GRADIENTS
-    // grad(N_i) = -N_i * (xp - xi) / |xp - xi|^2
-    // =================================================================
-    
-    forAll(cellPoints, i)
-    {
-        label pointI = cellPoints[i];
-        const vector& xn = mesh.points()[pointI];
-        
-        // Vector from node to particle
-        vector dx = xp - xn;
-        scalar r2 = magSqr(dx) + 1e-20;
-        
-        // Gradient of inverse distance weight
-        gradN[i] = -N[i] * dx / r2;
-    }
-    
-    // Optional: Verify shape functions (can comment out after debugging)
-    #ifdef DEBUG_SHAPE_FUNCTIONS
-    scalar sumN = sum(N);
-    if (mag(sumN - 1.0) > 1e-6)
-    {
-        WarningInFunction
-            << "Shape functions don't sum to 1: sum = " << sumN << nl
-            << "Particle: " << xp << ", Cell: " << celli << endl;
-    }
-    #endif
 }
+
+// void Foam::MaterialPointParcel::shapeFunctions
+// (
+//     const fvMesh& mesh,
+//     scalarField& N,
+//     List<vector>& gradN,
+//     labelList& nodeIDs
+// ) const
+// {
+//     // Get particle position and cell
+//     const vector& xp = position();
+//     label celli = cell();
+    
+//     // Validate cell index
+//     if (celli < 0 || celli >= mesh.nCells())
+//     {
+//         FatalErrorInFunction
+//             << "Particle has invalid cell index: " << celli << nl
+//             << "Particle position: " << xp << nl
+//             << exit(FatalError);
+//     }
+    
+//     // Get nodes of this cell
+//     const labelList& cellPoints = mesh.cellPoints()[celli];
+//     const label nNodes = cellPoints.size();
+    
+//     // Resize output arrays
+//     N.setSize(nNodes);
+//     gradN.setSize(nNodes);
+//     nodeIDs.setSize(nNodes);
+    
+//     // =================================================================
+//     // INVERSE DISTANCE WEIGHTING
+//     // N_i = (1/r_i) / sum(1/r_j)
+//     // where r_i = distance from particle to node i
+//     // =================================================================
+    
+//     scalar sumWeights = 0.0;
+//     scalar minDist = GREAT;
+//     label closestNode = -1;
+    
+//     // First pass: compute weights
+//     forAll(cellPoints, i)
+//     {
+//         label pointI = cellPoints[i];
+//         nodeIDs[i] = pointI;
+        
+//         // Get node position
+//         const vector& xn = mesh.points()[pointI];
+        
+//         // Distance from particle to node
+//         scalar dist = mag(xp - xn);
+        
+//         // Track closest node
+//         if (dist < minDist)
+//         {
+//             minDist = dist;
+//             closestNode = i;
+//         }
+        
+//         // Inverse distance weight (with small regularization)
+//         scalar weight = 1.0 / (dist + 1e-20);
+//         N[i] = weight;
+//         sumWeights += weight;
+//     }
+    
+//     // Special case: particle very close to a node
+//     if (minDist < 1e-10)
+//     {
+//         // Use delta function (all weight on closest node)
+//         N = 0.0;
+//         N[closestNode] = 1.0;
+//         gradN = vector::zero;
+//         return;
+//     }
+    
+//     // Normalize shape functions (now they sum to 1)
+//     N /= sumWeights;
+    
+//     // =================================================================
+//     // COMPUTE GRADIENTS
+//     // grad(N_i) = -N_i * (xp - xi) / |xp - xi|^2
+//     // =================================================================
+    
+//     forAll(cellPoints, i)
+//     {
+//         label pointI = cellPoints[i];
+//         const vector& xn = mesh.points()[pointI];
+        
+//         // Vector from node to particle
+//         vector dx = xp - xn;
+//         scalar r2 = magSqr(dx) + 1e-20;
+        
+//         // Gradient of inverse distance weight
+//         gradN[i] = -N[i] * dx / r2;
+//     }
+    
+//     // Optional: Verify shape functions (can comment out after debugging)
+//     #ifdef DEBUG_SHAPE_FUNCTIONS
+//     scalar sumN = sum(N);
+//     if (mag(sumN - 1.0) > 1e-6)
+//     {
+//         WarningInFunction
+//             << "Shape functions don't sum to 1: sum = " << sumN << nl
+//             << "Particle: " << xp << ", Cell: " << celli << endl;
+//     }
+//     #endif
+// }
 
 
 /*---------------------------------------------------------------------------*\
@@ -467,6 +569,112 @@ void Foam::MaterialPointParcel::shapeFunctions
     }
 }
 */
+
+
+
+
+void Foam::MaterialPointParcel::setCrystalOrientation
+(
+    scalar phi1_deg,
+    scalar Phi_deg,
+    scalar phi2_deg
+)
+{
+    // Store Euler angles (in degrees for reference)
+    phi1_ = phi1_deg;
+    phi2_ = Phi_deg;   // Note: phi2_ stores Phi
+    phi3_ = phi2_deg;  // Note: phi3_ stores phi2
+    
+    // Convert to radians for computation
+    const scalar pi = constant::mathematical::pi;
+    scalar phi1 = phi1_deg * pi / 180.0;
+    scalar Phi  = Phi_deg  * pi / 180.0;
+    scalar phi2 = phi2_deg * pi / 180.0;
+    
+    // Compute rotation matrix using Bunge convention
+    // R = Rz(phi2) * Rx(Phi) * Rz(phi1)
+    //
+    // This transforms from crystal coordinates to sample coordinates
+    
+    scalar c1 = Foam::cos(phi1);
+    scalar s1 = Foam::sin(phi1);
+    scalar cP = Foam::cos(Phi);
+    scalar sP = Foam::sin(Phi);
+    scalar c2 = Foam::cos(phi2);
+    scalar s2 = Foam::sin(phi2);
+    
+    // First rotation: Rz(phi1)
+    tensor Rz1
+    (
+        c1, -s1,  0,
+        s1,  c1,  0,
+         0,   0,  1
+    );
+    
+    // Second rotation: Rx(Phi)
+    tensor Rx
+    (
+        1,   0,   0,
+        0,  cP, -sP,
+        0,  sP,  cP
+    );
+    
+    // Third rotation: Rz(phi2)
+    tensor Rz2
+    (
+        c2, -s2,  0,
+        s2,  c2,  0,
+         0,   0,  1
+    );
+    
+    // Combined rotation matrix
+    Q0_ = Rz2 & Rx & Rz1;
+    
+    // Ensure it's a proper rotation (det = 1, orthogonal)
+    scalar detQ = det(Q0_);
+    if (mag(detQ - 1.0) > 1e-6)
+    {
+        WarningInFunction
+            << "Rotation matrix determinant = " << detQ 
+            << " (should be 1.0)" << endl;
+    }
+}
+
+// Alternative implementation using compact form:
+/*
+void Foam::MaterialPointParcel::setCrystalOrientation
+(
+    scalar phi1_deg,
+    scalar Phi_deg,
+    scalar phi2_deg
+)
+{
+    // Store angles
+    phi1_ = phi1_deg;
+    phi2_ = Phi_deg;
+    phi3_ = phi2_deg;
+    
+    // Convert to radians
+    const scalar pi = constant::mathematical::pi;
+    scalar p1 = phi1_deg * pi / 180.0;
+    scalar P  = Phi_deg  * pi / 180.0;
+    scalar p2 = phi2_deg * pi / 180.0;
+    
+    // Bunge Euler angles to rotation matrix (compact form)
+    scalar c1 = cos(p1), s1 = sin(p1);
+    scalar cP = cos(P),  sP = sin(P);
+    scalar c2 = cos(p2), s2 = sin(p2);
+    
+    Q0_ = tensor
+    (
+        c1*c2 - s1*s2*cP,  -c1*s2 - s1*c2*cP,   s1*sP,
+        s1*c2 + c1*s2*cP,  -s1*s2 + c1*c2*cP,  -c1*sP,
+        s2*sP,              c2*sP,              cP
+    );
+}
+*/
+
+
 // Simplified GIMP shape functions stub
 void Foam::MaterialPointParcel::shapeFunctionsGIMP
 (
@@ -493,39 +701,38 @@ void Foam::MaterialPointParcel::transferToGrid
     pointVectorField& nodalForce
 ) const
 {
-    // Get shape functions and node IDs for this particle
+    // Get particle properties
+    const vector& pos = position();
+    label cellI = cell();
+    
+    if (cellI < 0) return; // Particle outside mesh
+    
+    // Calculate shape functions and gradients
     scalarField N;
     List<vector> gradN;
     labelList nodeIDs;
     
-    // Compute shape functions (standard linear or GIMP)
     shapeFunctions(mesh, N, gradN, nodeIDs);
     
-    // Get particle properties
-    const scalar m = mass_;
-    const vector& v = velocity_;
-    const tensor& sigma = stress_;
-    const scalar vol = volume_;
-    
-    // Map to each node in support
+    // Transfer mass and momentum
     forAll(nodeIDs, i)
     {
         label nodeI = nodeIDs[i];
-        scalar Ni = N[i];
-        const vector& gradNi = gradN[i];
         
-        // Map mass
-        nodalMass[nodeI] += Ni * m;
+        // Mass: m_i += N_i * m_p
+        nodalMass[nodeI] += N[i] * mass_;
         
-        // Map momentum
-        nodalMomentum[nodeI] += Ni * m * v;
+        // Momentum: p_i += N_i * m_p * v_p
+        nodalMomentum[nodeI] += N[i] * mass_ * velocity_;
         
-        // Map stress (for visualization/postprocessing)
-        nodalStress[nodeI] += Ni * sigma * vol;
+        // CRITICAL: Internal force from stress
+        // F_internal,i = -V_p * σ_p · ∇N_i
+        // This is how stress creates forces on the grid!
+        vector forceContrib = -volume_ * (stress_ & gradN[i]);
+        nodalForce[nodeI] += forceContrib;
         
-        // Map internal forces: f_int = -V * sigma · grad(N)
-        // This is the stress divergence: ∫ σ · ∇N dV
-        nodalForce[nodeI] -= vol * (sigma & gradNi);
+        // Optional: Transfer stress for visualization
+        nodalStress[nodeI] += N[i] * stress_;
     }
 }
 
@@ -559,6 +766,94 @@ void Foam::MaterialPointParcel::transferFromGrid
     }
 }
 
+
+void Foam::MaterialPointParcel::updateDeformationGradient
+(
+    const fvMesh& mesh,
+    const pointVectorField& nodalVelocity,
+    const scalar dt
+)
+{
+    // Get shape functions
+    scalarField N;
+    List<vector> gradN;
+    labelList nodeIDs;
+    
+    shapeFunctions(mesh, N, gradN, nodeIDs);
+    
+    if (nodeIDs.empty()) return;
+    
+    // Compute velocity gradient L = ∂v/∂x = Σ v_i ⊗ ∇N_i
+    tensor L = Zero;
+    
+    forAll(nodeIDs, i)
+    {
+        label nodeI = nodeIDs[i];
+        
+        // Check bounds
+        if (nodeI < 0 || nodeI >= nodalVelocity.size()) continue;
+        
+        // Outer product: v ⊗ ∇N
+        L += nodalVelocity[nodeI] * gradN[i];
+    }
+    
+    // SAFETY CHECK 1: Detect extremely large velocity gradients
+    scalar L_mag = mag(L);
+    if (L_mag * dt > 0.5)
+    {
+        WarningInFunction
+            << "Large velocity gradient detected for particle " << origId() << nl
+            << "  |L|*dt = " << L_mag * dt << " (should be << 1)" << nl
+            << "  Time step may be too large!" << endl;
+    }
+    
+    // Store old F for potential rollback
+    tensor F_old = F_;
+    
+    // Update deformation gradient: F^(n+1) = (I + dt*L) * F^n
+    // This is the correct multiplicative update for large deformation
+    F_ = (tensor::I + dt*L) & F_;
+    
+    // SAFETY CHECK 2: Check for inversion or extreme deformation
+    scalar J = det(F_);
+    
+    if (J <= 0)
+    {
+        // CRITICAL: Particle inverted!
+        WarningInFunction
+            << "Particle " << origId() << " INVERTED: J = " << J << nl
+            << "  Position: " << position() << nl
+            << "  |L|*dt = " << L_mag * dt << nl
+            << "  Reverting to previous F" << endl;
+        
+        // Emergency: revert to old F
+        F_ = F_old;
+        J = det(F_);
+    }
+    else if (J < 0.1 || J > 10.0)
+    {
+        // Warning: approaching trouble
+        WarningInFunction
+            << "Particle " << origId() << " has extreme J = " << J << nl
+            << "  Position: " << position() << endl;
+    }
+    
+    // Update volume from Jacobian
+    // J = det(F) = V / V0, so V = V0 * J
+    if (J > 0.01 && J < 100.0)
+    {
+        volume_ = volume0_ * J;
+    }
+    else
+    {
+        // Something is very wrong - keep old volume
+        WarningInFunction
+            << "Invalid J = " << J << " for particle " << origId()
+            << ", keeping old volume" << endl;
+    }
+}
+
+/*
 void Foam::MaterialPointParcel::updateDeformationGradient
 (
     const fvMesh& mesh,
@@ -600,6 +895,8 @@ void Foam::MaterialPointParcel::updateDeformationGradient
         volume_ = volume0_ * J;
     }
 }
+
+*/
 
 // * * * * * * * Crystal Plasticity Functions * * * * * * * * * * * * //
 
@@ -685,39 +982,39 @@ void Foam::MaterialPointParcel::initializeSlipSystems(const word& crystalType)
     }
 }
 
-void Foam::MaterialPointParcel::setCrystalOrientation
-(
-    scalar phi1, 
-    scalar phi2, 
-    scalar phi3
-)
-{
-    phi1_ = phi1;
-    phi2_ = phi2;  
-    phi3_ = phi3;
+// void Foam::MaterialPointParcel::setCrystalOrientation
+// (
+//     scalar phi1, 
+//     scalar phi2, 
+//     scalar phi3
+// )
+// {
+//     phi1_ = phi1;
+//     phi2_ = phi2;  
+//     phi3_ = phi3;
     
-    // Convert Bunge Euler angles to rotation matrix
-    scalar c1 = Foam::cos(phi1);
-    scalar s1 = Foam::sin(phi1);
-    scalar c2 = Foam::cos(phi2);
-    scalar s2 = Foam::sin(phi2);
-    scalar c3 = Foam::cos(phi3);
-    scalar s3 = Foam::sin(phi3);
+//     // Convert Bunge Euler angles to rotation matrix
+//     scalar c1 = Foam::cos(phi1);
+//     scalar s1 = Foam::sin(phi1);
+//     scalar c2 = Foam::cos(phi2);
+//     scalar s2 = Foam::sin(phi2);
+//     scalar c3 = Foam::cos(phi3);
+//     scalar s3 = Foam::sin(phi3);
     
-    Q0_ = tensor
-    (
-        c1*c3 - s1*s3*c2,  -c1*s3 - s1*c3*c2,  s1*s2,
-        s1*c3 + c1*s3*c2,  -s1*s3 + c1*c3*c2,  -c1*s2,
-        s3*s2,             c3*s2,              c2
-    );
+//     Q0_ = tensor
+//     (
+//         c1*c3 - s1*s3*c2,  -c1*s3 - s1*c3*c2,  s1*s2,
+//         s1*c3 + c1*s3*c2,  -s1*s3 + c1*c3*c2,  -c1*s2,
+//         s3*s2,             c3*s2,              c2
+//     );
     
-    // Rotate slip systems to crystal orientation
-    forAll(slipSystems_, i)
-    {
-        // Note: Keep reference slip systems and rotate during stress calculation
-        // This allows for proper rotation with deformation
-    }
-}
+//     // Rotate slip systems to crystal orientation
+//     forAll(slipSystems_, i)
+//     {
+//         // Note: Keep reference slip systems and rotate during stress calculation
+//         // This allows for proper rotation with deformation
+//     }
+// }
 
 void Foam::MaterialPointParcel::computeResolvedShearStress()
 {
@@ -998,6 +1295,31 @@ void Foam::MaterialPointParcel::writeFields(const materialPointCloud& c)
         c.fieldIOobject("grainID", IOobject::NO_READ),
         c.size()
     );
+
+        // Write Euler angles
+    IOField<scalar> phi1
+    (
+        c.fieldIOobject("phi1", IOobject::NO_READ),
+        c.size()
+    );
+    
+    IOField<scalar> phi2
+    (
+        c.fieldIOobject("phi2", IOobject::NO_READ),
+        c.size()
+    );
+    
+    IOField<scalar> phi3
+    (
+        c.fieldIOobject("phi3", IOobject::NO_READ),
+        c.size()
+    );
+    
+    IOField<tensor> Q0
+    (
+        c.fieldIOobject("Q0", IOobject::NO_READ),
+        c.size()
+    );
     
     // Fill the fields using ONLY public accessors
     label np = 0;
@@ -1014,6 +1336,10 @@ void Foam::MaterialPointParcel::writeFields(const materialPointCloud& c)
         Fe[np] = p.Fe();
         materialID[np] = p.materialID();
         grainID[np] = p.grainID();
+        phi1[np] = p.phi1();      
+        phi2[np] = p.phi2();      
+        phi3[np] = p.phi3();      
+        Q0[np] = p.Q0();          
         
         np++;
     }
@@ -1028,6 +1354,10 @@ void Foam::MaterialPointParcel::writeFields(const materialPointCloud& c)
     Fe.write();
     materialID.write();
     grainID.write();
+    phi1.write();         
+    phi2.write();        
+    phi3.write();         
+    Q0.write();           
     
     Info<< "    Wrote " << np << " particles to lagrangian cloud" << endl;
 }

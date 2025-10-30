@@ -136,6 +136,29 @@ public:
     
     inline label materialID() const { return materialID_; }
     inline label grainID() const { return grainID_; }
+
+    // Grain and material accessors (non-const versions for assignment)
+inline label& materialID() { return materialID_; }
+inline label& grainID() { return grainID_; }
+
+// Euler angle accessors
+inline scalar phi1() const { return phi1_; }
+inline scalar phi2() const { return phi2_; }
+inline scalar phi3() const { return phi3_; }
+
+inline scalar& phi1() { return phi1_; }
+inline scalar& phi2() { return phi2_; }
+inline scalar& phi3() { return phi3_; }
+
+// Rotation matrix accessor
+inline const tensor& Q0() const { return Q0_; }
+inline tensor& Q0() { return Q0_; }
+
+
+
+
+
+
     
     // MPM specific functions
     

@@ -4,7 +4,7 @@
 const dictionary& pimple = mesh.solutionDict().subDict("PIMPLE");
 
 // Maximum Courant number
-scalar maxCo = pimple.lookupOrDefault<scalar>("maxCo", 0.5);
+scalar maxCo = pimple.lookupOrDefault<scalar>("maxCo", 0.1);
 
 // Maximum time step
 scalar maxDeltaT = pimple.lookupOrDefault<scalar>("maxDeltaT", GREAT);

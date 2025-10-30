@@ -17,17 +17,22 @@ velocityBCs
     atmosphere
     {
         type        fixedValue;
-        value       (0 -0.1 0);     // Moving down at 0.1 m/s (compression)
+        value       (0 100.0 0);     // Moving down at 0.1 m/s (compression)
+      
+        //  type        traction;
+    	//	traction    (0 1e6 0);  // 1 MPa compression
     }
     
     leftWall
     {
-        type        symmetry;       // Lateral constraint
+       // type        symmetry;       // Lateral constraint
+       type            slip;
     }
     
     rightWall
     {
-        type        symmetry;       // Lateral constraint
+    type            slip;
+     //   type        symmetry;       // Lateral constraint
     }
     
     Front

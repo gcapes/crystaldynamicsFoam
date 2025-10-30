@@ -1,158 +1,179 @@
 /*---------------------------------------------------------------------------*\
-  createMPMCloud.H - Particle Cloud Initialization
-  
-  This file creates and initializes the MPM particle cloud with proper
-  mass and volume values based on material properties.
+  createMPMCloud.H - Initialize material point cloud with grain assignments
 \*---------------------------------------------------------------------------*/
 
-Info<< "Creating MPM particle cloud..." << endl;
+Info<< "Creating material point cloud" << endl;
 
-// Create the cloud
-materialPointCloud particles
+// Read particle positions using IOList (no IFstream needed)
+List<vector> particlePositions
 (
-    mesh,
-    "mpmCloud",
-    IDLList<MaterialPointParcel>()
-);
-
-// Read cloud properties
-IOdictionary mpmCloudProperties
-(
-    IOobject
+    IOList<vector>
     (
-        "mpmCloudProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
+        IOobject
+        (
+            "particlePositions",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
     )
 );
 
-// Get initialization parameters
-word initType(mpmCloudProperties.lookup("initializationType"));
-label nParticlesPerCell = readLabel(mpmCloudProperties.lookup("nParticlesPerCell"));
+label nParticles = particlePositions.size();
+Info<< "  Number of particles to create: " << nParticles << endl;
 
-Info<< "  Initialization type: " << initType << endl;
-Info<< "  Particles per cell: " << nParticlesPerCell << endl;
+// Create the cloud
+materialPointCloud particles(mesh, "materialPointCloud");
 
-// Material region for particle generation
-const dictionary& regionDict = mpmCloudProperties.subDict("materialRegion");
-word regionType(regionDict.lookup("type"));
+// Read positions and create particles
+label particlesCreated = 0;
+label particlesOutsideMesh = 0;
 
-vector minPoint(regionDict.lookup("min"));
-vector maxPoint(regionDict.lookup("max"));
-
-Info<< "  Material region: " << regionType << endl;
-Info<< "    Min: " << minPoint << endl;
-Info<< "    Max: " << maxPoint << endl;
-
-// Get material properties
-label materialID = readLabel(mpmCloudProperties.lookup("materialID"));
-const dictionary& matProps = materialProperties[materialID];
-scalar rho = readScalar(matProps.lookup("rho"));
-
-Info<< "  Material ID: " << materialID << endl;
-Info<< "  Density: " << rho << " kg/m³" << endl;
-
-// Generate particles
-label nParticlesGenerated = 0;
-scalar totalMassGenerated = 0.0;
-scalar totalVolumeGenerated = 0.0;
-
-if (initType == "generate")
+forAll(particlePositions, i)
 {
-    Info<< "\nGenerating particles..." << endl;
+    const vector& position = particlePositions[i];
     
-    // Loop over all cells
-    forAll(mesh.C(), celli)
+    // Find which cell this position is in
+    label cellI = mesh.findCell(position);
+    
+    if (cellI >= 0)
     {
-        const vector& cellCenter = mesh.C()[celli];
-        scalar cellVolume = mesh.V()[celli];
+        // Create particle
+        particles.addParticle
+        (
+            new MaterialPointParcel(mesh, position, cellI)
+        );
+        particlesCreated++;
+    }
+    else
+    {
+        particlesOutsideMesh++;
+    }
+}
+
+Info<< "  Particles created: " << particlesCreated << endl;
+if (particlesOutsideMesh > 0)
+{
+    WarningIn("createMPMCloud")
+        << particlesOutsideMesh << " particles were outside the mesh and not created"
+        << endl;
+}
+
+// Now assign grain IDs and properties based on spatial location
+Info<< "  Assigning grain IDs to particles..." << endl;
+
+label particlesAssigned = 0;
+label particlesUnassigned = 0;
+
+forAllIter(materialPointCloud, particles, iter)
+{
+    MaterialPointParcel& p = iter();
+    vector pos = p.position();
+    
+    // Find which grain this particle belongs to based on spatial region
+    bool assigned = false;
+    
+    forAll(grainDefinitions, grainI)
+    {
+        const GrainInfo& grain = grainDefinitions[grainI];
         
-        // Check if cell center is in material region
-        bool inRegion = false;
-        
-        if (regionType == "box")
+        // Check if particle is within grain's bounding box
+        if (pos.x() >= grain.minPoint.x() && pos.x() <= grain.maxPoint.x() &&
+            pos.y() >= grain.minPoint.y() && pos.y() <= grain.maxPoint.y() &&
+            pos.z() >= grain.minPoint.z() && pos.z() <= grain.maxPoint.z())
         {
-            inRegion = 
-                cellCenter.x() >= minPoint.x() && cellCenter.x() <= maxPoint.x() &&
-                cellCenter.y() >= minPoint.y() && cellCenter.y() <= maxPoint.y() &&
-                cellCenter.z() >= minPoint.z() && cellCenter.z() <= maxPoint.z();
-        }
-        
-        if (inRegion)
-        {
-            // Compute particle volume and mass
-            scalar particleVolume = cellVolume / scalar(nParticlesPerCell);
-            scalar particleMass = rho * particleVolume;
+            // Assign grain properties to particle
+            p.grainID() = grain.grainID;
+            p.materialID() = grain.materialID;
             
-            // Generate particles in this cell
-            for (label pi = 0; pi < nParticlesPerCell; pi++)
-            {
-                // Particle position (simple grid for multiple particles per cell)
-                vector particlePos = cellCenter;
-                
-                if (nParticlesPerCell > 1)
-                {
-                    // Offset from cell center for multiple particles
-                    scalar dx = cellVolume / nParticlesPerCell;
-                    scalar offset = (pi - 0.5*nParticlesPerCell) * 0.3 * dx;
-                    particlePos.x() += offset;
-                }
-                
-                // Create particle
-                MaterialPointParcel* pPtr = new MaterialPointParcel
-                (
-                    mesh,
-                    particlePos,
-                    celli
-                );
-                
-                // CRITICAL: Set mass and volume!
-                pPtr->mass() = particleMass;
-                pPtr->volume() = particleVolume;
-                pPtr->velocity() = Zero;
-                pPtr->stress() = Zero;
-                pPtr->F() = tensor::I;
-                
-                // Add to cloud
-                particles.addParticle(pPtr);
-                
-                nParticlesGenerated++;
-                totalMassGenerated += particleMass;
-                totalVolumeGenerated += particleVolume;
-            }
+            // Set crystal orientation
+            p.phi1() = grain.phi1;
+            p.phi2() = grain.Phi;  // Note: readGrainProperties uses Phi
+            p.phi3() = grain.phi2;
+            
+            // Initialize rotation matrix from Euler angles
+            p.setCrystalOrientation(grain.phi1, grain.Phi, grain.phi2);
+            
+            assigned = true;
+            particlesAssigned++;
+            break;
         }
     }
     
-    Info<< "  Generated " << nParticlesGenerated << " particles" << endl;
-    Info<< "  Total mass: " << totalMassGenerated << " kg" << endl;
-    Info<< "  Total volume: " << totalVolumeGenerated << " m³" << endl;
-    Info<< "  Average particle mass: " 
-        << (nParticlesGenerated > 0 ? totalMassGenerated/nParticlesGenerated : 0) 
-        << " kg" << endl;
-}
-else if (initType == "file")
-{
-    FatalErrorInFunction
-        << "Initialization from file not yet implemented" << nl
-        << exit(FatalError);
-}
-else
-{
-    FatalErrorInFunction
-        << "Unknown initialization type: " << initType << nl
-        << "Valid types: generate, file" << nl
-        << exit(FatalError);
+    if (!assigned)
+    {
+        // Particle not in any grain region - assign to default grain 0
+        p.grainID() = 0;
+        p.materialID() = 0;
+        p.phi1() = 0.0;
+        p.phi2() = 0.0;
+        p.phi3() = 0.0;
+        p.setCrystalOrientation(0.0, 0.0, 0.0);
+        particlesUnassigned++;
+    }
 }
 
-if (nParticlesGenerated == 0)
+Info<< "  Particles assigned to grains: " << particlesAssigned << endl;
+if (particlesUnassigned > 0)
 {
-    FatalErrorInFunction
-        << "No particles were generated!" << nl
-        << "Check material region bounds in mpmCloudProperties" << nl
-        << "Region: [" << minPoint << "] to [" << maxPoint << "]" << nl
-        << exit(FatalError);
+    WarningIn("createMPMCloud")
+        << particlesUnassigned << " particles not in any grain region (assigned to default grain 0)"
+        << endl;
 }
 
-Info<< "Particle cloud created successfully\n" << endl;
+// Initialize particle volumes and masses
+Info<< "  Initializing particle properties..." << endl;
+
+scalar domainVolume = gSum(mesh.V());
+scalar particleVolume = domainVolume / particles.size();
+
+Info<< "    Domain volume: " << domainVolume << " m^3" << endl;
+Info<< "    Particle volume: " << particleVolume << " m^3" << endl;
+
+forAllIter(materialPointCloud, particles, iter)
+{
+    MaterialPointParcel& p = iter();
+    
+    // Set volume
+    p.volume() = particleVolume;
+    p.volume0() = particleVolume;
+    
+    // Get material properties for this particle's material
+    const dictionary& matProps = materialProperties[p.materialID()];
+    scalar rho = readScalar(matProps.lookup("rho"));
+    
+    // Set mass
+    p.mass() = rho * particleVolume;
+    
+    // Initialize slip systems based on crystal structure
+    word crystalType = word(matProps.lookup("crystalStructure"));
+    p.initializeSlipSystems(crystalType);
+}
+
+// Print grain statistics
+Info<< "\nGrain distribution:" << endl;
+labelList particlesPerGrain(grainDefinitions.size(), 0);
+
+forAllConstIter(materialPointCloud, particles, iter)
+{
+    label gid = iter().grainID();
+    if (gid >= 0 && gid < grainDefinitions.size())
+    {
+        particlesPerGrain[gid]++;
+    }
+}
+
+forAll(grainDefinitions, grainI)
+{
+    const GrainInfo& grain = grainDefinitions[grainI];
+    Info<< "  Grain " << grain.grainID 
+        << " (Material " << grain.materialID << "): "
+        << particlesPerGrain[grainI] << " particles"
+        << ", Orientation(" << grain.phi1 << ", " << grain.Phi << ", " << grain.phi2 << ")" 
+        << endl;
+}
+
+Info<< "\nMaterial point cloud created successfully" << nl << endl;
+
+// ************************************************************************* //
