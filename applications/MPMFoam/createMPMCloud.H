@@ -1,179 +1,370 @@
-/*---------------------------------------------------------------------------*\
-  createMPMCloud.H - Initialize material point cloud with grain assignments
-\*---------------------------------------------------------------------------*/
-
 Info<< "Creating material point cloud" << endl;
 
-// Read particle positions using IOList (no IFstream needed)
-List<vector> particlePositions
-(
-    IOList<vector>
+// Create empty cloud
+materialPointCloud particles(mesh, "materialPointCloud", false);
+
+// =========================================================================
+// CHECK IF RESTARTING (particle data already exists)
+// =========================================================================
+
+bool restarting = false;
+
+// Check if particle cloud files exist in current time directory
+word cloudName = "materialPointCloud";
+fileName cloudPath = runTime.timeName()/cloud::prefix/cloudName;
+
+if (isDir(cloudPath))
+{
+    fileName positionsFile = cloudPath/"positions";
+    if (isFile(positionsFile))
+    {
+        restarting = true;
+        if (Pstream::master())
+        {
+            Info<< "  Detected existing particle data - RESTARTING" << endl;
+            Info<< "  Reading from: " << cloudPath << endl;
+        }
+    }
+}
+
+if (restarting)
+{
+    // =====================================================================
+    // RESTART: Read existing particles (decomposed per processor)
+    // =====================================================================
+    
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Reading existing particles..." << endl;
+    
+    // Each processor reads its own positions
+    IOList<vector> positions
     (
         IOobject
         (
-            "particlePositions",
-            runTime.constant(),
+            "positions",
+            runTime.timeName(),
+            cloud::prefix/cloudName,
             mesh,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
-    )
-);
-
-label nParticles = particlePositions.size();
-Info<< "  Number of particles to create: " << nParticles << endl;
-
-// Create the cloud
-materialPointCloud particles(mesh, "materialPointCloud");
-
-// Read positions and create particles
-label particlesCreated = 0;
-label particlesOutsideMesh = 0;
-
-forAll(particlePositions, i)
-{
-    const vector& position = particlePositions[i];
+    );
     
-    // Find which cell this position is in
-    label cellI = mesh.findCell(position);
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Found " << positions.size() << " particles" << endl;
     
-    if (cellI >= 0)
+    // Create particles from positions
+    forAll(positions, i)
     {
-        // Create particle
-        particles.addParticle
-        (
-            new MaterialPointParcel(mesh, position, cellI)
-        );
-        particlesCreated++;
-    }
-    else
-    {
-        particlesOutsideMesh++;
-    }
-}
-
-Info<< "  Particles created: " << particlesCreated << endl;
-if (particlesOutsideMesh > 0)
-{
-    WarningIn("createMPMCloud")
-        << particlesOutsideMesh << " particles were outside the mesh and not created"
-        << endl;
-}
-
-// Now assign grain IDs and properties based on spatial location
-Info<< "  Assigning grain IDs to particles..." << endl;
-
-label particlesAssigned = 0;
-label particlesUnassigned = 0;
-
-forAllIter(materialPointCloud, particles, iter)
-{
-    MaterialPointParcel& p = iter();
-    vector pos = p.position();
-    
-    // Find which grain this particle belongs to based on spatial region
-    bool assigned = false;
-    
-    forAll(grainDefinitions, grainI)
-    {
-        const GrainInfo& grain = grainDefinitions[grainI];
+        label cellI = mesh.findCell(positions[i]);
         
-        // Check if particle is within grain's bounding box
-        if (pos.x() >= grain.minPoint.x() && pos.x() <= grain.maxPoint.x() &&
-            pos.y() >= grain.minPoint.y() && pos.y() <= grain.maxPoint.y() &&
-            pos.z() >= grain.minPoint.z() && pos.z() <= grain.maxPoint.z())
+        if (cellI >= 0)
         {
-            // Assign grain properties to particle
-            p.grainID() = grain.grainID;
-            p.materialID() = grain.materialID;
-            
-            // Set crystal orientation
-            p.phi1() = grain.phi1;
-            p.phi2() = grain.Phi;  // Note: readGrainProperties uses Phi
-            p.phi3() = grain.phi2;
-            
-            // Initialize rotation matrix from Euler angles
-            p.setCrystalOrientation(grain.phi1, grain.Phi, grain.phi2);
-            
-            assigned = true;
-            particlesAssigned++;
-            break;
+            particles.addParticle
+            (
+                new MaterialPointParcel(mesh, positions[i], cellI)
+            );
         }
     }
     
-    if (!assigned)
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Created " << particles.size() << " particles" << endl;
+    
+    // Read all particle fields
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Reading particle fields..." << endl;
+    MaterialPointParcel::readFields(particles);
+    
+    
+    // Get global statistics
+    label nParticlesGlobal = returnReduce(particles.size(), sumOp<label>());
+    
+    if (Pstream::master())
     {
-        // Particle not in any grain region - assign to default grain 0
-        p.grainID() = 0;
-        p.materialID() = 0;
-        p.phi1() = 0.0;
-        p.phi2() = 0.0;
-        p.phi3() = 0.0;
-        p.setCrystalOrientation(0.0, 0.0, 0.0);
-        particlesUnassigned++;
+        Info<< "  Total particles loaded globally: " << nParticlesGlobal << endl;
+        Info<< "  Particle cloud successfully restarted" << nl << endl;
+    }
+}
+else
+{
+    // =====================================================================
+    // FRESH START: Initialize particles from scratch
+    // =====================================================================
+    
+    if (Pstream::master())
+    {
+        Info<< "  No existing particle data - FRESH START" << endl;
+    }
+    
+    // =====================================================================
+    // Read grain properties (ALL PROCESSORS - same data)
+    // =====================================================================
+    
+    // Read grain properties - OpenFOAM will automatically find this in
+    // the decomposed processor*/constant/ directories after decomposePar
+    IOdictionary grainPropertiesDict
+    (
+        IOobject
+        (
+            "grainProperties",
+            runTime.constant(),
+            mesh,  // Use mesh as registry - handles parallel correctly
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
+    
+    label nGrains = readLabel(grainPropertiesDict.lookup("nGrains"));
+    
+    if (Pstream::master())
+    {
+        Info<< "  Reading " << nGrains << " grain definitions..." << endl;
+    }
+    
+    // Read grain data
+    List<dictionary> grainDicts(grainPropertiesDict.lookup("grains"));
+    
+    struct GrainData
+    {
+        label grainID;
+        label materialID;
+        vector seedPosition;
+        scalar phi1, Phi, phi2;
+    };
+    
+    List<GrainData> grains(nGrains);
+    
+    forAll(grainDicts, grainI)
+    {
+        const dictionary& grainDict = grainDicts[grainI];
+        
+        grains[grainI].grainID = readLabel(grainDict.lookup("grainID"));
+        grains[grainI].materialID = readLabel(grainDict.lookup("materialID"));
+        grains[grainI].seedPosition = vector(grainDict.lookup("seedPosition"));
+        grains[grainI].phi1 = readScalar(grainDict.lookup("phi1"));
+        grains[grainI].Phi = readScalar(grainDict.lookup("Phi"));
+        grains[grainI].phi2 = readScalar(grainDict.lookup("phi2"));
+        
+        if (Pstream::master())
+        {
+            Info<< "    Grain " << grains[grainI].grainID
+                << ": Material " << grains[grainI].materialID
+                << ", Seed at " << grains[grainI].seedPosition
+                << ", Orientation (" 
+                << grains[grainI].phi1 * 180.0 / constant::mathematical::pi << ", "
+                << grains[grainI].Phi * 180.0 / constant::mathematical::pi << ", "
+                << grains[grainI].phi2 * 180.0 / constant::mathematical::pi << ") deg"
+                << endl;
+        }
+    }
+    
+    // =====================================================================
+    // PARALLEL PARTICLE INITIALIZATION - EFFICIENT MPI APPROACH
+    // =====================================================================
+    
+    List<vector> particlePositions;
+    
+    if (Pstream::master())
+    {
+        Info<< "  Master processor reading particle positions from case root..." << endl;
+        
+        // Read using IOList which properly handles OpenFOAM file format
+        // Use explicit path to case root to avoid reading from processor directories
+        fileName constantDir = runTime.globalPath()/"constant";
+        
+        IOList<vector> positions
+        (
+            IOobject
+            (
+                "particlePositions",
+                constantDir,           // Read from case root constant/
+                runTime,              // Use runTime as registry
+                IOobject::MUST_READ,
+                IOobject::NO_WRITE,
+                false                 // Don't register - avoid conflicts
+            )
+        );
+        
+        particlePositions = positions;
+        
+        Info<< "  Master read " << particlePositions.size() 
+            << " particle positions" << endl;
+    }
+    
+    // Broadcast number of particles to all processors
+    label nParticlesTotal = particlePositions.size();
+    Pstream::broadcast(nParticlesTotal);
+    
+    if (!Pstream::master())
+    {
+        particlePositions.setSize(nParticlesTotal);
+    }
+    
+    // Broadcast positions to all processors
+    Pstream::broadcast(particlePositions);
+    
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << " received " << nParticlesTotal << " particle positions" << endl;
+    
+    // =====================================================================
+    // Create particles on each processor (MPI-efficient)
+    // =====================================================================
+    
+    label particlesCreated = 0;
+    
+    forAll(particlePositions, i)
+    {
+        const vector& position = particlePositions[i];
+        
+        // Find which cell this position is in ON THIS PROCESSOR
+        label cellI = mesh.findCell(position);
+        
+        if (cellI >= 0)
+        {
+            // This particle belongs to this processor
+            particles.addParticle
+            (
+                new MaterialPointParcel(mesh, position, cellI)
+            );
+            particlesCreated++;
+        }
+    }
+    
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Created " << particlesCreated << " particles" << endl;
+    
+    // MPI reduction to get global statistics
+    label nParticlesGlobal = returnReduce(particlesCreated, sumOp<label>());
+    
+    if (Pstream::master())
+    {
+        Info<< "  Total particles created globally: " << nParticlesGlobal << endl;
+        
+        if (nParticlesGlobal < nParticlesTotal)
+        {
+            WarningInFunction
+                << (nParticlesTotal - nParticlesGlobal) 
+                << " particles were not assigned to any processor" << endl;
+        }
+    }
+    
+    // =====================================================================
+    // Assign grain IDs using Voronoi tessellation
+    // =====================================================================
+    
+    Info<< "  Processor " << Pstream::myProcNo() 
+        << ": Assigning grain IDs..." << endl;
+    
+    forAllIter(materialPointCloud, particles, iter)
+    {
+        MaterialPointParcel& p = iter();
+        vector pos = p.position();
+        
+        // Find nearest grain seed (Voronoi assignment)
+        scalar minDist = GREAT;
+        label nearestGrain = 0;
+        
+        forAll(grains, grainI)
+        {
+            scalar dist = mag(pos - grains[grainI].seedPosition);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearestGrain = grainI;
+            }
+        }
+        
+        // Assign grain properties
+        const GrainData& grain = grains[nearestGrain];
+        
+        p.grainID() = grain.grainID;
+        p.materialID() = grain.materialID;
+        p.phi1() = grain.phi1;
+        p.phi2() = grain.Phi;
+        p.phi3() = grain.phi2;
+        
+        p.setCrystalOrientation(grain.phi1, grain.Phi, grain.phi2);
+    }
+    
+    // =====================================================================
+    // Initialize particle properties
+    // =====================================================================
+    
+    if (Pstream::master())
+    {
+        Info<< "  Initializing particle properties..." << endl;
+    }
+    
+    // Calculate particle volume based on GLOBAL domain volume
+    scalar domainVolumeLocal = gSum(mesh.V());
+    scalar domainVolumeGlobal = returnReduce(domainVolumeLocal, sumOp<scalar>());
+    scalar particleVolume = domainVolumeGlobal / nParticlesGlobal;
+    
+    if (Pstream::master())
+    {
+        Info<< "    Domain volume (global): " << domainVolumeGlobal << " m^3" << endl;
+        Info<< "    Particle volume: " << particleVolume << " m^3" << endl;
+    }
+    
+    forAllIter(materialPointCloud, particles, iter)
+    {
+        MaterialPointParcel& p = iter();
+        
+        p.active() = true;
+
+        p.volume() = particleVolume;
+        p.volume0() = particleVolume;
+        
+        const Material& material = materials[p.materialID()];
+        
+        scalar rho = material.rho_0;
+        p.mass() = rho * particleVolume;
+        
+        // Initialize slip systems if material has plasticity
+        if (material.N_Slips > 0)
+        {
+            word crystalType = material.crystalStructure;
+            p.initializeSlipSystems(crystalType);
+            
+            p.g().setSize(material.N_Slips, material.initial_CRSS);
+            p.gamma().setSize(material.N_Slips, 0.0);
+            p.gamma_dot().setSize(material.N_Slips, 0.0);
+            p.tau().setSize(material.N_Slips, 0.0);
+        }
+    }
+    
+    // =====================================================================
+    // Verification
+    // =====================================================================
+    
+    label nWithSlipSystems = 0;
+    forAllConstIter(materialPointCloud, particles, iter)
+    {
+        if (iter().gamma().size() > 0)
+        {
+            nWithSlipSystems++;
+        }
+    }
+    
+    label nWithSlipSystemsGlobal = returnReduce(nWithSlipSystems, sumOp<label>());
+    
+    if (Pstream::master())
+    {
+        Info<< "  Particles with slip systems (global): " 
+            << nWithSlipSystemsGlobal << " / " << nParticlesGlobal << endl;
+        
+        if (nWithSlipSystemsGlobal == 0 && materials[0].N_Slips > 0)
+        {
+            WarningInFunction
+                << "No particles have slip systems initialized!" << nl
+                << "Crystal plasticity will not work." << endl;
+        }
     }
 }
 
-Info<< "  Particles assigned to grains: " << particlesAssigned << endl;
-if (particlesUnassigned > 0)
+if (Pstream::master())
 {
-    WarningIn("createMPMCloud")
-        << particlesUnassigned << " particles not in any grain region (assigned to default grain 0)"
-        << endl;
+    Info<< "\nMaterial point cloud initialization complete" << nl << endl;
 }
-
-// Initialize particle volumes and masses
-Info<< "  Initializing particle properties..." << endl;
-
-scalar domainVolume = gSum(mesh.V());
-scalar particleVolume = domainVolume / particles.size();
-
-Info<< "    Domain volume: " << domainVolume << " m^3" << endl;
-Info<< "    Particle volume: " << particleVolume << " m^3" << endl;
-
-forAllIter(materialPointCloud, particles, iter)
-{
-    MaterialPointParcel& p = iter();
-    
-    // Set volume
-    p.volume() = particleVolume;
-    p.volume0() = particleVolume;
-    
-    // Get material properties for this particle's material
-    const dictionary& matProps = materialProperties[p.materialID()];
-    scalar rho = readScalar(matProps.lookup("rho"));
-    
-    // Set mass
-    p.mass() = rho * particleVolume;
-    
-    // Initialize slip systems based on crystal structure
-    word crystalType = word(matProps.lookup("crystalStructure"));
-    p.initializeSlipSystems(crystalType);
-}
-
-// Print grain statistics
-Info<< "\nGrain distribution:" << endl;
-labelList particlesPerGrain(grainDefinitions.size(), 0);
-
-forAllConstIter(materialPointCloud, particles, iter)
-{
-    label gid = iter().grainID();
-    if (gid >= 0 && gid < grainDefinitions.size())
-    {
-        particlesPerGrain[gid]++;
-    }
-}
-
-forAll(grainDefinitions, grainI)
-{
-    const GrainInfo& grain = grainDefinitions[grainI];
-    Info<< "  Grain " << grain.grainID 
-        << " (Material " << grain.materialID << "): "
-        << particlesPerGrain[grainI] << " particles"
-        << ", Orientation(" << grain.phi1 << ", " << grain.Phi << ", " << grain.phi2 << ")" 
-        << endl;
-}
-
-Info<< "\nMaterial point cloud created successfully" << nl << endl;
 
 // ************************************************************************* //

@@ -1,13 +1,11 @@
-// Read dynamic mesh control parameters
-// (Simplified for MPM - mostly for time step control)
 
-const dictionary& pimple = mesh.solutionDict().subDict("PIMPLE");
 
+const dictionary& controlDict = runTime.controlDict();
 // Maximum Courant number
-scalar maxCo = pimple.lookupOrDefault<scalar>("maxCo", 0.1);
+scalar maxCo = controlDict.lookupOrDefault<scalar>("maxCo", 0.1);
 
 // Maximum time step
-scalar maxDeltaT = pimple.lookupOrDefault<scalar>("maxDeltaT", GREAT);
+scalar maxDeltaT = controlDict.lookupOrDefault<scalar>("maxDeltaT", GREAT);
 
 // Adjustable time step
-bool adjustTimeStep = pimple.lookupOrDefault<Switch>("adjustTimeStep", true);
+bool adjustTimeStep = controlDict.lookupOrDefault<Switch>("adjustTimeStep", true);

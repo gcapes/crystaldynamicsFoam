@@ -1,0 +1,273 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      grainProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+nGrains 25;
+
+grains
+(
+    {
+        grainID      0;
+        materialID   1;
+        seedPosition (1.702556465e-06 4.134699568e-05 5.768723656e-05);
+        phi1         6.050032834;  // radians
+        Phi          1.817485206;  // radians
+        phi2         0.1837425002;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      1;
+        materialID   0;
+        seedPosition (-1.870933147e-06 3.412694052e-05 0.0001885363867);
+        phi1         5.911100303;  // radians
+        Phi          0.9171966681;  // radians
+        phi2         3.5748613;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      2;
+        materialID   0;
+        seedPosition (4.740628346e-06 0.0001089618979 3.096597795e-05);
+        phi1         4.959772728;  // radians
+        Phi          0.4339453526;  // radians
+        phi2         5.297779714;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      3;
+        materialID   1;
+        seedPosition (-4.013093704e-06 0.0001628553724 0.0001236575211);
+        phi1         4.451802851;  // radians
+        Phi          2.023337564;  // radians
+        phi2         1.941369165;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      4;
+        materialID   0;
+        seedPosition (3.503398877e-06 5.205074955e-05 0.0001230743751);
+        phi1         0.01805970788;  // radians
+        Phi          0.9374127014;  // radians
+        phi2         1.755644611;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      5;
+        materialID   1;
+        seedPosition (-2.30611603e-07 3.164857282e-05 0.0001001184756);
+        phi1         3.401414111;  // radians
+        Phi          2.074510634;  // radians
+        phi2         0.1152180732;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      6;
+        materialID   1;
+        seedPosition (2.847499346e-06 0.0001381262039 1.411692103e-05);
+        phi1         2.626287716;  // radians
+        Phi          1.076839592;  // radians
+        phi2         5.388191171;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      7;
+        materialID   1;
+        seedPosition (3.237238845e-06 2.866060372e-05 0.0001791419578);
+        phi1         1.871176264;  // radians
+        Phi          1.391703405;  // radians
+        phi2         2.108794646;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      8;
+        materialID   1;
+        seedPosition (6.535287835e-07 1.108350739e-05 0.0001159499804);
+        phi1         3.793662974;  // radians
+        Phi          1.510296481;  // radians
+        phi2         5.475111037;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      9;
+        materialID   1;
+        seedPosition (-3.744092322e-06 0.0001588879114 7.299314059e-05);
+        phi1         1.510221432;  // radians
+        Phi          1.563952216;  // radians
+        phi2         0.6122197024;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      10;
+        materialID   1;
+        seedPosition (2.480486126e-06 1.188739549e-05 0.0001453416164);
+        phi1         2.434221348;  // radians
+        Phi          0.2802349399;  // radians
+        phi2         1.812025294;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      11;
+        materialID   0;
+        seedPosition (7.556821032e-07 0.0001045097346 0.0001166222247);
+        phi1         3.058904618;  // radians
+        Phi          0.4145351421;  // radians
+        phi2         0.06694241847;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      12;
+        materialID   0;
+        seedPosition (4.24027929e-06 0.0001881077997 4.795582487e-05);
+        phi1         2.55204591;  // radians
+        Phi          2.307453918;  // radians
+        phi2         1.933041049;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      13;
+        materialID   0;
+        seedPosition (2.86075976e-06 0.0001595721986 0.0001839757017);
+        phi1         6.185951512;  // radians
+        Phi          2.353906361;  // radians
+        phi2         2.516914072;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      14;
+        materialID   0;
+        seedPosition (-4.813742172e-06 0.0001596657633 0.0001912988677);
+        phi1         0.6632017323;  // radians
+        Phi          2.303648713;  // radians
+        phi2         4.708230085;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      15;
+        materialID   0;
+        seedPosition (-4.529234479e-06 4.866150623e-05 0.0001540055695);
+        phi1         1.907195098;  // radians
+        Phi          1.850790638;  // radians
+        phi2         5.274439159;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      16;
+        materialID   0;
+        seedPosition (-3.951793665e-06 0.000109683718 0.0001295317889);
+        phi1         5.52432482;  // radians
+        Phi          1.140669946;  // radians
+        phi2         5.27996831;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      17;
+        materialID   0;
+        seedPosition (-4.885329036e-06 0.0001333896519 0.0001157998191);
+        phi1         3.387306251;  // radians
+        Phi          2.093246971;  // radians
+        phi2         0.1047912068;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      18;
+        materialID   1;
+        seedPosition (-2.586392316e-06 2.026886613e-05 0.000183764405);
+        phi1         3.079711727;  // radians
+        Phi          0.5671583421;  // radians
+        phi2         6.119834688;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      19;
+        materialID   0;
+        seedPosition (-3.190229777e-08 0.0001959904764 9.152219688e-05);
+        phi1         1.788287773;  // radians
+        Phi          1.220623404;  // radians
+        phi2         5.266901759;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      20;
+        materialID   0;
+        seedPosition (-1.014951394e-07 0.0001126526892 1.724128265e-07);
+        phi1         0.8059215539;  // radians
+        Phi          1.594597485;  // radians
+        phi2         0.3039062616;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      21;
+        materialID   0;
+        seedPosition (-1.287805657e-06 0.000147539978 0.0001017423408);
+        phi1         0.8732963834;  // radians
+        Phi          0.9411390871;  // radians
+        phi2         4.576358755;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      22;
+        materialID   0;
+        seedPosition (-1.880271389e-07 1.549634733e-05 0.0001389660549);
+        phi1         4.290878812;  // radians
+        Phi          0.9466249242;  // radians
+        phi2         4.885106453;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      23;
+        materialID   0;
+        seedPosition (-4.058937427e-06 0.000142592898 4.889171453e-05);
+        phi1         5.819278522;  // radians
+        Phi          0.9037955799;  // radians
+        phi2         4.55616276;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+    {
+        grainID      24;
+        materialID   1;
+        seedPosition (-4.969176518e-06 0.0001573587805 2.570634384e-05);
+        phi1         0.8380869856;  // radians
+        Phi          0.8023275606;  // radians
+        phi2         1.795209672;  // radians
+        minPoint     (-5e-06 0 0);
+        maxPoint     (5e-06 0.0002 0.0002);
+    }
+);
+
+// ************************************************************************* //

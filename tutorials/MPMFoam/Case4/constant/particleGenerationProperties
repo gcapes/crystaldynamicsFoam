@@ -1,0 +1,53 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      particleGenerationProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Number of particles to generate per mesh cell
+particlesPerCell    25;
+
+// Number of Voronoi grains (polycrystalline microstructure)
+nGrains             25;
+
+// Material assignment strategy:
+// - "single"    : All grains use defaultMaterialID
+// - "random"    : Random assignment from 0 to nMaterialTypes-1
+// - "specified" : Use explicit materialIDs list below
+materialAssignment  random;
+
+// For "single" mode
+defaultMaterialID   0;
+
+// For "random" mode
+nMaterialTypes      2;  // e.g., 2 materials (Aluminum and Copper)
+
+// For "specified" mode (uncomment and specify list)
+// materialIDs         (0 1 0 1 0 1 ...);  // Must have nGrains entries
+
+// Crystal orientation assignment:
+// - "random"      : Uniformly random orientations on SO(3)
+// - "randomCubic" : Random orientations in cubic fundamental zone
+// - "aligned"     : All grains aligned (for debugging)
+orientationMode     random;
+
+// Domain bounds:
+// - Set useMeshBounds true to use mesh bounding box
+// - Set false to specify custom bounds
+useMeshBounds       true;
+
+// Custom bounds (if useMeshBounds = false)
+minPoint            (0 0 0);
+maxPoint            (1e-3 1e-3 1e-3);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

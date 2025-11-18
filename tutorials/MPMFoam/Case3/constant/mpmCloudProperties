@@ -1,0 +1,28 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      particleProperties;
+}
+
+
+// How to initialize particles
+// Options: "generate" or "read"
+initializationType  generate;
+
+// Number of particles per cell (if generating)
+nParticlesPerCell   1;
+
+
+materialRegion
+{
+    type    box;
+    min     (-0.05e-3 0.0e-3 0.0e-3);    // Lower corner of material block
+    max     (0.05e-3 0.2e-3 0.2e-3);    // Upper corner of material block
+}
+
+materialID    0;
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

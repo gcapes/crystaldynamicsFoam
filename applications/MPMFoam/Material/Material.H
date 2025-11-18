@@ -8,27 +8,11 @@
 License
     This file is part of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 Class
-    Foam::multiphaseMixture
+    Foam::Material
 
 Description
-
-
-SourceFiles
-    multiphaseMixture.C
+    Material properties class with general anisotropic elasticity support
 
 \*---------------------------------------------------------------------------*/
 
@@ -41,177 +25,122 @@ SourceFiles
 #include "PtrDictionary.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "Fastor/Fastor.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-
-
- class Material
- {
-    private:
-    // int N_slips_;
-    // double test[6];
-    // Polynomial<8>  * _arr;
-    
-  public:
-  string Mat_type;
-
-  scalar rho_0;
-
-  scalar Cv;
-
-  scalar kappa;
-
-  int N_Slips;
-
-  std::vector<vector> SP_norm;
-  std::vector<vector> SP_direction;
-
-  double initial_CRSS; // initial critically resolved shear stress
-
-  double tau_S;//saturation value for shear stress
-
-  double h_0;//initial hardening rate
-
-   double r;//latent hardening parameter
-
-  double   k_exponent;//exponent on slip rate term
-
-  double   ref_shear_rate;//exponent on slip rate term
-
-//   Polynomial<8> A;
-//   std::vector<Polynomial<8>> Bi;
-//   std::vector<Polynomial<8>> Cij;
-
-//   std::vector<Polynomial<8>> eq_xi;
-
-//   std::vector<Polynomial<8>> Qi;
-
-  Material (/*const int*/);
-//   Material ();
-  Material (const Material&);
-  virtual ~Material(){}
-
-  //MEMBER FUNCTIONS
-//   int returnComponents();
-//   Material Material::operator=
-  void Print(label length);
-
-  double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
-
-  tensor RK4(scalar step_size);
-
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class Interface
- :public IOdictionary
- {
-
-    public:
-
-    class interfacePair
-        :
-        public Pair<word>
-    {
-    public:
-
-        struct hash
+class Material
 {
-    label operator()(const interfacePair& key) const
-    {
-        return word::hash()(key.first()) + word::hash()(key.second());
-    }
-};
-
-
-        // Constructors
-
-        interfacePair()
-        {}
-
-        interfacePair(const word& alpha1Name, const word& alpha2Name)
-            :
-            Pair<word>(alpha1Name, alpha2Name)
-        {}
-
-        // interfacePair(const phase& alpha1, const phase& alpha2)
-        // :
-        //     Pair<word>(alpha1.name(), alpha2.name())
-        // {}
-
-
-        // Friend Operators
-
-        friend bool operator==
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return
-                (
-                    ((a.first() == b.first()) && (a.second() == b.second()))
-                );
-        }
-
-        friend bool operator!=
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return (!(a == b));
-        }
-    };
+private:
     
-    private:
-    const fvMesh& mesh_;
-    const volScalarField& T_;
-    word Interface_type;
-  public:
-    Interface (word,const volScalarField&);
-    // Material (int,int);
-
-    virtual ~Interface()
-    {}
-
-    //Member Functions
-    void Assign_Energies(scalar **NRG_arr);
-    void Assign_Mobilities(scalar **NRG_arr);
-    void Assign_Anisotropy_Strength(scalar **Aniso_strength_arr);
-    scalar aniso_energy(scalar *tensor_i, scalar *tensor_j, scalar *vec_i, scalar *vec_j, const scalar& phi_i, const scalar& phi_j,const scalar& int_width, const scalar& deltaN);
-    // int area (void) {return (width*height);}
+public:
+    string Mat_type;
+    
+    // Basic thermophysical properties
+    scalar rho_0;   // Density
+    scalar Cv;      // Specific heat capacity
+    scalar kappa;   // Thermal conductivity
+    
+    // ========================================================================
+    // ELASTICITY PROPERTIES
+    // ========================================================================
+    
+    // Elastic type: "isotropic", "cubic", "hexagonal", "orthorhombic", "anisotropic"
+    word elasticType;
+    
+    // For isotropic elasticity
+    scalar lambda;    // First Lame parameter
+    scalar mu;        // Shear modulus (second Lame parameter)
+    scalar E;         // Young's modulus (alternative to lambda/mu)
+    scalar nu;        // Poisson's ratio (alternative to lambda/mu)
+    
+    // For cubic crystal elasticity (3 independent constants)
+    scalar C11;       // C1111
+    scalar C12;       // C1122
+    scalar C44;       // C1212
+    
+    // For hexagonal crystal elasticity (5 independent constants)
+    scalar C33;       // C3333
+    scalar C13;       // C1133
+    // C11, C12, C44 reused
+    
+    // For orthorhombic crystal elasticity (9 independent constants)
+    scalar C22;       // C2222
+    scalar C23;       // C2233
+    scalar C55;       // C1313
+    scalar C66;       // C2323
+    // C11, C12, C13, C33 reused
+    
+    // Full 4th-order stiffness tensor (for arbitrary anisotropy)
+    // This can store any elastic symmetry
+    mutable Fastor::Tensor<double, 3, 3, 3, 3> C_tensor;
+    
+    // Voigt notation (6x6 matrix representation) - useful for some calculations
+    mutable Fastor::Tensor<double, 6, 6> C_voigt;
+    
+    // Flag to indicate if full tensor has been initialized
+    mutable bool fullTensorInitialized;
+    
+    // ========================================================================
+    // CRYSTAL PLASTICITY PROPERTIES
+    // ========================================================================
+    
+    // Crystal structure type for slip system initialization
+    word crystalStructure;    // "FCC", "BCC", "HCP", etc.
+    
+    int N_Slips;
+    
+    std::vector<vector> SP_norm;       // Slip plane normals
+    std::vector<vector> SP_direction;  // Slip directions
+    
+    double initial_CRSS;    // Initial critical resolved shear stress
+    double tau_S;           // Saturation shear stress
+    double h_0;             // Initial hardening modulus
+    double r;               // Latent hardening parameter
+    double k_exponent;      // Rate sensitivity exponent
+    double ref_shear_rate;  // Reference shear rate
+    
+    // Hardening matrix h_matrix(alpha, beta): hardening of system alpha due to slip on beta
+    std::vector<std::vector<scalar>> h_matrix;
+    
+    // Constructors
+    Material();
+    Material(const Material&);
+    virtual ~Material() {}
+    
+    // Member Functions
+    void Print(label length);
+    
+    // Initialize elastic properties from dictionary
+    void initializeElasticity(const dictionary& dict);
+    
+    // Initialize crystal plasticity from dictionary
+    void initializePlasticity(const dictionary& dict);
+    
+    // Compute lambda and mu from E and nu
+    void computeLameParameters();
+    
+    // Build full 4th-order stiffness tensor based on elastic type
+    void buildStiffnessTensor() const;
+    
+    // Read general stiffness components from dictionary
+    void readGeneralStiffness(const dictionary& dict);
+    
+    // Convert Voigt notation to 4th-order tensor
+    void voigtToTensor() const;
+    
+    // Convert 4th-order tensor to Voigt notation
+    void tensorToVoigt() const;
+    
+    // Get stiffness tensor (builds it if not already done)
+    const Fastor::Tensor<double, 3, 3, 3, 3>& getStiffnessTensor() const;
+    
+    // Get Voigt matrix (builds it if not already done)
+    const Fastor::Tensor<double, 6, 6>& getVoigtMatrix() const;
 };
-
-
-
-
-
-
-
-
-
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -222,4 +151,3 @@ class Interface
 #endif
 
 // ************************************************************************* //
-

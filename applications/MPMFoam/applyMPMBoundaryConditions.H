@@ -1,10 +1,12 @@
 /*---------------------------------------------------------------------------*\
-  PROPER BOUNDARY CONDITIONS FOR MPM
+  CORRECTED BOUNDARY CONDITIONS FOR MPM
   
-  Replace applyMPMBoundaryConditions.H with this version
+  Key fixes:
+  1. Remove node grouping/averaging - it interferes with proper mass mapping
+  2. Apply velocity directly without mass manipulation
+  3. Ensure consistency between velocity and momentum
   
-  Key insight: In explicit MPM, velocity BCs should be applied AFTER
-  momentum update to properly couple the boundary to the domain.
+  Replace applyMPMBoundaryConditions.H with this version.
 \*---------------------------------------------------------------------------*/
 
 // Apply boundary conditions to nodal fields
@@ -45,88 +47,37 @@ if (mpmBoundaryDict.found("velocityBCs"))
             // Get boundary condition type
             word bcType(patchDict.lookup("type"));
             
-            // if (bcType == "fixedValue")
-            // {
-            //     vector value(patchDict.lookup("value"));
-                
-            //     // Apply to nodes on this patch
-            //     const labelList& patchPoints = patch.meshPoints();
-                
-            //     Info<< "  Applying fixedValue BC on " << patchName 
-            //         << ": v = " << value << " to " << patchPoints.size() << " nodes" << endl;
-                
-            //     forAll(patchPoints, i)
-            //     {
-            //         label pointI = patchPoints[i];
-                    
-            //         // CRITICAL: Update both velocity AND momentum consistently
-            //         nodalVelocity[pointI] = value;
-                    
-            //         if (nodalMass[pointI] > SMALL)
-            //         {
-            //             // Update momentum to be consistent: p = m*v
-            //             nodalMomentum[pointI] = nodalMass[pointI] * value;
-            //         }
-                    
-            //         // Zero out acceleration (no external forces on prescribed nodes)
-            //         nodalAcceleration[pointI] = Zero;
-            //     }
-            // }
             if (bcType == "fixedValue")
-{
-    vector value(patchDict.lookup("value"));
-    
-    const labelList& patchPoints = patch.meshPoints();
-    
-    // Group nodes by Y-Z position (X is thin direction in 2D)
-    Map<labelList> nodesAtPosition;
-    
-    forAll(patchPoints, i)
-    {
-        label pointI = patchPoints[i];
-        const vector& pos = mesh.points()[pointI];
-        
-        // Create key from Y-Z position (ignore X)
-        label key = label(1e6 * pos.y()) + label(1e3 * pos.z());
-        
-        if (!nodesAtPosition.found(key))
-        {
-            nodesAtPosition.insert(key, labelList());
-        }
-        
-        nodesAtPosition[key].append(pointI);
-    }
-    
-    // Apply BC to all nodes at each position
-    forAllConstIter(Map<labelList>, nodesAtPosition, iter)
-    {
-        const labelList& nodes = iter();
-        
-        // Compute average properties for consistency
-        scalar avgMass = 0;
-        forAll(nodes, i)
-        {
-            avgMass += nodalMass[nodes[i]];
-        }
-        avgMass /= nodes.size();
-        
-        // Apply BC to all nodes
-        forAll(nodes, i)
-        {
-            label pointI = nodes[i];
-            
-            nodalVelocity[pointI] = value;
-            
-            if (avgMass > SMALL)
             {
-                nodalMomentum[pointI] = avgMass * value;
-                nodalMass[pointI] = avgMass;  // Synchronize mass
+                vector value(patchDict.lookup("value"));
+                
+                // Apply to nodes on this patch
+                const labelList& patchPoints = patch.meshPoints();
+                
+                Info<< "  Applying fixedValue BC on " << patchName 
+                    << ": v = " << value << " to " << patchPoints.size() << " nodes" << endl;
+                
+                // CRITICAL FIX: Apply BC to EACH node individually
+                // Don't average or group nodes - this causes mass variations
+                forAll(patchPoints, i)
+                {
+                    label pointI = patchPoints[i];
+                    
+                    // Only apply BC to nodes with mass (i.e., nodes that have particles)
+                    if (nodalMass[pointI] > SMALL)
+                    {
+                        // Set velocity to prescribed value
+                        nodalVelocity[pointI] = value;
+                        
+                        // Update momentum to be consistent: p = m*v
+                        // KEEP the mass as-is from P2G transfer!
+                        nodalMomentum[pointI] = nodalMass[pointI] * value;
+                        
+                        // Zero out acceleration (no additional forces on prescribed nodes)
+                        nodalAcceleration[pointI] = Zero;
+                    }
+                }
             }
-            
-            nodalAcceleration[pointI] = Zero;
-        }
-    }
-}
             else if (bcType == "symmetry" || bcType == "slip")
             {
                 // Get patch normal
@@ -141,34 +92,34 @@ if (mpmBoundaryDict.found("velocityBCs"))
                 {
                     label pointI = patchPoints[i];
                     
-                    // Average normal for this point
-                    vector avgNormal = Zero;
-                    label nFaces = 0;
-                    
-                    const labelList& pointFaces = patch.pointFaces()[i];
-                    forAll(pointFaces, fi)
+                    if (nodalMass[pointI] > SMALL)
                     {
-                        avgNormal += patchNormals[pointFaces[fi]];
-                        nFaces++;
-                    }
-                    
-                    if (nFaces > 0)
-                    {
-                        avgNormal /= mag(avgNormal) + SMALL;
+                        // Average normal for this point
+                        vector avgNormal = Zero;
+                        label nFaces = 0;
                         
-                        // Remove normal component of velocity
-                        vector vn = (nodalVelocity[pointI] & avgNormal) * avgNormal;
-                        nodalVelocity[pointI] -= vn;
-                        
-                        // Update momentum consistently
-                        if (nodalMass[pointI] > SMALL)
+                        const labelList& pointFaces = patch.pointFaces()[i];
+                        forAll(pointFaces, fi)
                         {
-                            nodalMomentum[pointI] = nodalMass[pointI] * nodalVelocity[pointI];
+                            avgNormal += patchNormals[pointFaces[fi]];
+                            nFaces++;
                         }
                         
-                        // Remove normal component of acceleration
-                        vector an = (nodalAcceleration[pointI] & avgNormal) * avgNormal;
-                        nodalAcceleration[pointI] -= an;
+                        if (nFaces > 0)
+                        {
+                            avgNormal /= mag(avgNormal) + SMALL;
+                            
+                            // Remove normal component of velocity
+                            vector vn = (nodalVelocity[pointI] & avgNormal) * avgNormal;
+                            nodalVelocity[pointI] -= vn;
+                            
+                            // Update momentum consistently
+                            nodalMomentum[pointI] = nodalMass[pointI] * nodalVelocity[pointI];
+                            
+                            // Remove normal component of acceleration
+                            vector an = (nodalAcceleration[pointI] & avgNormal) * avgNormal;
+                            nodalAcceleration[pointI] -= an;
+                        }
                     }
                 }
             }
@@ -179,15 +130,13 @@ if (mpmBoundaryDict.found("velocityBCs"))
                 Info<< "  Applying traction BC on " << patchName 
                     << ": t = " << traction << endl;
                 
-                // Traction BCs should be applied in Step 3 (force calculation)
-                // not here after momentum update
                 WarningInFunction
-                    << "Traction BC on " << patchName 
-                    << " should be applied before momentum update!" << endl;
+                    << "Traction BCs should be applied in force calculation (Step 3), not here!"
+                    << endl;
             }
             else if (bcType == "empty")
             {
-                // Do nothing for empty patches (2D)
+                // Do nothing for empty patches (2D simulations)
             }
             else
             {
@@ -199,6 +148,101 @@ if (mpmBoundaryDict.found("velocityBCs"))
         {
             WarningInFunction
                 << "Patch " << patchName << " not found in mesh" << endl;
+        }
+    }
+}
+
+// =========================================================================
+// OPTIONAL: 2D PLANE STRESS/STRAIN ENFORCEMENT
+// =========================================================================
+// For 2D simulations, you may want to ensure front/back faces stay synchronized
+// But DO NOT average mass - this causes the velocity degradation issue!
+// =========================================================================
+
+// Check if this is a 2D case (thin in one direction)
+vector meshExtent = mesh.bounds().max() - mesh.bounds().min();
+scalar minExtent = min(meshExtent.x(), min(meshExtent.y(), meshExtent.z()));
+scalar maxExtent = max(meshExtent.x(), max(meshExtent.y(), meshExtent.z()));
+
+bool is2D = (minExtent / maxExtent < 0.1);  // One direction is <10% of others
+
+if (is2D)
+{
+    Info<< "  2D case detected - synchronizing thin-direction node pairs" << endl;
+    
+    // Identify thin direction
+    label thinDir = 0;
+    if (meshExtent.x() < meshExtent.y() && meshExtent.x() < meshExtent.z()) thinDir = 0;
+    else if (meshExtent.y() < meshExtent.x() && meshExtent.y() < meshExtent.z()) thinDir = 1;
+    else thinDir = 2;
+    
+    // Find front and back patches
+    label frontPatch = -1, backPatch = -1;
+    
+    if (thinDir == 0)
+    {
+        frontPatch = boundaryMesh.findPatchID("Front");
+        backPatch = boundaryMesh.findPatchID("Back");
+    }
+    else if (thinDir == 1)
+    {
+        frontPatch = boundaryMesh.findPatchID("Top");
+        backPatch = boundaryMesh.findPatchID("Bottom");
+    }
+    else
+    {
+        frontPatch = boundaryMesh.findPatchID("Front");
+        backPatch = boundaryMesh.findPatchID("Back");
+    }
+    
+    if (frontPatch != -1 && backPatch != -1)
+    {
+        const labelList& frontPoints = boundaryMesh[frontPatch].meshPoints();
+        const labelList& backPoints = boundaryMesh[backPatch].meshPoints();
+        
+        // For each front point, find corresponding back point and synchronize VELOCITY only
+        forAll(frontPoints, i)
+        {
+            label frontPt = frontPoints[i];
+            const vector& frontPos = mesh.points()[frontPt];
+            
+            // Find back point with matching position in other 2 directions
+            scalar bestDist = GREAT;
+            label matchingBackPt = -1;
+            
+            forAll(backPoints, j)
+            {
+                label backPt = backPoints[j];
+                const vector& backPos = mesh.points()[backPt];
+                
+                // Compute distance in the 2 non-thin directions
+                vector diff = frontPos - backPos;
+                if (thinDir == 0) diff.x() = 0;
+                else if (thinDir == 1) diff.y() = 0;
+                else diff.z() = 0;
+                
+                scalar dist = mag(diff);
+                
+                if (dist < bestDist && dist < 1e-6 * maxExtent)
+                {
+                    bestDist = dist;
+                    matchingBackPt = backPt;
+                }
+            }
+            
+            if (matchingBackPt != -1)
+            {
+                // Synchronize velocities (average)
+                // But DON'T touch mass - this is the key fix!
+                vector avgVel = 0.5 * (nodalVelocity[frontPt] + nodalVelocity[matchingBackPt]);
+                
+                nodalVelocity[frontPt] = avgVel;
+                nodalVelocity[matchingBackPt] = avgVel;
+                
+                // Update momentum using ORIGINAL mass from P2G
+                nodalMomentum[frontPt] = nodalMass[frontPt] * avgVel;
+                nodalMomentum[matchingBackPt] = nodalMass[matchingBackPt] * avgVel;
+            }
         }
     }
 }

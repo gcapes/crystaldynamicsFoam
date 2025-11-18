@@ -8,11 +8,6 @@
 License
     This file is part of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
 Class
     Foam::MaterialPointParcel
 
@@ -35,6 +30,8 @@ Description
 #include "cellList.H"
 #include "faceList.H"
 #include "HashSet.H"
+#include "Fastor/Fastor.h"
+#include "Material.H"
 
 namespace Foam
 {
@@ -62,6 +59,9 @@ public:
 
 private:
     // Private member data
+
+    // Activity flag
+    bool active_;  // True = active particle, False = inactive (don't process)
     
     // Basic MPM properties
     scalar mass_;
@@ -94,6 +94,21 @@ private:
     scalar workPlastic_;      // Plastic work
     scalar temperature_;      // Temperature for thermal effects
 
+    // Private helper functions
+    void polarDecomposition
+    (
+        const tensor& F,
+        tensor& R,
+        tensor& U
+    ) const;
+    
+    void eigenDecomposition
+    (
+        const tensor& T,
+        vector& eigenvalues,
+        tensor& eigenvectors
+    ) const;
+
 public:
     
     // Constructors
@@ -111,8 +126,33 @@ public:
         bool readFields = true,
         bool newFormat = true
     );
+
+    // ========================================================================
+    // ACCESS FUNCTIONS
+    // ========================================================================
     
-    // Access functions
+    inline bool active() const { return active_; }
+    inline bool& active() { return active_; }
+
+    // Access to base class position and cell (for recycling)
+inline void setPosition(const vector& pos)
+{
+    // Access the protected position_ member from particle base class
+    static_cast<particle&>(*this).position() = pos;
+}
+
+inline void setCell(label cellI)
+{
+    // Access the protected cell_ member from particle base class
+    static_cast<particle&>(*this).cell() = cellI;
+}
+    
+    // Deactivate particle (e.g., when leaving domain)
+    inline void deactivate() { active_ = false; }
+    
+    // Reactivate particle (e.g., when re-entering domain)
+    inline void activate() { active_ = true; }
+
     inline scalar mass() const { return mass_; }
     inline scalar& mass() { return mass_; }
     
@@ -132,37 +172,57 @@ public:
     inline tensor& F() { return F_; }
     
     inline const tensor& Fp() const { return Fp_; }
+    inline tensor& Fp() { return Fp_; }
+    
     inline const tensor& Fe() const { return Fe_; }
+    inline tensor& Fe() { return Fe_; }
+    
+    inline const tensor& Cp() const { return Cp_; }
+    inline tensor& Cp() { return Cp_; }
     
     inline label materialID() const { return materialID_; }
+    inline label& materialID() { return materialID_; }
+    
     inline label grainID() const { return grainID_; }
+    inline label& grainID() { return grainID_; }
 
-    // Grain and material accessors (non-const versions for assignment)
-inline label& materialID() { return materialID_; }
-inline label& grainID() { return grainID_; }
+    inline scalar phi1() const { return phi1_; }
+    inline scalar phi2() const { return phi2_; }
+    inline scalar phi3() const { return phi3_; }
+    inline scalar& phi1() { return phi1_; }
+    inline scalar& phi2() { return phi2_; }
+    inline scalar& phi3() { return phi3_; }
 
-// Euler angle accessors
-inline scalar phi1() const { return phi1_; }
-inline scalar phi2() const { return phi2_; }
-inline scalar phi3() const { return phi3_; }
+    inline const tensor& Q0() const { return Q0_; }
+    inline tensor& Q0() { return Q0_; }
 
-inline scalar& phi1() { return phi1_; }
-inline scalar& phi2() { return phi2_; }
-inline scalar& phi3() { return phi3_; }
-
-// Rotation matrix accessor
-inline const tensor& Q0() const { return Q0_; }
-inline tensor& Q0() { return Q0_; }
-
-
-
-
-
-
+    // Crystal plasticity state accessors
+    inline const List<scalar>& gamma() const { return gamma_; }
+    inline List<scalar>& gamma() { return gamma_; }
     
-    // MPM specific functions
+    inline const List<scalar>& gamma_dot() const { return gamma_dot_; }
+    inline List<scalar>& gamma_dot() { return gamma_dot_; }
     
-    // Shape function calculations
+    inline const List<scalar>& tau() const { return tau_; }
+    inline List<scalar>& tau() { return tau_; }
+    
+    inline const List<scalar>& g() const { return g_; }
+    inline List<scalar>& g() { return g_; }
+    
+    inline scalar epsilonP_eq() const { return epsilonP_eq_; }
+    inline scalar& epsilonP_eq() { return epsilonP_eq_; }
+    
+    inline scalar workPlastic() const { return workPlastic_; }
+    inline scalar& workPlastic() { return workPlastic_; }
+    
+    inline scalar temperature() const { return temperature_; }
+    inline scalar& temperature() { return temperature_; }
+
+    // ========================================================================
+    // MPM SHAPE FUNCTIONS AND TRANSFER
+    // ========================================================================
+    
+    // Standard shape function calculations
     void shapeFunctions
     (
         const fvMesh& mesh,
@@ -199,15 +259,31 @@ inline tensor& Q0() { return Q0_; }
         const pointVectorField& nodalAcceleration
     );
     
-    // Update deformation gradient
+    // Update deformation gradient from grid velocity
     void updateDeformationGradient
     (
         const fvMesh& mesh,
         const pointVectorField& nodalVelocity,
         const scalar dt
     );
-    
-    // Crystal plasticity functions
+
+
+   bool hitPatch(materialPointCloud&, trackingData&);
+   bool hitWallPatch(materialPointCloud&, trackingData&);
+
+   void prepareForParallelTransfer();
+
+   void correctAfterParallelTransfer
+(
+    const label patchi,
+    trackingData& td
+);
+
+//    void transformProperties(const transformer&);
+
+    // ========================================================================
+    // CRYSTAL PLASTICITY INITIALIZATION
+    // ========================================================================
     
     // Initialize slip systems for given crystal structure
     void initializeSlipSystems(const word& crystalType);
@@ -215,34 +291,96 @@ inline tensor& Q0() { return Q0_; }
     // Initialize crystal orientation from Euler angles
     void setCrystalOrientation(scalar phi1, scalar phi2, scalar phi3);
     
-    // Compute resolved shear stress on all slip systems
-    void computeResolvedShearStress();
+    // Build rotation matrix from Bunge Euler angles
+    Fastor::Tensor<double, 3, 3> buildRotationMatrix
+    (
+        const scalar phi1,
+        const scalar phi2,
+        const scalar phi3
+    ) const;
+
+    // ========================================================================
+    // STIFFNESS TENSOR CREATION
+    // ========================================================================
     
-    // Update plastic deformation (return mapping algorithm)
+    // Create 4th-order stiffness tensor for cubic crystals
+    Fastor::Tensor<double, 3, 3, 3, 3> createCrystalStiffness
+    (
+        const Material& material
+    ) const;
+    
+    // Create 4th-order isotropic stiffness tensor
+    Fastor::Tensor<double, 3, 3, 3, 3> createIsotropicStiffness
+    (
+        const scalar lambda,
+        const scalar mu
+    ) const;
+    
+    // Rotate stiffness tensor using current crystal orientation
+    Fastor::Tensor<double, 3, 3, 3, 3> rotateStiffnessTensor
+    (
+        const Material& material
+    ) const;
+
+    // ========================================================================
+    // CONSTITUTIVE UPDATE (UNIFIED FUNCTION)
+    // ========================================================================
+    
+    // Complete constitutive update: compute elastic stress and update plasticity
+    void constitutiveUpdate
+    (
+        const Material& material,
+        const tensor& L,        // Velocity gradient
+        const scalar& dt
+    );
+
+    // ========================================================================
+    // ELASTIC STRESS COMPUTATION
+    // ========================================================================
+    
+    // Compute elastic stress from Fe using Fastor
+    void computeElasticStress
+    (
+        const Material& material
+    );
+
+    // ========================================================================
+    // PLASTIC DEFORMATION UPDATE
+    // ========================================================================
+    
+    // Update plastic deformation using return mapping
     void updatePlasticDeformation
     (
-        const scalar dt,
-        const dictionary& materialProps
+        const Material& material,
+        const scalar& dt
     );
     
-    // Compute elastic stress (hyperelastic or hypoelastic)
-    void computeElasticStress(const dictionary& materialProps);
+    // Compute resolved shear stress on all slip systems
+    void computeResolvedShearStress();
     
     // Update hardness evolution
     void updateHardening
     (
-        const scalar dt,
-        const dictionary& materialProps
+        const Material& material,
+        const scalar& dt
     );
     
-    // Constitutive update (complete stress update)
-    void constitutiveUpdate
+    // Update crystal rotation based on lattice spin
+    // Update crystal lattice orientation (elastic deformation only)
+    void updateCrystalRotation(const scalar dt);
+    
+    // Update crystal orientation incrementally using elastic spin (for plasticity)
+    void updateCrystalRotationIncremental
     (
-        const scalar dt,
-        const dictionary& materialProps
+        const Material& material,
+        const tensor& L,
+        const scalar& dt
     );
+
+    // ========================================================================
+    // TRACKING AND IO
+    // ========================================================================
     
-    // Tracking
     typedef particle::trackingData trackingData;
     
     bool move

@@ -29,11 +29,19 @@ Authors
 #include "fvCFD.H"
 #include "pointMesh.H"
 #include "pointFields.H"
+#include "pointBoundaryMesh.H"
 #include "MaterialPointParcel.H"
 #include "Material.H"
 
 #include "IFstream.H"
 #include "OFstream.H"
+
+// Parallel communication headers for point fields
+#include "processorPointPatch.H"
+#include "OPstream.H"
+#include "IPstream.H"
+
+#include "syncTools.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,15 +63,15 @@ int main(int argc, char *argv[])
     // Create MPM fields
     #include "createMPMFields.H"
     
-        // Read material properties
+    // Read material properties
     #include "readMaterialProperties.H"
 
-    #include "readGrainProperties.H"
-
-    // Create material point cloud
+    // Create material point cloud (reads grainProperties internally)
     #include "createMPMCloud.H"
-    
 
+    particles.storeGlobalPositions();
+    
+    // #include "diagnoseShapeFunctions.H"
     
     // #include "CourantNo.H"
     #include "setInitialDeltaT.H"
@@ -100,6 +108,10 @@ int main(int argc, char *argv[])
         forAllConstIter(materialPointCloud, particles, iter)
         {
             const MaterialPointParcel& p = iter();
+
+            if (!p.active()) continue;
+
+            
             p.transferToGrid
             (
                 mesh,
@@ -110,181 +122,14 @@ int main(int argc, char *argv[])
             );
         }
         
+
+        #include "syncNodalFieldsAcrossProcessors.H"
+        
         // Apply boundary conditions to nodal fields
         nodalMass.correctBoundaryConditions();
         nodalMomentum.correctBoundaryConditions();
         nodalForce.correctBoundaryConditions();
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // CRITICAL DIAGNOSTIC - Add this to MPMFoam.C after Step 2 (P2G)
-
-// Info<< "=== CRITICAL DIAGNOSTIC: Checking P2G Transfer ===" << endl;
-
-// // 1. Check if particles exist
-// label nParticles = particles.size();
-// Info<< "  Number of particles: " << nParticles << endl;
-
-// if (nParticles == 0)
-// {
-//     FatalErrorInFunction
-//         << "No particles in cloud! Check particle initialization."
-//         << exit(FatalError);
-// }
-
-// // 2. Check particle properties
-// scalar totalParticleMass = 0;
-// scalar maxParticleMass = 0;
-// scalar minParticleMass = 1e10;
-
-// forAllConstIter(materialPointCloud, particles, iter)
-// {
-//     scalar m = iter().mass();
-//     totalParticleMass += m;
-//     maxParticleMass = max(maxParticleMass, m);
-//     minParticleMass = min(minParticleMass, m);
-// }
-
-// Info<< "  Total particle mass: " << totalParticleMass << " kg" << endl;
-// Info<< "  Particle mass range: [" << minParticleMass << ", " 
-//     << maxParticleMass << "] kg" << endl;
-
-// if (totalParticleMass < SMALL)
-// {
-//     FatalErrorInFunction
-//         << "Particles have zero mass! Check particle initialization."
-//         << exit(FatalError);
-// }
-
-// // 3. Check nodal mass after P2G
-// scalar totalNodalMass = 0;
-// scalar maxNodalMass = 0;
-// label nActiveNodes = 0;
-
-// forAll(nodalMass, pointI)
-// {
-//     scalar m = nodalMass[pointI];
-//     totalNodalMass += m;
-//     if (m > SMALL)
-//     {
-//         nActiveNodes++;
-//         maxNodalMass = max(maxNodalMass, m);
-//     }
-// }
-
-// Info<< "  Total nodal mass (after P2G): " << totalNodalMass << " kg" << endl;
-// Info<< "  Active nodes: " << nActiveNodes << " / " << nodalMass.size() << endl;
-// Info<< "  Max nodal mass: " << maxNodalMass << " kg" << endl;
-
-// // 4. CRITICAL CHECK
-// if (totalNodalMass < SMALL)
-// {
-//     FatalErrorInFunction
-//         << "\n\n"
-//         << "========================================\n"
-//         << "CRITICAL ERROR: Nodal mass is ZERO!\n"
-//         << "========================================\n"
-//         << "\n"
-//         << "This means transferToGrid() is not working.\n"
-//         << "\n"
-//         << "Particles exist but aren't mapping to grid.\n"
-//         << "\n"
-//         << "Possible causes:\n"
-//         << "1. transferToGrid() not implemented\n"
-//         << "2. Shape functions returning zero\n"
-//         << "3. Particles outside mesh bounds\n"
-//         << "4. Node IDs incorrect\n"
-//         << "\n"
-//         << "Total particle mass: " << totalParticleMass << " kg\n"
-//         << "Total nodal mass:    " << totalNodalMass << " kg\n"
-//         << "\n"
-//         << "ACTION: Implement transferToGrid() properly!\n"
-//         << "========================================\n"
-//         << exit(FatalError);
-// }
-
-// // 5. Check mass conservation
-// scalar massError = mag(totalNodalMass - totalParticleMass) / totalParticleMass;
-// Info<< "  Mass conservation error: " << massError * 100.0 << " %" << endl;
-
-// if (massError > 0.01)
-// {
-//     WarningInFunction
-//         << "Poor mass conservation in P2G transfer! Error = " 
-//         << massError * 100.0 << " %" << endl;
-// }
-
-// // 6. Check momentum
-// scalar totalNodalMomentum = 0;
-// forAll(nodalMomentum, pointI)
-// {
-//     totalNodalMomentum += mag(nodalMomentum[pointI]);
-// }
-// Info<< "  Total nodal momentum magnitude: " << totalNodalMomentum << " kg⋅m/s" << endl;
-
-// Info<< "===========================================" << endl;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -320,16 +165,13 @@ forAll(nodalMass, pointI)
 {
     if (nodalMass[pointI] > SMALL)
     {
-        // CRITICAL: Update momentum first!
-        // p^(n+1) = p^n + dt * F
+        // Update momentum: p^(n+1) = p^n + dt * F
         nodalMomentum[pointI] += dt * nodalForce[pointI];
         
-        // Then compute velocity from updated momentum
-        // v^(n+1) = p^(n+1) / m
+        // Compute velocity: v^(n+1) = p^(n+1) / m
         nodalVelocity[pointI] = nodalMomentum[pointI] / nodalMass[pointI];
         
-        // Acceleration for G2P transfer
-        // a = F/m
+        // Acceleration: a = F/m
         nodalAcceleration[pointI] = nodalForce[pointI] / nodalMass[pointI];
     }
     else
@@ -340,64 +182,26 @@ forAll(nodalMass, pointI)
     }
 }
 
-// Apply boundary conditions AFTER momentum update
+// Apply boundary conditions
 #include "applyMPMBoundaryConditions.H"
 
 
+#include "syncNodalVelocitiesAcrossProcessors.H"
 
 
-Info<< "Step 4b: Synchronizing 2D node pairs" << endl;
 
-// Find Front and Back patches
-label frontID = boundaryMesh.findPatchID("Front");
-label backID = boundaryMesh.findPatchID("Back");
+Info<< "Step 4c: Updating processor boundaries for velocity fields" << endl;
 
-if (frontID != -1 && backID != -1)
+nodalVelocity.correctBoundaryConditions();
+nodalAcceleration.correctBoundaryConditions();
+
+// In parallel, ensure processor boundaries are properly communicated
+if (Pstream::parRun())
 {
-    const labelList& frontPoints = boundaryMesh[frontID].meshPoints();
-    const labelList& backPoints = boundaryMesh[backID].meshPoints();
-    
-    // For each front point, find corresponding back point
-    forAll(frontPoints, i)
-    {
-        label frontPt = frontPoints[i];
-        const vector& frontPos = mesh.points()[frontPt];
-        
-        // Find back point with same Y-Z
-        forAll(backPoints, j)
-        {
-            label backPt = backPoints[j];
-            const vector& backPos = mesh.points()[backPt];
-            
-            // Check if Y-Z match (X differs)
-            if (mag(frontPos.y() - backPos.y()) < 1e-10 &&
-                mag(frontPos.z() - backPos.z()) < 1e-10)
-            {
-                // Average properties between front-back pair
-                scalar avgMass = 0.5 * (nodalMass[frontPt] + nodalMass[backPt]);
-                vector avgVel = 0.5 * (nodalVelocity[frontPt] + nodalVelocity[backPt]);
-                vector avgMom = 0.5 * (nodalMomentum[frontPt] + nodalMomentum[backPt]);
-                vector avgAccel = 0.5 * (nodalAcceleration[frontPt] + nodalAcceleration[backPt]);
-                
-                // Synchronize
-                nodalMass[frontPt] = avgMass;
-                nodalMass[backPt] = avgMass;
-                
-                nodalVelocity[frontPt] = avgVel;
-                nodalVelocity[backPt] = avgVel;
-                
-                nodalMomentum[frontPt] = avgMom;
-                nodalMomentum[backPt] = avgMom;
-                
-                nodalAcceleration[frontPt] = avgAccel;
-                nodalAcceleration[backPt] = avgAccel;
-                
-                break;
-            }
-        }
-    }
+    // This ensures processor boundary patches have correct values
+    nodalVelocity.boundaryFieldRef().updateCoeffs();
+    nodalAcceleration.boundaryFieldRef().updateCoeffs();
 }
-
 
         
         // Step 5: Update particle kinematics
@@ -405,6 +209,8 @@ if (frontID != -1 && backID != -1)
         forAllIter(materialPointCloud, particles, iter)
         {
             MaterialPointParcel& p = iter();
+
+            if (!p.active()) continue;
             
             // Update deformation gradient
             p.updateDeformationGradient(mesh, nodalVelocity, dt);
@@ -413,30 +219,449 @@ if (frontID != -1 && backID != -1)
             p.transferFromGrid(mesh, nodalVelocity, nodalAcceleration);
         }
         
-        // Step 6: Advect particles
+
+
+
+        // // Step 6: Advect particles
+        // Info<< "Step 6: Advecting particles" << endl;
+        // particle::trackingData td(particles);
+        
+        // forAllIter(materialPointCloud, particles, iter)
+        // {
+        //     MaterialPointParcel& p = iter();
+        //     p.move(particles, td, dt);
+        // }
+        
+
+
+
         Info<< "Step 6: Advecting particles" << endl;
-        particle::trackingData td(particles);
-        
-        forAllIter(materialPointCloud, particles, iter)
+
+particle::trackingData td(particles);
+
+forAllIter(materialPointCloud, particles, iter)
+{
+    MaterialPointParcel& p = iter();
+    if (!p.active()) continue;
+    
+    p.move(particles, td, dt);
+}
+
+// Parallel particle redistribution
+// if (Pstream::parRun())
+// {
+//     // This transfers particles that crossed processor boundaries
+//     particles.distribute();
+// }
+
+//         // Step 6: Advect particles
+// 
+
+// particle::trackingData td(particles);
+
+// forAllIter(materialPointCloud, particles, iter)
+// {
+//     MaterialPointParcel& p = iter();
+//     if (!p.active()) continue;
+    
+//     p.move(particles, td, dt);
+// }
+
+// // Handle parallel particle redistribution
+// if (Pstream::parRun())
+// {
+//     // Redistribute particles that crossed processor boundaries
+//     // This is critical for parallel runs
+//     particles.autoMap(mesh);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Need this for isA<processorPolyPatch> check
+#include "processorPolyPatch.H"
+
+Info<< "Step 6b: Detecting outflow particles" << endl;
+
+// -------------------------------------------------------------------------
+// INITIALISE OUTFLOW DETECTION (ONCE, CONSISTENTLY ACROSS ALL PROCESSORS)
+// -------------------------------------------------------------------------
+
+static bool outflowInitialized = false;
+static List<word> outflowPatchNames;
+static List<word> outflowDirections;
+static boundBox domainBounds;
+
+if (!outflowInitialized)
+{
+    if (Pstream::master())
+        Info<< "  Initializing outflow boundary detection..." << endl;
+
+    // ----- Get global domain bounds -----
+    domainBounds = mesh.bounds();
+
+    if (Pstream::parRun())
+    {
+        vector globalMin = domainBounds.min();
+        vector globalMax = domainBounds.max();
+        reduce(globalMin, minOp<vector>());
+        reduce(globalMax, maxOp<vector>());
+        domainBounds = boundBox(globalMin, globalMax);
+    }
+
+    // ---------------------------------------------------------------------
+    // PARALLEL-SAFE GLOBAL PATCH DISCOVERY AND GLOBAL PATCH-CENTER REDUCTION
+    // ---------------------------------------------------------------------
+    const polyBoundaryMesh& bMesh = mesh.boundaryMesh();
+    const label nPatches = bMesh.size();
+
+    // Local contributions for each physical patch
+    List<vector> localCenterSum(nPatches, Zero);
+    List<label> localFaceCount(nPatches, 0);
+
+    // ---- Collect local sums ----
+    for (label patchI = 0; patchI < nPatches; ++patchI)
+    {
+        const polyPatch& patch = bMesh[patchI];
+
+        // Skip processor patches but still leave zero contributions
+        if (isA<processorPolyPatch>(patch))
+            continue;
+
+        vector sum = Zero;
+        label count = 0;
+
+        forAll(patch, fI)
         {
-            MaterialPointParcel& p = iter();
-            p.move(particles, td, dt);
+            sum += patch.faceCentres()[fI];
+            ++count;
         }
+
+        localCenterSum[patchI] = sum;
+        localFaceCount[patchI] = count;
+    }
+
+    // ---- Global reduction (ALL processors call ALL reduces → no deadlock) ----
+//   const label nPatches = bMesh.size();
+const label elemsPerPatch = 4; // px,py,pz, count
+List<scalar> localBuf(nPatches * elemsPerPatch, scalar(0));
+
+// fill local buffer
+for (label patchI = 0; patchI < nPatches; ++patchI)
+{
+    const vector& s = localCenterSum[patchI];
+    const label c = localFaceCount[patchI];
+
+    const label base = patchI * elemsPerPatch;
+    localBuf[base + 0] = s.x();
+    localBuf[base + 1] = s.y();
+    localBuf[base + 2] = s.z();
+    localBuf[base + 3] = scalar(c); // store count as scalar to keep homogenous buffer
+}
+
+// perform a single global reduction of the whole buffer
+List<scalar> globalBuf(localBuf); // will become the reduced result
+if (Pstream::parRun())
+{
+    reduce(globalBuf, sumOp<List<scalar> >());
+}
+
+// unpack global results
+List<vector> globalCenterSum(nPatches, Zero);
+List<label> globalCount(nPatches, 0);
+
+for (label patchI = 0; patchI < nPatches; ++patchI)
+{
+    const label base = patchI * elemsPerPatch;
+    vector s(globalBuf[base + 0], globalBuf[base + 1], globalBuf[base + 2]);
+    scalar cntScalar = globalBuf[base + 3];
+
+    globalCenterSum[patchI] = s;
+    // convert scalar back to integer safely (rounding)
+    globalCount[patchI] = label(round(cntScalar));
+}
+
+    // ---------------------------------------------------------------------
+    // BUILD GLOBAL LIST OF OUTFLOW PATCHES
+    // ---------------------------------------------------------------------
+    DynamicList<word> patchNames;
+    DynamicList<word> patchDirs;
+
+    for (label patchI = 0; patchI < nPatches; ++patchI)
+    {
+        const polyPatch& patch = bMesh[patchI];
+
+        // Skip processor patches
+        if (isA<processorPolyPatch>(patch))
+            continue;
+
+        const word& pName = patch.name();
+        const word& pType = patch.type();
+
+        // Identify outflow-like patches
+        bool isOut =
+            pType == "patch" ||
+            pType == "outlet" ||
+            pName.find("outlet") != string::npos ||
+            pName.find("Outlet") != string::npos ||
+            pName.find("outflow") != string::npos;
+
+        if (!isOut)
+            continue;
+
+        // No faces globally → ignore
+        if (globalCount[patchI] == 0)
+            continue;
+
+        // Compute global patch centre
+        vector c = globalCenterSum[patchI] / scalar(globalCount[patchI]);
+
+        // Determine direction
+        scalar tol = 0.01 * mag(domainBounds.span());
+        word direction = "unknown";
+
+        if (mag(c.x() - domainBounds.min().x()) < tol) direction = "xMin";
+        else if (mag(c.x() - domainBounds.max().x()) < tol) direction = "xMax";
+        else if (mag(c.y() - domainBounds.min().y()) < tol) direction = "yMin";
+        else if (mag(c.y() - domainBounds.max().y()) < tol) direction = "yMax";
+        else if (mag(c.z() - domainBounds.min().z()) < tol) direction = "zMin";
+        else if (mag(c.z() - domainBounds.max().z()) < tol) direction = "zMax";
+
+        patchNames.append(pName);
+        patchDirs.append(direction);
+    }
+
+    outflowPatchNames = patchNames;
+    outflowDirections = patchDirs;
+
+    if (Pstream::master())
+    {
+        Info<< "  Found " << outflowPatchNames.size() << " outflow boundaries:\n";
+        forAll(outflowPatchNames, i)
+            Info<< "    " << outflowPatchNames[i] << " (" << outflowDirections[i] << ")\n";
+    }
+
+    outflowInitialized = true;
+}
+
+// -------------------------------------------------------------------------
+// DEACTIVATE PARTICLES OUTSIDE GLOBAL DOMAIN BOUNDS
+// -------------------------------------------------------------------------
+
+label nDeactivated = 0;
+
+forAllIter(materialPointCloud, particles, iter)
+{
+    MaterialPointParcel& p = iter();
+
+    if (!p.active()) continue;
+
+    const vector pos = p.position();
+    bool deactivate = false;
+
+    forAll(outflowDirections, i)
+    {
+        const word& dir = outflowDirections[i];
+        scalar eps = SMALL;
+
+        if (dir == "xMin" && pos.x() < domainBounds.min().x() + eps) deactivate = true;
+        else if (dir == "xMax" && pos.x() > domainBounds.max().x() - eps) deactivate = true;
+        else if (dir == "yMin" && pos.y() < domainBounds.min().y() + eps) deactivate = true;
+        else if (dir == "yMax" && pos.y() > domainBounds.max().y() - eps) deactivate = true;
+        else if (dir == "zMin" && pos.z() < domainBounds.min().z() + eps) deactivate = true;
+        else if (dir == "zMax" && pos.z() > domainBounds.max().z() - eps) deactivate = true;
+
+        if (deactivate)
+            break;
+    }
+
+    if (deactivate)
+    {
+        p.deactivate();
+        ++nDeactivated;
+    }
+}
+
+// Report
+label nGlobal = returnReduce(nDeactivated, sumOp<label>());
+
+if (Pstream::master() && nGlobal > 0)
+    Info<< "  Deactivated " << nGlobal << " particles at outlets" << endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
+        // // Step 6c: Add particles at inflow
+        // #include "handleMPMInflow.H"
+        
+        // Step 6d: Delete marked particles
+        #include "handleMPMOutflow.H"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // // Step 7: Constitutive update (stress computation)
+        // Info<< "Step 7: Updating particle stresses" << endl;
+        // forAllIter(materialPointCloud, particles, iter)
+        // {
+        //     MaterialPointParcel& p = iter();
+            
+        //     // Get material properties for this particle
+        //     const dictionary& matProps = materialProperties[p.materialID()];
+            
+        //     // Perform constitutive update (includes crystal plasticity)
+        //     p.constitutiveUpdate(dt, matProps);
+        //     // p.computeElasticStress(matProps);//just elastic for debugging
+        // }
+        
+
+
+
         // Step 7: Constitutive update (stress computation)
-        Info<< "Step 7: Updating particle stresses" << endl;
-        forAllIter(materialPointCloud, particles, iter)
+// Step 7: Constitutive update (stress computation)
+Info<< "Step 7: Updating particle stresses" << endl;
+
+if (Pstream::parRun())
+{
+    // Pstream::scatter(label(0));  // Barrier before starting
+        // Barrier - wait for all processors
+    label dummy = 0;
+    reduce(dummy, sumOp<label>());
+}
+
+label nProcessed = 0;
+
+forAllIter(materialPointCloud, particles, iter)
+{
+    MaterialPointParcel& p = iter();
+    if (!p.active()) continue;
+    
+    const Material& material = materials[p.materialID()];
+    
+    // Compute velocity gradient from shape functions
+    scalarField N;
+    List<vector> gradN;
+    labelList nodeIDs;
+    
+    p.shapeFunctions(mesh, N, gradN, nodeIDs);
+    
+
+    if (N.size() == 0 || nodeIDs.size() == 0)
+    {
+        // Skip this particle - it's in an invalid state
+        continue;
+    }
+    
+    // Verify all node indices are in bounds
+    bool allValid = true;
+    forAll(nodeIDs, i)
+    {
+        if (nodeIDs[i] >= nodalVelocity.size())
         {
-            MaterialPointParcel& p = iter();
-            
-            // Get material properties for this particle
-            const dictionary& matProps = materialProperties[p.materialID()];
-            
-            // Perform constitutive update (includes crystal plasticity)
-            p.constitutiveUpdate(dt, matProps);
-            // p.computeElasticStress(matProps);//just elastic for debugging
+            allValid = false;
+            break;
         }
-        
+    }
+    
+    if (!allValid)
+    {
+        WarningInFunction
+            << "Particle has out-of-bounds node indices - skipping"
+            << endl;
+        continue;
+    }
+    
+    tensor L = tensor::zero;
+    forAll(nodeIDs, i)
+    {
+        label nodeI = nodeIDs[i];
+        L += nodalVelocity[nodeI] * gradN[i];
+    }
+    
+    p.constitutiveUpdate(material, L, dt);
+    nProcessed++;
+}
+
+// Verify all processors processed some particles
+if (Pstream::parRun())
+{
+    label nProcessedGlobal = returnReduce(nProcessed, sumOp<label>());
+    
+    if (Pstream::master())
+    {
+        Info<< "  Processed " << nProcessedGlobal 
+            << " particles globally in constitutive update" << endl;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Step 8: Update history variables and check failure
         Info<< "Step 8: Checking material state" << endl;
         label nFailed = 0;
@@ -445,6 +670,8 @@ if (frontID != -1 && backID != -1)
         forAllIter(materialPointCloud, particles, iter)
         {
             MaterialPointParcel& p = iter();
+
+            if (!p.active()) continue;
             
             // Check for excessive deformation
             scalar J = det(p.F());
