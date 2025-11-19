@@ -19,31 +19,31 @@ internalField   uniform 800;
 
 boundaryField
 {
-       Back
+       xMin
     {
         type            zeroGradient;
     }
-        front
+        xMax
     {
         type            zeroGradient;
     }
-    leftWall
-    {
-        type            zeroGradient;
-    }
-
-    rightWall
+    yMin
     {
         type            zeroGradient;
     }
 
-    lowerWall
+    yMax
+    {
+        type            zeroGradient;
+    }
+
+    zMin
     {
         type            fixedValue;
         value         uniform 800.0;
     }
 
-    atmosphere
+    zMax
     {
         type            fixedValue;
         value         uniform 800.0;

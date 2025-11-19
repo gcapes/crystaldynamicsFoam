@@ -9,49 +9,44 @@ FoamFile
 {
     format      ascii;
     class       volScalarField;
-    object      p_rgh;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [1 -1 -2 0 0 0 0];
+dimensions      [0 0 0 1 0 0 0];
 
-internalField   uniform 1e5;
+internalField   uniform 800;
 
 boundaryField
 {
-   Back
+       xMin
     {
-            type            calculated;
-    value           $internalField;
+        type            zeroGradient;
     }
-        front
+        xMax
     {
-           type            calculated;
-    value           $internalField;
+        type            zeroGradient;
     }
-
-    leftWall
+    yMin
     {
-                   type            calculated;
-    value           $internalField;
+        type            zeroGradient;
     }
 
-    rightWall
+    yMax
     {
-                   type            calculated;
-    value           $internalField;
+        type            zeroGradient;
     }
 
-    lowerWall
+    zMin
     {
-        type            calculated;
-        value           $internalField;
+        type            fixedValue;
+        value         uniform 800.0;
     }
 
-    atmosphere
+    zMax
     {
-        type            calculated;
-        value           $internalField;
+        type            fixedValue;
+        value         uniform 800.0;
     }
 
     defaultFaces

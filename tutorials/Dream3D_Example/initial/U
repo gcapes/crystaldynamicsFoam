@@ -20,7 +20,7 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-      Back
+      xMin
     {
 type codedFixedValue;
 value $internalField;
@@ -47,7 +47,7 @@ scalar P =5.0;
 operator==(veloc);
 #};
     }
-        front
+        xMax
     {
 type codedFixedValue;
 value $internalField;
@@ -74,7 +74,7 @@ scalar P =5.0;
 operator==(veloc);
 #};
     }
-    leftWall
+    yMin
     {
 type codedFixedValue;
 value $internalField;
@@ -102,7 +102,7 @@ operator==(veloc);
 #};
     }
 
-    rightWall
+    yMax
     {
 type codedFixedValue;
 value $internalField;
@@ -130,12 +130,12 @@ operator==(veloc);
 #};
     }
 
-    lowerWall
+    zMin
     {
         type            zeroGradient;
     }
 
-    atmosphere
+    zMax
     {
         type            zeroGradient;
     }
