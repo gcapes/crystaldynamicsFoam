@@ -10,15 +10,6 @@
 
 
 
-// dimensionedScalar dt = runTime.deltaT();
-// dimensionedScalar max_hardening_increment = 0.1 * gMax(g_alphas[i][countS]);  // 10% hardening per step
-
-//             // Limit hardening rate based on hardening increment  
-// dimensionedScalar max_hardening_rate_dt = max_hardening_increment / dt;
-// g_alpha_dots[i][countS] = min(
-//     g_alpha_dots[i][countS],
-//     max_hardening_rate_dt);
-
 
 
 
@@ -54,17 +45,6 @@
         {
 
 
-
-// dimensionedScalar dt = runTime.deltaT();
-// double max_strain_increment = 0.01;  // 1% strain per time step
-// // volScalarField max_hardening_increment = 0.1 * g_alphas[i][countS];  // 10% hardening per step
-
-// // Limit slip rate based on strain increment
-// dimensionedScalar max_slip_rate_dt = max_strain_increment / dt;
-// gamma_alpha_dots[i][countS] = max(min(
-//     gamma_alpha_dots[i][countS], 
-//     max_slip_rate_dt), 
-//     -max_slip_rate_dt);
 
 
 

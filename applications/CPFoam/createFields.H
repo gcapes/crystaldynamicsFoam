@@ -232,7 +232,7 @@ volScalarField Sum_Phases(
     mesh,
     dimensionedScalar("Sum_Phases", dimensionSet(0, 0, 0, 0, 0), 0.0));
 
-// const label N_Ori=20;
+
 
 IOdictionary GrainProperties(
     IOobject(
@@ -590,6 +590,81 @@ for(label count = 0; count < N_Ori; count++)
         )
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+PtrList<volScalarField> Laplacian_n(N_Ori);
+
+for(label count = 0; count < N_Ori; count++)
+{
+
+    word name_laplacian ("Laplacian" + name(count));
+
+    Laplacian_n.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_laplacian,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("Laplacian_n",dimensionSet(0, -2, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+
+PtrList<volScalarField> dpdt(N_Ori);
+for(label count = 0; count < N_Ori; count++)
+{
+
+    word name_dpdt ("dpdt" + name(count));
+
+    dpdt.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_dpdt,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("dpdt",dimensionSet(0, 0, -1, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+
+
+
+
+
+
+
+
 
 Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
