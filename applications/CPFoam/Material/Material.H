@@ -42,6 +42,8 @@ SourceFiles
 #include "volFields.H"
 #include "surfaceFields.H"
 
+#include "Fastor.h"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -104,6 +106,7 @@ namespace Foam
 
   tensor RK4(scalar step_size);
 
+  static Fastor::Tensor<double,3,3,3,3> invertRankFour(const Fastor::Tensor<double,3,3,3,3>& inp, bool verbosity = false);
 };
 
 
