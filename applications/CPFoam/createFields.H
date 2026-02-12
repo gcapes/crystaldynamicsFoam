@@ -317,9 +317,42 @@ for (label i = 0; i < N_Mats; i++)
 
     Cprime2[i] = Cprime_temp_Read;
 
-    // Quick check on the inversion function 
-    auto testInversion = Material::invertRankFour(Cprime_temp_Read, true); 
+    // take most recently read material's elastic stiffness tensor, ensuring symmetry ... 
+    auto C = Foam::Material::castSymmetry(Cprime_temp_Read);
 
+    // invert the stiffness tensor to get the compliance tensor
+    auto S    = Foam::Material::invertRankFour(C, true);
+
+    // Check the inversion was correct 
+    bool isInverse = Foam::Material::isRankFourInverse(C, S, true);
+
+    exit(0);
+
+    // // Quick check on the double contraction (twice) function 
+    // Fastor::Tensor<double, 3,3,3,3> test_fourth_order(0.0); // Fourth order symmetry tensor 
+    // Fastor::Tensor<double,3,3> test_second_order(0.0);      // Second order identity tensor 
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     for (int j = 0; j < 3; j++)
+    //     {
+    //         for (int k = 0; k < 3; k++)
+    //         {
+    //             for (int l = 0; l < 3; l++) 
+    //             {
+    //                 test_fourth_order(i,j,k,l) = 0.5 * ( (i==k && j==l) + (i==l && j==k) );
+    //             }
+    //         }
+    //     }
+    // }
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     test_second_order(i,i) = 1.0; 
+    // }
+
+    // double testContraction = Material::doubleContractionTwice(test_second_order, test_fourth_order, true); 
+    
     exit(0); 
 // dimensionedScalar Cvtemp("Cvtemp", dimensionSet(0, 2, -2, -1, 0), Mat.lookup("Cv"));
 // dimensionedScalar kappatemp("kappatemp", dimensionSet(1, 1, -3, -1, 0), Mat.lookup("kappa"));

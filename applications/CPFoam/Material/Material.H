@@ -48,65 +48,68 @@ SourceFiles
 
 namespace Foam
 {
-
-
-
  class Material
  {
     private:
-    // int N_slips_;
-    // double test[6];
-    // Polynomial<8>  * _arr;
-    
-  public:
-  string Mat_type;
+        // int N_slips_;
+        // double test[6];
+        // Polynomial<8>  * _arr;
 
-  scalar rho_0;
+        // Mandel tensor for converting between symmetric rank-four and Mandel representations
+        static const Fastor::Tensor<double,6,3,3> M_;
+    public:
+        string Mat_type;
+        scalar rho_0;
+        scalar Cv;
+        scalar kappa;
+        int N_Slips;
 
-  scalar Cv;
+        std::vector<vector> SP_norm;
+        std::vector<vector> SP_direction;
 
-  scalar kappa;
+        double initial_CRSS; // initial critically resolved shear stress
+        double tau_S;//saturation value for shear stress
+        double h_0;//initial hardening rate
+        double r;//latent hardening parameter
+        double   k_exponent;//exponent on slip rate term
+        double   ref_shear_rate;//exponent on slip rate term
 
-  int N_Slips;
+        // Polynomial<8> A;
+        // std::vector<Polynomial<8>> Bi;
+        // std::vector<Polynomial<8>> Cij;
 
-  std::vector<vector> SP_norm;
-  std::vector<vector> SP_direction;
+        // std::vector<Polynomial<8>> eq_xi;
 
-  double initial_CRSS; // initial critically resolved shear stress
+        // std::vector<Polynomial<8>> Qi;
 
-  double tau_S;//saturation value for shear stress
+        Material (/*const int*/);
+        // Material ();
+        Material (const Material&);
+        virtual ~Material(){}
 
-  double h_0;//initial hardening rate
+        //MEMBER FUNCTIONS
+        // int returnComponents();
+        // Material Material::operator=
 
-   double r;//latent hardening parameter
+        void Print(label length);
+        double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
+        tensor RK4(scalar step_size);
 
-  double   k_exponent;//exponent on slip rate term
+        // Bespoke tensor functions
+        static Fastor::Tensor<double,3,3,3,3> invertRankFour(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity = false);
+        
+        // Helper functions for inverting rank four ... 
+        static Fastor::Tensor<double,3,3,3,3> castSymmetry(const Fastor::Tensor<double,3,3,3,3>& C_in); 
+        static Fastor::Tensor<double,6,6> fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C);
+        static Fastor::Tensor<double,3,3,3,3> mandelToFourth(const Fastor::Tensor<double, 6, 6>& M); 
+        static bool isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
+        static bool isMandelInverse(const Fastor::Tensor<double,3,3,3,3>& C, const Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
+        static double doubleContractionTwice(const Fastor::Tensor<double, 3, 3>& second, const Fastor::Tensor<double,3,3,3,3>& fourth, bool verbosity = false); 
 
-  double   ref_shear_rate;//exponent on slip rate term
-
-//   Polynomial<8> A;
-//   std::vector<Polynomial<8>> Bi;
-//   std::vector<Polynomial<8>> Cij;
-
-//   std::vector<Polynomial<8>> eq_xi;
-
-//   std::vector<Polynomial<8>> Qi;
-
-  Material (/*const int*/);
-//   Material ();
-  Material (const Material&);
-  virtual ~Material(){}
-
-  //MEMBER FUNCTIONS
-//   int returnComponents();
-//   Material Material::operator=
-  void Print(label length);
-
-  double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
-
-  tensor RK4(scalar step_size);
-
-  static Fastor::Tensor<double,3,3,3,3> invertRankFour(const Fastor::Tensor<double,3,3,3,3>& inp, bool verbosity = false);
+        // Tensor utility functions 
+        static void printRankTwo(const Fastor::Tensor<double,3,3>& A, const word& name="Rank 2 Tensor");
+        static void printRankFour(const Fastor::Tensor<double,3,3,3,3>& A, const word& name="Rank 4 Tensor");
+        static void printMandelMatrix(const Fastor::Tensor<double,6,6>& M, const word& name="Mandel Matrix");
 };
 
 
