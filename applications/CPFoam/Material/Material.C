@@ -136,39 +136,45 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::castSymmetry(const Fastor::Tensor
     Fastor::Tensor<double,3,3,3,3> C_out(0.0);
 
     for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
-    for (int k=0; k<3; ++k)
-    for (int l=0; l<3; ++l)
     {
-        // Collect all 8 symmetry-related components
-        double vals[8] = {
-            C_in(i,j,k,l),
-            C_in(j,i,k,l),
-            C_in(i,j,l,k),
-            C_in(j,i,l,k),
-            C_in(k,l,i,j),
-            C_in(l,k,i,j),
-            C_in(k,l,j,i),
-            C_in(l,k,j,i)
-        };
-
-        // Average non-zero entries
-        double sum = 0.0;
-        int count = 0;
-
-        for (int n=0; n<8; ++n)
-        {
-            if (std::abs(vals[n]) > 1e-14)
+        for (int j=0; j<3; ++j)
             {
-                sum += vals[n];
-                count++;
+            for (int k=0; k<3; ++k)
+            {
+                for (int l=0; l<3; ++l)
+                {
+                    // Collect all 8 symmetry-related components
+                    double vals[8] = {
+                        C_in(i,j,k,l),
+                        C_in(j,i,k,l),
+                        C_in(i,j,l,k),
+                        C_in(j,i,l,k),
+                        C_in(k,l,i,j),
+                        C_in(l,k,i,j),
+                        C_in(k,l,j,i),
+                        C_in(l,k,j,i)
+                    };
+
+                    // Average non-zero entries
+                    double sum = 0.0;
+                    int count = 0;
+
+                    for (int n=0; n<8; ++n)
+                    {
+                        if (std::abs(vals[n]) > 1e-14)
+                        {
+                            sum += vals[n];
+                            count++;
+                        }
+                    }
+
+                    double avg = (count > 0 ? sum / count : 0.0);
+
+                    // Assign the averaged value
+                    C_out(i,j,k,l) = avg;
+                }
             }
         }
-
-        double avg = (count > 0 ? sum / count : 0.0);
-
-        // Assign the averaged value
-        C_out(i,j,k,l) = avg;
     }
 
     return C_out;
@@ -189,39 +195,45 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::castSymmetry(const Fastor::Tensor
 */
 Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C)
 {
-    // --- Symmetry checks (unchanged) ---
+    // --- Symmetry checks ---
     for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
-    for (int k=0; k<3; ++k)
-    for (int l=0; l<3; ++l)
     {
-        const double Cijkl = C(i,j,k,l);
-
-        if (std::abs(Cijkl - C(j,i,k,l)) > 1e-12)
+        for (int j=0; j<3; ++j)
         {
-            FatalErrorInFunction
-                << "Rank 4 tensor violates minor symmetry in (ij): "
-                << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
-                << "C("<<j<<","<<i<<","<<k<<","<<l<<")" << nl
-                << abort(FatalError);
-        }
+            for (int k=0; k<3; ++k)
+            {
+                for (int l=0; l<3; ++l)
+                {
+                    const double Cijkl = C(i,j,k,l);
 
-        if (std::abs(Cijkl - C(i,j,l,k)) > 1e-12)
-        {
-            FatalErrorInFunction
-                << "Rank 4 tensor violates minor symmetry in (kl): "
-                << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
-                << "C("<<i<<","<<j<<","<<l<<","<<k<<")" << nl
-                << abort(FatalError);
-        }
+                    if (std::abs(Cijkl - C(j,i,k,l)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates minor symmetry in (ij): "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<j<<","<<i<<","<<k<<","<<l<<")" << nl
+                            << abort(FatalError);
+                    }
 
-        if (std::abs(Cijkl - C(k,l,i,j)) > 1e-12)
-        {
-            FatalErrorInFunction
-                << "Rank 4 tensor violates major symmetry: "
-                << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
-                << "C("<<k<<","<<l<<","<<i<<","<<j<<")" << nl
-                << abort(FatalError);
+                    if (std::abs(Cijkl - C(i,j,l,k)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates minor symmetry in (kl): "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<i<<","<<j<<","<<l<<","<<k<<")" << nl
+                            << abort(FatalError);
+                    }
+
+                    if (std::abs(Cijkl - C(k,l,i,j)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates major symmetry: "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<k<<","<<l<<","<<i<<","<<j<<")" << nl
+                            << abort(FatalError);
+                    }
+                }
+            }
         }
     }
 
@@ -229,19 +241,27 @@ Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<d
     Fastor::Tensor<double,6,6> CM(0.0);
 
     for (int I=0; I<6; ++I)
-    for (int J=0; J<6; ++J)
     {
-        double sum = 0.0;
-
-        for (int a=0; a<3; ++a)
-        for (int b=0; b<3; ++b)
-        for (int c=0; c<3; ++c)
-        for (int d=0; d<3; ++d)
+        for (int J=0; J<6; ++J)
         {
-            sum += M_(I,a,b) * M_(J,c,d) * C(a,b,c,d);
-        }
+            double sum = 0.0;
 
-        CM(I,J) = sum;
+            for (int a=0; a<3; ++a)
+            {
+                for (int b=0; b<3; ++b)
+                {
+                    for (int c=0; c<3; ++c)
+                    {
+                        for (int d=0; d<3; ++d)
+                        {
+                            sum += M_(I,a,b) * M_(J,c,d) * C(a,b,c,d);
+                        }
+                    }
+                }
+            }
+ 
+            CM(I,J) = sum;
+        }
     }
 
     return CM;
@@ -264,18 +284,20 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::mandelToFourth(const Fastor::Tens
 {
     // --- Symmetry checks on Mandel matrix ---
     for (int I=0; I<6; ++I)
-    for (int J=0; J<6; ++J)
     {
-        if (std::abs(M(I,J) - M(J,I)) > 1e-12)
+        for (int J=0; J<6; ++J)
         {
-            FatalErrorInFunction
-                << "Input Mandel matrix is not symmetric: "
-                << "M("<<I<<","<<J<<") != M("<<J<<","<<I<<")" << nl
-                << abort(FatalError);
+            if (std::abs(M(I,J) - M(J,I)) > 1e-12)
+            {
+                FatalErrorInFunction
+                    << "Input Mandel matrix is not symmetric: "
+                    << "M("<<I<<","<<J<<") != M("<<J<<","<<I<<")" << nl
+                    << abort(FatalError);
+            }
         }
     }
 
-    // --- Positive definiteness check (simple diagonal test) ---
+    // --- Positive definiteness check ---
     for (int I=0; I<6; ++I)
     {
         if (M(I,I) <= 0.0)
@@ -291,19 +313,25 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::mandelToFourth(const Fastor::Tens
     Fastor::Tensor<double,3,3,3,3> C(0.0);
 
     for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
-    for (int k=0; k<3; ++k)
-    for (int l=0; l<3; ++l)
     {
-        double sum = 0.0;
-
-        for (int A=0; A<6; ++A)
-        for (int B=0; B<6; ++B)
+        for (int j=0; j<3; ++j)
         {
-            sum += M_(A,i,j) * M_(B,k,l) * M(A,B);
-        }
+            for (int k=0; k<3; ++k)
+            {
+                for (int l=0; l<3; ++l)
+                {
+                    double sum = 0.0;
 
-        C(i,j,k,l) = sum;
+                    for (int A=0; A<6; ++A)
+                    for (int B=0; B<6; ++B)
+                    {
+                        sum += M_(A,i,j) * M_(B,k,l) * M(A,B);
+                    }
+
+                    C(i,j,k,l) = sum;
+                }
+            }
+        }
     }
 
     return C;
@@ -334,7 +362,7 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
         Info << nl;
     }
 
-    // 2. Convert to Mandel 6×6
+    // Convert to Mandel 6×6
     if (verbosity)
     {
         Info << "\tCasting to 6x6 Mandel representation...\n\n";
@@ -480,11 +508,17 @@ bool Foam::Material::isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, 
     // Build 4th‑order symmetric identity
     Fastor::Tensor<double,3,3,3,3> I4(0.0);
     for (int i=0;i<3;i++)
-    for (int j=0;j<3;j++)
-    for (int m=0;m<3;m++)
-    for (int n=0;n<3;n++)
     {
-        I4(i,j,m,n) = 0.5*((i==m && j==n) + (i==n && j==m));
+        for (int j=0;j<3;j++)
+        {
+            for (int m=0;m<3;m++)
+            {
+                for (int n=0;n<3;n++)
+                {
+                    I4(i,j,m,n) = 0.5*((i==m && j==n) + (i==n && j==m));
+                }
+            }
+        }
     }
 
     if (verbosity)
@@ -496,19 +530,25 @@ bool Foam::Material::isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, 
     Fastor::Tensor<double,3,3,3,3> R(0.0);
 
     for (int i=0;i<3;i++)
-    for (int j=0;j<3;j++)
-    for (int m=0;m<3;m++)
-    for (int n=0;n<3;n++)
     {
-        double sum = 0.0;
-
-        for (int k=0;k<3;k++)
-        for (int l=0;l<3;l++)
+        for (int j=0;j<3;j++)
         {
-            sum += C(i,j,k,l) * S(k,l,m,n);
-        }
+            for (int m=0;m<3;m++)
+            {
+                for (int n=0;n<3;n++)
+                {
+                    double sum = 0.0;
 
-        R(i,j,m,n) = sum - I4(i,j,m,n);
+                    for (int k=0;k<3;k++)
+                    for (int l=0;l<3;l++)
+                    {
+                        sum += C(i,j,k,l) * S(k,l,m,n);
+                    }
+
+                    R(i,j,m,n) = sum - I4(i,j,m,n);
+                }
+            }
+        }
     }
 
     if (verbosity)
@@ -521,12 +561,20 @@ bool Foam::Material::isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, 
     double normI = 0.0;
 
     for (int i=0;i<3;i++)
-    for (int j=0;j<3;j++)
-    for (int m=0;m<3;m++)
-    for (int n=0;n<3;n++)
     {
-        err   += R(i,j,m,n) * R(i,j,m,n);
-        normI += I4(i,j,m,n) * I4(i,j,m,n);
+        for (int j=0;j<3;j++)
+        {
+            for (int m=0;m<3;m++)
+            {
+                for (int n=0;n<3;n++)
+                {
+                    err   += R(i,j,m,n) * R(i,j,m,n);
+                    normI += I4(i,j,m,n) * I4(i,j,m,n);
+                }
+            }
+
+        }
+
     }
 
     err = std::sqrt(err);
@@ -538,15 +586,21 @@ bool Foam::Material::isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, 
     int mi=0, mj=0, mm=0, mn=0;
 
     for (int i=0;i<3;i++)
-    for (int j=0;j<3;j++)
-    for (int m=0;m<3;m++)
-    for (int n=0;n<3;n++)
     {
-        double a = std::abs(R(i,j,m,n));
-        if (a > maxErr)
+        for (int j=0;j<3;j++)
         {
-            maxErr = a;
-            mi=i; mj=j; mm=m; mn=n;
+            for (int m=0;m<3;m++)
+            {
+                for (int n=0;n<3;n++)
+                {
+                    double a = std::abs(R(i,j,m,n));
+                    if (a > maxErr)
+                    {
+                        maxErr = a;
+                        mi=i; mj=j; mm=m; mn=n;
+                    }
+                }
+            }
         }
     }
 
@@ -592,25 +646,29 @@ bool Foam::Material::isMandelInverse(const Fastor::Tensor<double,3,3,3,3>& C, co
 
     Fastor::Tensor<double,6,6> P1(0.0), P2(0.0);
     for (int a=0;a<6;++a)
-    for (int b=0;b<6;++b)
     {
-        double s1 = 0.0, s2 = 0.0;
-        for (int c=0;c<6;++c)
+        for (int b=0;b<6;++b)
         {
-            s1 += Minv(a,c)*M(c,b);
-            s2 += M(a,c)*Minv(c,b);
+            double s1 = 0.0, s2 = 0.0;
+            for (int c=0;c<6;++c)
+            {
+                s1 += Minv(a,c)*M(c,b);
+                s2 += M(a,c)*Minv(c,b);
+            }
+            P1(a,b) = s1;
+            P2(a,b) = s2;
         }
-        P1(a,b) = s1;
-        P2(a,b) = s2;
     }
 
     double err2 = 0.0;
     for (int a=0;a<6;++a)
-    for (int b=0;b<6;++b)
     {
-        double d1 = P1(a,b) - I(a,b);
-        double d2 = P2(a,b) - I(a,b);
-        err2 += d1*d1 + d2*d2;
+        for (int b=0;b<6;++b)
+        {
+            double d1 = P1(a,b) - I(a,b);
+            double d2 = P2(a,b) - I(a,b);
+            err2 += d1*d1 + d2*d2;
+        }
     }
 
     double frob = std::sqrt(err2);
@@ -640,20 +698,22 @@ void Foam::Material::printRankFour(const Fastor::Tensor<double,3,3,3,3>& A, cons
     Info << "\t" << name << " (rank 4 3x3x3x3 tensor):" << nl;
 
     for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
     {
-        Info << "\t\tBlock (" << i << "," << j << "):" << nl;
-
-        for (int k=0; k<3; ++k)
+        for (int j=0; j<3; ++j)
         {
-            for (int l=0; l<3; ++l)
+            Info << "\t\tBlock (" << i << "," << j << "):" << nl;
+
+            for (int k=0; k<3; ++k)
             {
-                Info << "\t\t\t" << A(i,j,k,l) << " ";
+                for (int l=0; l<3; ++l)
+                {
+                    Info << "\t\t\t" << A(i,j,k,l) << " ";
+                }
+                Info << nl;
             }
+
             Info << nl;
         }
-
-        Info << nl;
     }
 }
 

@@ -110,6 +110,8 @@ namespace Foam
         static void printRankTwo(const Fastor::Tensor<double,3,3>& A, const word& name="Rank 2 Tensor");
         static void printRankFour(const Fastor::Tensor<double,3,3,3,3>& A, const word& name="Rank 4 Tensor");
         static void printMandelMatrix(const Fastor::Tensor<double,6,6>& M, const word& name="Mandel Matrix");
+
+        static Fastor::Tensor<double,3,3> symm(const Fastor::Tensor<double,3,3>& A);
 };
 
 
