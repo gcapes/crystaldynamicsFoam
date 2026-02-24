@@ -35,6 +35,8 @@ SourceFiles
 #ifndef material_H
 #define material_H
 
+#include "Interface.H"
+
 #include <vector>
 #include "Polynomial.H"
 #include "IOdictionary.H"
@@ -121,94 +123,6 @@ namespace Foam
 
 
 
-
-
-class Interface
- :public IOdictionary
- {
-
-    public:
-
-    class interfacePair
-        :
-        public Pair<word>
-    {
-    public:
-
-        class hash
-            :
-            public Hash<interfacePair>
-        {
-        public:
-
-            hash()
-            {}
-
-            label operator()(const interfacePair& key) const
-            {
-                return word::hash()(key.first()) + word::hash()(key.second());
-            }
-        };
-
-
-        // Constructors
-
-        interfacePair()
-        {}
-
-        interfacePair(const word& alpha1Name, const word& alpha2Name)
-            :
-            Pair<word>(alpha1Name, alpha2Name)
-        {}
-
-        // interfacePair(const phase& alpha1, const phase& alpha2)
-        // :
-        //     Pair<word>(alpha1.name(), alpha2.name())
-        // {}
-
-
-        // Friend Operators
-
-        friend bool operator==
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return
-                (
-                    ((a.first() == b.first()) && (a.second() == b.second()))
-                );
-        }
-
-        friend bool operator!=
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return (!(a == b));
-        }
-    };
-    
-    private:
-    const fvMesh& mesh_;
-    const volScalarField& T_;
-    word Interface_type;
-  public:
-    Interface (word,const volScalarField&);
-    // Material (int,int);
-
-    virtual ~Interface()
-    {}
-
-    //Member Functions
-    void Assign_Energies(scalar **NRG_arr);
-    void Assign_Mobilities(scalar **NRG_arr);
-    void Assign_Anisotropy_Strength(scalar **Aniso_strength_arr);
-    scalar aniso_energy(scalar *tensor_i, scalar *tensor_j, scalar *vec_i, scalar *vec_j, const scalar& phi_i, const scalar& phi_j,const scalar& int_width, const scalar& deltaN);
-    // int area (void) {return (width*height);}
-};
 
 
 

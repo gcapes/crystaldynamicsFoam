@@ -243,6 +243,16 @@ IOdictionary GrainProperties(
         IOobject::NO_WRITE   // dict is only read by the solver
         ));
 
+
+dimensionedScalar interface_width("interface_width", dimensionSet(0, 1, 0, 0, 0), GrainProperties);
+
+// const dimensionedScalar Mm
+// (
+//     "Mm",
+//     dimensionSet(1, 0, 0, 0, -1),
+//     transportProperties//.lookup("Mm")
+// );
+
 label N_Ori(readLabel(GrainProperties.lookup("N_Phases")));
 Info << "Number of Phase Field Order Parameters: " << N_Ori << endl;
 
@@ -1258,6 +1268,30 @@ for (label count = 0; count < N_Ori; count++)
 }
 
 #include "createPhi.H"
+
+
+
+
+
+
+double **PF_Energy0_array;
+PF_Energy0_array = new double *[N_Mats];
+for(int i = 0; i <N_Mats; i++)
+{
+    PF_Energy0_array[i]=new double[N_Mats];
+}
+
+double **PF_Mobility0_array;
+PF_Mobility0_array = new double *[N_Mats];
+for(int i = 0; i <N_Mats; i++)
+{
+    PF_Mobility0_array[i]=new double[N_Mats];
+}
+
+Interface dummy("isotropic",T);
+dummy.Assign_Energies(PF_Energy0_array);
+dummy.Assign_Mobilities(PF_Mobility0_array);
+
 
 
 

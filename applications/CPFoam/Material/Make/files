@@ -1,3 +1,4 @@
 Material.C
+Interface.C
 
 LIB = $(FOAM_USER_LIBBIN)/libMaterial

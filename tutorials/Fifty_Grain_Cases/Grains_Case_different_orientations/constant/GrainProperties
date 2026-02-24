@@ -14,6 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+interface_width	1e-6;
 
 N_Phases	50;
 
@@ -28,6 +29,32 @@ phi3 (0.7196744993498547 1.0159068604606336 1.3400816082718228 1.349760448839443
 
 
 n_constitutive_substeps	10;
+
+
+
+
+
+
+//Interface Stuff
+
+
+Energy
+(
+(Material.0 Material.0) 0.3
+(Material.0 Material.1) 0.2
+(Material.1 Material.1) 0.1
+);
+
+Mobility
+(
+(Material.0 Material.0) 5.1e-6
+(Material.0 Material.1) 5.0e-4//100.0e-4//10 too high
+(Material.1 Material.1) 5.3e-6
+);
+
+
+//Material Stuff
+
 
 Material.0 //Fe 35Ni
 {

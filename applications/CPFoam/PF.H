@@ -87,7 +87,7 @@ forAll(mesh.C(), cell)
                 double int_energy = PF_Energy0_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
                 // *(1.0+(0.05*((Foam::pow(vec_i_[0],4)+Foam::pow(vec_i_[1],4)+Foam::pow(vec_i_[2],4))-3.0)));
 
-                double anisostrength=PF_Aniso_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
+                // double anisostrength=PF_Aniso_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
 
                 dfdp[count_i] -= 4.0 * int_energy * PopBal[active_phases[count_j]][cell] / (interface_width.value()) +
                                  4.0 * int_energy * Laplacian_n[active_phases[count_j]][cell] * (interface_width.value()) / (pi.value() * pi.value());
@@ -182,7 +182,7 @@ forAll(mesh.C(), cell)
 
         // }
         // A_out[cell] = dfdp_G[0] - dfdp_G[1];
-        Driving_Force_info[cell]*=0.0;// dfdp_G[0] - dfdp_G[1];
+        // Driving_Force_info[cell]*=0.0;// dfdp_G[0] - dfdp_G[1];
 
         // Info<<dfdp[0]<<endl;
         for (label count_i = 0; count_i < n_active_phases; count_i++)
@@ -202,7 +202,7 @@ forAll(mesh.C(), cell)
                                                   driving_force_cut_off
                                                  );
                 //   Info<<"RHS"<<rhsval<<endl;
-                Driving_Force_info[cell]+=driving_force_cut_off;
+                // Driving_Force_info[cell]+=driving_force_cut_off;
 
                 dpdt[active_phases[count_i]][cell] += rhsval;
                 dpdt[active_phases[count_j]][cell] -= rhsval;
