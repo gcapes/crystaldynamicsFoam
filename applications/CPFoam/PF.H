@@ -30,14 +30,14 @@ forAll(mesh.C(), cell)
         }
 
     }
-            double mu_[N_Comps]={0.0};
-            for(label l = 0; l < N_Comps; l++){
-                // PhaseComp_[l]=PhaseComposition[my_phase][l][cell];
-                mu_[l]=Compbal[l][cell];
-            }
+            // double mu_[N_Comps]={0.0};
+            // for(label l = 0; l < N_Comps; l++){
+            //     // PhaseComp_[l]=PhaseComposition[my_phase][l][cell];
+            //     mu_[l]=Compbal[l][cell];
+            // }
 
     ///////////////////////////////////////////////////////////Code to show how to output an example field read from material dictionaries
-    A_out[cell] *= 0.0;
+    // A_out[cell] *= 0.0;
     // for (label count = 0; count < N_Ori; count++) {
     // // Phase2Material[count]
     // A_out[cell]+=PopBal[count][cell]*test_A[Phase2Material[count]];
@@ -68,19 +68,19 @@ forAll(mesh.C(), cell)
             for (label count_j = count_i + 1; count_j < n_active_phases; count_j++)
             {
 
-              double tens_i_[9]={0.0};
-              double tens_j_[9]={0.0};
-            for(label l = 0; l < 9; l++){
-                tens_i_[l]=Roti[active_phases[count_i]][cell].component(l);
-                tens_j_[l]=-tens_i_[l];//Roti[active_phases[count_j]][cell].component(l);//-tens_i_[l];//
-            }   
+            //   double tens_i_[9]={0.0};
+            //   double tens_j_[9]={0.0};
+            // for(label l = 0; l < 9; l++){
+            //     tens_i_[l]=Roti[active_phases[count_i]][cell].component(l);
+            //     tens_j_[l]=-tens_i_[l];//Roti[active_phases[count_j]][cell].component(l);//-tens_i_[l];//
+            // }   
 
-            double vec_i_[3]={0.0};
-            double vec_j_[3]={0.0};
-            for(label m = 0; m < 3; m++){
-                vec_i_[m]=gradi[active_phases[count_i]][cell].component(m);
-                vec_j_[m]=-vec_i_[m];//gradi[active_phases[count_j]][cell].component(m);//-vec_i_[m];//
-            } 
+            // double vec_i_[3]={0.0};
+            // double vec_j_[3]={0.0};
+            // for(label m = 0; m < 3; m++){
+            //     vec_i_[m]=gradi[active_phases[count_i]][cell].component(m);
+            //     vec_j_[m]=-vec_i_[m];//gradi[active_phases[count_j]][cell].component(m);//-vec_i_[m];//
+            // } 
 
 
                 // Info<<"HERE2"<<endl;
@@ -94,14 +94,14 @@ forAll(mesh.C(), cell)
                 dfdp[count_j] -= 4.0 * int_energy * PopBal[active_phases[count_i]][cell] / (interface_width.value()) +
                                  4.0 * int_energy * Laplacian_n[active_phases[count_i]][cell] * (interface_width.value()) / (pi.value() * pi.value());
 
-                if (n_active_phases < 3) {
-                    double temp_cap_aniso = /*BoundarySwitch[cell]*/anisostrength*int_energy*dummy.aniso_energy(tens_i_,tens_j_,vec_i_,vec_j_,PopBal[active_phases[count_i]][cell],PopBal[active_phases[count_j]][cell],interface_width.value(),/*deltaN3.value()*/1e-8/Foam::pow(mesh.V()[cell], 1.0/3.0));
-                            temp_cap_aniso=min(temp_cap_aniso,1e6);
-                            temp_cap_aniso=max(temp_cap_aniso,-1e6);
-                dfdp_aniso[count_i]-=/*2.0*Foam::sqrt(PopBal[active_phases[count_i]][cell]*PopBal[active_phases[count_j]][cell])*/temp_cap_aniso;///*BoundarySwitch[cell]*/anisostrength*int_energy*dummy.aniso_energy(tens_i_,tens_j_,vec_i_,vec_j_,PopBal[active_phases[count_i]][cell],PopBal[active_phases[count_j]][cell],interface_width.value(),/*deltaN3.value()*/1e-8/Foam::pow(mesh.V()[cell], 1.0/3.0));
-                // dfdp_aniso[count_j]-=anisostrength*int_energy*dummy.aniso_energy(tens_j_,tens_i_,vec_j_,vec_i_,PopBal[active_phases[count_j]][cell],PopBal[active_phases[count_i]][cell],interface_width.value(),deltaN3.value());
-                A_out[cell]+=    /*BoundarySwitch[cell]*/(dfdp_aniso[count_i]);
-                }
+                // if (n_active_phases < 3) {
+                //     double temp_cap_aniso = /*BoundarySwitch[cell]*/anisostrength*int_energy*dummy.aniso_energy(tens_i_,tens_j_,vec_i_,vec_j_,PopBal[active_phases[count_i]][cell],PopBal[active_phases[count_j]][cell],interface_width.value(),/*deltaN3.value()*/1e-8/Foam::pow(mesh.V()[cell], 1.0/3.0));
+                //             temp_cap_aniso=min(temp_cap_aniso,1e6);
+                //             temp_cap_aniso=max(temp_cap_aniso,-1e6);
+                // dfdp_aniso[count_i]-=/*2.0*Foam::sqrt(PopBal[active_phases[count_i]][cell]*PopBal[active_phases[count_j]][cell])*/temp_cap_aniso;///*BoundarySwitch[cell]*/anisostrength*int_energy*dummy.aniso_energy(tens_i_,tens_j_,vec_i_,vec_j_,PopBal[active_phases[count_i]][cell],PopBal[active_phases[count_j]][cell],interface_width.value(),/*deltaN3.value()*/1e-8/Foam::pow(mesh.V()[cell], 1.0/3.0));
+                // // dfdp_aniso[count_j]-=anisostrength*int_energy*dummy.aniso_energy(tens_j_,tens_i_,vec_j_,vec_i_,PopBal[active_phases[count_j]][cell],PopBal[active_phases[count_i]][cell],interface_width.value(),deltaN3.value());
+                // A_out[cell]+=    /*BoundarySwitch[cell]*/(dfdp_aniso[count_i]);
+                // }
                 // Info<<count_i<<": \t"<<dfdp_aniso[count_i]<<endl; 
 
                         
@@ -138,49 +138,49 @@ forAll(mesh.C(), cell)
 
         }
 
-        for (label i = 0; i < n_active_phases; i++)
-        {
+        // for (label i = 0; i < n_active_phases; i++)
+        // {
 
-            // PhaseComposition[count_phase][count_i][cell];
+        //     // PhaseComposition[count_phase][count_i][cell];
 
 
-            label my_phase = active_phases[i];
-            label my_mat = Phase2Material[my_phase];
+        //     label my_phase = active_phases[i];
+        //     label my_mat = Phase2Material[my_phase];
 
-            double PhaseComp_[N_Comps]={0.0};
-            // double mu_[N_Comps]={0.0};
-            for(label l = 0; l < N_Comps; l++){
-                    // loop over all lattices ..... populate phaseComp[l][k] to pass to function
-                PhaseComp_[l]=PhaseComposition[my_phase][l][cell];
+        //     // double PhaseComp_[N_Comps]={0.0};
+        //     // // double mu_[N_Comps]={0.0};
+        //     // for(label l = 0; l < N_Comps; l++){
+        //     //         // loop over all lattices ..... populate phaseComp[l][k] to pass to function
+        //     //     PhaseComp_[l]=PhaseComposition[my_phase][l][cell];
                 
-            }
+        //     // }
             
 
 
-            //  // Info<<MatList[my_mat].deltaG(mu_,PhaseComp_,Temperature[cell],N_Comps)<<endl;;
-            if(MatList[my_mat].Mat_type=="Quadratic"){
-            dfdp_G[i] =(1.0/V_mol.value())*MatList[my_mat].deltaG(mu_,PhaseComp_,Temperature[cell],N_Comps);
-            }
-            if(MatList[my_mat].Mat_type=="TD_Model"){
-                // Info<<"cell: "<<cell<<endl;
-            dfdp_G[i] = (1.0/V_mol.value())*MatList[my_mat].deltaG_TD(mu_,PhaseComp_,Temperature[cell],N_Comps);
-            }
-             if(MatList[my_mat].Mat_type=="SL_Model"){
-                label N_total = N_Comps + 1;
+        //     //  // Info<<MatList[my_mat].deltaG(mu_,PhaseComp_,Temperature[cell],N_Comps)<<endl;;
+        //     // if(MatList[my_mat].Mat_type=="Quadratic"){
+        //     // dfdp_G[i] =(1.0/V_mol.value())*MatList[my_mat].deltaG(mu_,PhaseComp_,Temperature[cell],N_Comps);
+        //     // }
+        //     // if(MatList[my_mat].Mat_type=="TD_Model"){
+        //     //     // Info<<"cell: "<<cell<<endl;
+        //     // dfdp_G[i] = (1.0/V_mol.value())*MatList[my_mat].deltaG_TD(mu_,PhaseComp_,Temperature[cell],N_Comps);
+        //     // }
+        //     //  if(MatList[my_mat].Mat_type=="SL_Model"){
+        //     //     label N_total = N_Comps + 1;
 
-                    // Get stored site fractions
-                double sitefrac[2*N_total];
-                for(label c = 0; c < N_total; c++) {
-                    sitefrac[c] = PhaseComposition2SL[my_phase][c][0][cell];
-                    sitefrac[N_total + c] = PhaseComposition2SL[my_phase][c][1][cell];
-                    }
+        //     //         // Get stored site fractions
+        //     //     double sitefrac[2*N_total];
+        //     //     for(label c = 0; c < N_total; c++) {
+        //     //         sitefrac[c] = PhaseComposition2SL[my_phase][c][0][cell];
+        //     //         sitefrac[N_total + c] = PhaseComposition2SL[my_phase][c][1][cell];
+        //     //         }
     
-                // Calculate driving force
-                dfdp_G[i] = MatList[my_mat].delta_G_2SL(mu_, sitefrac, Temperature[cell], N_Comps);
+        //     //     // Calculate driving force
+        //     //     dfdp_G[i] = MatList[my_mat].delta_G_2SL(mu_, sitefrac, Temperature[cell], N_Comps);
 
-            }
+        //     // }
 
-        }
+        // }
         // A_out[cell] = dfdp_G[0] - dfdp_G[1];
         Driving_Force_info[cell]*=0.0;// dfdp_G[0] - dfdp_G[1];
 
