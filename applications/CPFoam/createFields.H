@@ -328,15 +328,15 @@ for (label i = 0; i < N_Mats; i++)
     Cprime2[i] = Cprime_temp_Read;
 
     // take most recently read material's elastic stiffness tensor, ensuring symmetry ... 
-    auto C = Foam::Material::castSymmetry(Cprime_temp_Read);
+    //auto C = Foam::Material::castSymmetry(Cprime_temp_Read);
 
     // invert the stiffness tensor to get the compliance tensor
-    auto S    = Foam::Material::invertRankFour(C, true);
+    //auto S    = Foam::Material::invertRankFour(C, true);
 
     // Check the inversion was correct 
-    bool isInverse = Foam::Material::isRankFourInverse(C, S, true);
+    //bool isInverse = Foam::Material::isRankFourInverse(C, S, true);
 
-    exit(0);
+   // exit(0);
 
     // // Quick check on the double contraction (twice) function 
     // Fastor::Tensor<double, 3,3,3,3> test_fourth_order(0.0); // Fourth order symmetry tensor 
