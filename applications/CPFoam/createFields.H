@@ -295,10 +295,31 @@ for (label i = 0; i < N_Mats; i++)
             {
                 for (int q = 0; q < 3; q++)
                 {
-
+                    // Check for symmetry (minor and major) and warn the user ... 
                     word Cijkl("C" + name(m) + name(n) + name(p) + name(q));
+                    word Cjikl("C" + name(n) + name(m) + name(p) + name(q));
+                    word Cijlk("C" + name(m) + name(n) + name(q) + name(p));
+                    word Cjilk("C" + name(n) + name(m) + name(q) + name(p));
 
-                    Cprime_temp_Read(m, n, p, q) = Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+                    double a = Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+                    double b = Mat.lookupOrDefault<scalar>(Cjikl, 0.0);
+                    double c = Mat.lookupOrDefault<scalar>(Cijlk, 0.0);
+                    double d = Mat.lookupOrDefault<scalar>(Cjilk, 0.0);
+
+                    double tol = 1e-12;
+                    if (std::abs(a - b) > tol || std::abs(a - c) > tol || std::abs(a - d) > tol ||
+                        std::abs(b - c) > tol || std::abs(b - d) > tol || std::abs(c - d) > tol)
+                    {
+                        WarningInFunction << "non-symmetric elastic stiffness detected:\n"
+                                        << "      components:\n"
+                                        << "         C_" << m << n << p << q << " = " << a << "\n"
+                                        << "         C_" << n << m << p << q << " = " << b << "\n"
+                                        << "         C_" << m << n << q << p << " = " << c << "\n"
+                                        << "         C_" << n << m << q << p << " = " << d << "\n" << nl << endl;
+                                        // << "      ...Taking the weighted average of the four..." << nl << endl;
+                    }
+
+                    Cprime_temp_Read(m, n, p, q) = a; 
                 }
             }
         }
@@ -306,14 +327,50 @@ for (label i = 0; i < N_Mats; i++)
 
     Cprime2[i] = Cprime_temp_Read;
 
+    // take most recently read material's elastic stiffness tensor, ensuring symmetry ... 
+    auto C = Foam::Material::castSymmetry(Cprime_temp_Read);
 
+    // invert the stiffness tensor to get the compliance tensor
+    auto S    = Foam::Material::invertRankFour(C, true);
+
+    // Check the inversion was correct 
+    bool isInverse = Foam::Material::isRankFourInverse(C, S, true);
+
+    exit(0);
+
+    // // Quick check on the double contraction (twice) function 
+    // Fastor::Tensor<double, 3,3,3,3> test_fourth_order(0.0); // Fourth order symmetry tensor 
+    // Fastor::Tensor<double,3,3> test_second_order(0.0);      // Second order identity tensor 
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     for (int j = 0; j < 3; j++)
+    //     {
+    //         for (int k = 0; k < 3; k++)
+    //         {
+    //             for (int l = 0; l < 3; l++) 
+    //             {
+    //                 test_fourth_order(i,j,k,l) = 0.5 * ( (i==k && j==l) + (i==l && j==k) );
+    //             }
+    //         }
+    //     }
+    // }
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     test_second_order(i,i) = 1.0; 
+    // }
+
+    // double testContraction = Material::doubleContractionTwice(test_second_order, test_fourth_order, true); 
+    
+    exit(0); 
 // dimensionedScalar Cvtemp("Cvtemp", dimensionSet(0, 2, -2, -1, 0), Mat.lookup("Cv"));
 // dimensionedScalar kappatemp("kappatemp", dimensionSet(1, 1, -3, -1, 0), Mat.lookup("kappa"));
 // dimensionedScalar rho_0temp("rho_0temp", dimensionSet(1, -3, 0, 0, 0), Mat.lookup("rho_0"));
 
-scalar Cvtemp(readScalar(Mat.lookup("Cv")));
-scalar kappatemp(readScalar(Mat.lookup("kappa")));
-scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
+    scalar Cvtemp(readScalar(Mat.lookup("Cv")));
+    scalar kappatemp(readScalar(Mat.lookup("kappa")));
+    scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
 
     // scalar rho
     MatList[i].rho_0 = rho_0temp;
