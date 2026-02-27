@@ -1,37 +1,24 @@
-// const surfaceTensorField sigma_f(fvc::interpolate(sigma));
 
-fvVectorMatrix UEqn(
+
+dimensionedScalar D_eff = D_stab * runTime.deltaT();
+
+fvVectorMatrix UEqn
+(
     fvm::ddt(rho, U) 
-    + fvm::div(rhoPhi, U) 
-    // +fvc::div(rho * (U*U))
-    // - fvc::div(sigma)
-    - fvc::div(sigmaGlobaltemp,"div(sigma)")
-    // ==
-
+    + fvm::div(rhoPhi, U)
+    - fvm::laplacian(D_eff, U)                     // Implicit stabilization
+    ==
+      fvc::div(sigmaGlobaltemp, "div(sigma)")       // Stress divergence 
+    - fvc::laplacian(D_eff, U)                      // Cancels implicit term over many iterations
 );
 
 UEqn.relax();
 
-
-
-volScalarField rAU(1.0 / UEqn.A());
-
-volVectorField HbyA("HbyA", U);
-HbyA = rAU * UEqn.H();
-surfaceScalarField phiHbyA(
-    "phiHbyA",
-    (fvc::interpolate(HbyA) & mesh.Sf())
-    // + fvc::ddtPhiCorr(rAU, U, phi)
-);
-
-phi = phiHbyA; // fvc::flux(U);
-
-// UEqn.solve();
 initialResidual = UEqn.solve().max().initialResidual();
 U.correctBoundaryConditions();
 
 
-rhoPhi = fvc::interpolate(rho) * phi; // fvc::flux(U);
-K = 0.5 * magSqr(U);
+phi = (fvc::interpolate(U) & mesh.Sf());
+rhoPhi = fvc::interpolate(rho) * phi;
 
-// sigmatemp*=0.0;
+K = 0.5 * magSqr(U);

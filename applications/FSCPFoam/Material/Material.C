@@ -100,8 +100,3 @@ tensor Foam::Material::RK4(scalar step_size){
 
     return tensor::zero;
 }
-
-
-
-
-
