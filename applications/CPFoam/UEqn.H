@@ -14,21 +14,24 @@ UEqn.relax();
 
 
 
-volScalarField rAU(1.0 / UEqn.A());
+// volScalarField rAU(1.0 / UEqn.A());
 
-volVectorField HbyA("HbyA", U);
-HbyA = rAU * UEqn.H();
-surfaceScalarField phiHbyA(
-    "phiHbyA",
-    (fvc::interpolate(HbyA) & mesh.Sf())
-    // + fvc::ddtPhiCorr(rAU, U, phi)
-);
+// volVectorField HbyA("HbyA", U);
+// HbyA = rAU * UEqn.H();
+// surfaceScalarField phiHbyA(
+//     "phiHbyA",
+//     (fvc::interpolate(HbyA) & mesh.Sf())
+//     // + fvc::ddtPhiCorr(rAU, U, phi)
+// );
 
-phi = phiHbyA; // fvc::flux(U);
+// phi = phiHbyA; // fvc::flux(U);
 
 // UEqn.solve();
 initialResidual = UEqn.solve().max().initialResidual();
 U.correctBoundaryConditions();
+
+phi = (fvc::interpolate(U) & mesh.Sf());
+rhoPhi = fvc::interpolate(rho) * phi;
 
 
 rhoPhi = fvc::interpolate(rho) * phi; // fvc::flux(U);

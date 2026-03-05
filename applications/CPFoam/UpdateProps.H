@@ -14,7 +14,7 @@
 omega_dot.correctBoundaryConditions();
   //NOTE!!! Openfoam defines grad in the opposite manner to solid mechanics textbooks, it's actually grad transpose that we want so this has to be transposed again or just ahev a - sign
 
-  epsilon_dot = 0.5 * (TgradU + fvc::grad(U));//- (1.0/3.0)*(fvc::div(phi))*I; // this looks like dev(gradU)
+  epsilon_dot = 0.5 * (TgradU + fvc::grad(U));
 epsilon_dot.correctBoundaryConditions();
 
 

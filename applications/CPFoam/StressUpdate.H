@@ -1,37 +1,7 @@
 {
     sigmaGlobaltemp *= 0.0;
     
-    // Create working copies of rotation fields for PIMPLE iterations
-    //  PtrList<volScalarField> Rot1_working;
-    //  PtrList<volScalarField> Rot2_working;
-    // PtrList<volScalarField> Rot3_working;
-    
-    // // Initialize working rotations at start of PIMPLE loop
-    // if (pimpleIter == 1) 
-    // {
-    //     Rot1_working.clear();
-    //     Rot2_working.clear();
-    //     Rot3_working.clear();
-    //     Rot1_working.resize(N_Ori);
-    //     Rot2_working.resize(N_Ori);
-    //     Rot3_working.resize(N_Ori);
-        
-    //     for (label h = 0; h < N_Ori; h++)
-    //     {
-    //         Rot1_working.set(
-    //             h,
-    //             new volScalarField(Rot1[h])
-    //         );
-    //         Rot2_working.set(
-    //             h,
-    //             new volScalarField(Rot2[h])
-    //         );
-    //         Rot3_working.set(
-    //             h,
-    //             new volScalarField(Rot3[h])
-    //         );
-    //     }
-    // }
+
 
     for (label h = 0; h < N_Ori; h++)
     {
@@ -440,12 +410,18 @@ accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index
             
             // Step 2: Update stress for this sub-step
             // volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt.value() * (step + 1));
-            volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt * (step + 1));
+            volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt);
             omega_p_rate.correctBoundaryConditions();
             
-            sigma_working += sub_dt * dsigmadt_local;
-            sigma_working -= sub_dt * ((sigma_working & omega_dot) + (omega_dot & sigma_working));
-            sigma_working += sub_dt * ((sigma_working & omega_p_rate) - (omega_p_rate & sigma_working));
+            // sigma_working += sub_dt * dsigmadt_local;
+            // sigma_working -= sub_dt * ((sigma_working & omega_dot) - (omega_dot & sigma_working));
+            // sigma_working += sub_dt * ((sigma_working & omega_p_rate) - (omega_p_rate & sigma_working));
+
+            volTensorField sigma_old = sigma_working;
+            sigma_working = sigma_old
+            + sub_dt * dsigmadt_local
+            + sub_dt * ((omega_dot & sigma_old) - (sigma_old & omega_dot))
+            + sub_dt * ((sigma_old & omega_p_rate) - (omega_p_rate & sigma_old));
             
             sigma_working.correctBoundaryConditions();
 

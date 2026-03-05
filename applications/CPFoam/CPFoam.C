@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
             #include "UEqn.H"
         // #include "setU.H"
 
-            if (!pimple.finalIter()) 
-            {
-        U = pimple_relax_U*U + (1.0-pimple_relax_U)* U_old;  // Relaxation
-        U.correctBoundaryConditions();
-            }
+        //     if (!pimple.finalIter()) 
+        //     {
+        // U = pimple_relax_U*U + (1.0-pimple_relax_U)* U_old;  // Relaxation
+        // U.correctBoundaryConditions();
+        //     }
             
 
             #include "UpdateProps.H"
