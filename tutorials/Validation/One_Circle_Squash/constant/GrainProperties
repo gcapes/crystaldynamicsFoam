@@ -14,6 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+interface_width	4e-6;
 
 N_Phases	2;
 
@@ -32,9 +33,26 @@ phi3 (0 0);
 
 
 
-n_constitutive_substeps	10;
+n_constitutive_substeps	25;
 
 
+
+//Interface Stuff
+
+
+Energy
+(
+(Material.0 Material.0) 0.3
+(Material.0 Material.1) 0.2
+(Material.1 Material.1) 0.1
+);
+
+Mobility
+(
+(Material.0 Material.0) 5.1e-6
+(Material.0 Material.1) 5.0e-4//100.0e-4//10 too high
+(Material.1 Material.1) 5.3e-6
+);
 
 
 
@@ -103,10 +121,10 @@ m11 (0.577350269189626	0.577350269189626	-0.577350269189626);
 
 
 initialCRSS	160e6;
-tau_S	2000e6;
+tau_S	300e6;
 h_0	1000e6;
 r	1.4;
-k_exponent	500.0;
+k_exponent	20.0;
 gammadot_0	1e-3;
 
 }
@@ -120,17 +138,28 @@ kappa	20.0;
 
 rho_0	7800;
 
-  C0000    1e11;	//	1.40E11; 	9.20E10;	1.11E11
-  C0101    1e11;
-  C0202    1e11;
-  
-  C1010    1e11;
-  C1111    1e11;
-  C1212    1e11;
-  
-  C2020    1e11;
-  C2121    1e11;
-  C2222    1e11;
+  C0000    1.40E11;	//	1.40E11; 	9.20E10;	1.11E11
+  C1111    1.40E11;
+  C2222    1.40E11;
+
+  C1010    1.11E11;
+  C2020    1.11E11;
+  C0011    9.20E10;
+  C1001    1.11E11;
+  C0022    9.20E10;
+  C2002    1.11E11;
+  C0110    1.11E11;
+  C1100    9.20E10;
+  C0101    1.11E11;
+  C2121    1.11E11;
+  C1122    9.20E10;
+  C2112    1.11E11;
+  C0220    1.11E11;
+  C2200    9.20E10;
+  C1221    1.11E11;
+  C2211    9.20E10;
+  C0202    1.11E11;
+  C1212    1.11E11;
 
 
 N_slips	12;//
@@ -163,12 +192,12 @@ m11 (0.577350269189626	0.577350269189626	-0.577350269189626);
 
 
 
-initialCRSS	450e6;
-tau_S	2000e6;
+initialCRSS	160e6;
+tau_S	300e6;
 h_0	1000e6;
-r	1.1;
-k_exponent	10.0;
-gammadot_0	0.0;
+r	1.4;
+k_exponent	20.0;
+gammadot_0	1e-3;
 
 }
 

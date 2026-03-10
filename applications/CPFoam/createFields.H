@@ -246,6 +246,14 @@ IOdictionary GrainProperties(
 
 dimensionedScalar interface_width("interface_width", dimensionSet(0, 1, 0, 0, 0), GrainProperties);
 
+// const Switch fracture(GrainProperties.lookup("Fracture"));
+
+const Switch fracture(GrainProperties.lookupOrDefault<Switch>("Fracture", false));
+
+/*
+lookupOrDefault<Switch>("Radial_Polar_HS", true)
+*/
+
 // const dimensionedScalar Mm
 // (
 //     "Mm",
@@ -363,7 +371,7 @@ for (label i = 0; i < N_Mats; i++)
 
     // double testContraction = Material::doubleContractionTwice(test_second_order, test_fourth_order, true); 
     
-    exit(0); 
+    // exit(0); 
 // dimensionedScalar Cvtemp("Cvtemp", dimensionSet(0, 2, -2, -1, 0), Mat.lookup("Cv"));
 // dimensionedScalar kappatemp("kappatemp", dimensionSet(1, 1, -3, -1, 0), Mat.lookup("kappa"));
 // dimensionedScalar rho_0temp("rho_0temp", dimensionSet(1, -3, 0, 0, 0), Mat.lookup("rho_0"));
@@ -1348,6 +1356,45 @@ for(int i = 0; i <N_Mats; i++)
 Interface dummy("isotropic",T);
 dummy.Assign_Energies(PF_Energy0_array);
 dummy.Assign_Mobilities(PF_Mobility0_array);
+
+
+
+
+
+
+
+
+// NEED TO STORE THE ROTATED STIFFNESS TENSOR FOR ALL PHASES FOR ALL CELLS
+std::vector<std::vector<Fastor::Tensor<double,3,3,3,3>>> C_rotated(
+    N_Ori,
+    std::vector<Fastor::Tensor<double,3,3,3,3>>(mesh.nCells())
+);
+
+
+
+// PtrList<volScalarField> PopBal(N_Ori); // pointer to phase fields
+
+// for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
+// {
+
+//     word name_ni("n." + name(count));
+
+//     PopBal.set(
+//         count,
+//         new volScalarField(
+//             IOobject(
+//                 name_ni,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+//                 IOobject::AUTO_WRITE),
+//             mesh,
+//             dimensionedScalar("ni", dimensionSet(0, 0, 0, 0, 0), 0.0),
+//             zeroGradientFvPatchScalarField::typeName));
+// }
+
+
+
 
 
 

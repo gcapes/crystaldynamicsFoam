@@ -20,7 +20,10 @@ internalField   uniform 300.0;
 
 boundaryField
 {
-	frontAndBack{
+	Front{
+type zeroGradient;
+	}
+	Back{
 type zeroGradient;
 	}
 

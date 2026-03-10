@@ -18,7 +18,7 @@ omega_dot.correctBoundaryConditions();
 epsilon_dot.correctBoundaryConditions();
 
 
-// dsigmadt*=0.0;
+
 
 
 
