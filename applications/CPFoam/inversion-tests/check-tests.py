@@ -2,20 +2,11 @@
 """
 check-tests.py — Validates output from the 4 CPFoam inversion test cases.
 
-PREREQUISITES
--------------
-Before running the tests, CPFoam/PF.H must be in diagnostic mode:
-
-    Fastor::Tensor<double,3,3,3,3> C_rot_inverse =
-        Material::invertRankFour(C_rotated[active_phases[count_i]][cell], true);
-    exit(0);   // exits after first call so we can inspect the pipeline
+must have exit(0); in createFields after inversion with verbose = true to be run effectively. 
 
 Run:
     cd inversion-tests && ./Allrun_tests
     python3 check-tests.py
-
-Then revert PF.H to production mode (remove exit(0), set verbosity=false)
-before pushing to the Fracture branch.
 """
 
 import re
