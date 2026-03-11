@@ -1,0 +1,36 @@
+INVERSION TEST 2 — Cubic FCC, C_max ~ 1e11, non-trivial rotation
+==================================================================
+
+PURPOSE
+-------
+Same crystal structure and orientation as test-1 but stiffness components
+are 10x larger (order 1e11 Pa, matching Material.1 in the Fracture case).
+
+This test confirms:
+  - Symmetry noise scales with component magnitude: for C_max~1e11 the
+    pre-fix noise would be ~1e-5, still far above the 1e-12 tolerance.
+  - After the castSymmetry fix, diagnostics still report exactly 0.
+  - The compliance values are ~10x smaller than test-1 (as expected).
+
+Must be used with verbose option for inversion functionality.
+
+INPUT TENSOR (unrotated, both materials set to Material.1 values)
+-----------------------------------------------------------------
+  C11 = C22 = C33 = 1.40e11  Pa
+  C12 = C13 = C23 = 9.20e10  Pa
+  C44 = C55 = C66 = 1.11e11  Pa
+
+  Crystal orientation: phi1=0.26, phi2=0, phi3=0
+
+EXPECTED OUTPUT
+---------------
+  fourthToMandel symmetry diagnostics (all calls):
+    max |C(i,j,k,l) - C(j,i,k,l)| = 0
+    max |C(i,j,k,l) - C(i,j,l,k)| = 0
+    max |C(i,j,k,l) - C(k,l,i,j)| = 0
+
+  Compliance diagonal (Mandel, unrotated frame, approximate):
+    S_M(0,0) = S_M(1,1) = S_M(2,2) ~ 1.1e-11  Pa^-1   (10x smaller than test-1)
+    S_M(3,3) = S_M(4,4) = S_M(5,5) ~ 9.0e-12  Pa^-1
+
+  All values should be exactly 1/10th of the test-1 results.

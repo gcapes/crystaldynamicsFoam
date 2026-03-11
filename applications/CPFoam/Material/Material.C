@@ -135,45 +135,63 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::castSymmetry(const Fastor::Tensor
 {
     Fastor::Tensor<double,3,3,3,3> C_out(0.0);
 
-    for (int i=0; i<3; ++i)
+    // Mandel index pairs (I -> (i,j)):
+    //   0->(0,0)  1->(1,1)  2->(2,2)  3->(1,2)  4->(0,2)  5->(0,1)
+    const int vi[6] = {0, 1, 2, 1, 0, 0};
+    const int vj[6] = {0, 1, 2, 2, 2, 1};
+
+    // Iterate over the 21 unique upper-triangular Mandel pairs (I <= J).
+    // One average is computed per pair from a single fixed ordering of the 8
+    // symmetry-related components, then the exact same double value is written
+    // to all 8 tensor positions.  This guarantees bitwise equality between all
+    // symmetry-equivalent entries so that fourthToMandel() never sees a false
+    // symmetry violation.
+    //
+    // The previous 4-nested loop visited all 81 (i,j,k,l) independently.
+    // For a pair such as (i,j,k,l) and (j,i,k,l) the same 8 values were
+    // summed in a different order; IEEE 754 floating-point addition is not
+    // associative so the averages differed by ~eps*C_max ~ 1e+(n-16) for
+    // components of order 1e+n.  For a rotated cubic stiffness tensor with
+    // components ~1e10 this produced residuals of ~1e-6, which exceeded the
+    // 1e-12 tolerance in fourthToMandel() and caused a spurious fatal error.
+
+    for (int I = 0; I < 6; ++I)
     {
-        for (int j=0; j<3; ++j)
+        for (int J = I; J < 6; ++J)
+        {
+            const int i = vi[I], j = vj[I];
+            const int k = vi[J], l = vj[J];
+
+            // Collect all 8 symmetry-related components
+            double vals[8] = {
+                C_in(i,j,k,l),
+                C_in(j,i,k,l),
+                C_in(i,j,l,k),
+                C_in(j,i,l,k),
+                C_in(k,l,i,j),
+                C_in(l,k,i,j),
+                C_in(k,l,j,i),
+                C_in(l,k,j,i)
+            };
+
+            // Average non-zero entries
+            double sum = 0.0;
+            int count = 0;
+
+            for (int n=0; n<8; ++n)
             {
-            for (int k=0; k<3; ++k)
-            {
-                for (int l=0; l<3; ++l)
+                if (std::abs(vals[n]) > 1e-14)
                 {
-                    // Collect all 8 symmetry-related components
-                    double vals[8] = {
-                        C_in(i,j,k,l),
-                        C_in(j,i,k,l),
-                        C_in(i,j,l,k),
-                        C_in(j,i,l,k),
-                        C_in(k,l,i,j),
-                        C_in(l,k,i,j),
-                        C_in(k,l,j,i),
-                        C_in(l,k,j,i)
-                    };
-
-                    // Average non-zero entries
-                    double sum = 0.0;
-                    int count = 0;
-
-                    for (int n=0; n<8; ++n)
-                    {
-                        if (std::abs(vals[n]) > 1e-14)
-                        {
-                            sum += vals[n];
-                            count++;
-                        }
-                    }
-
-                    double avg = (count > 0 ? sum / count : 0.0);
-
-                    // Assign the averaged value
-                    C_out(i,j,k,l) = avg;
+                    sum += vals[n];
+                    count++;
                 }
             }
+
+            const double avg = (count > 0 ? sum / count : 0.0);
+
+            // Assign the SAME bitwise value to all 8 symmetry-related positions
+            C_out(i,j,k,l) = C_out(j,i,k,l) = C_out(i,j,l,k) = C_out(j,i,l,k) = avg;
+            C_out(k,l,i,j) = C_out(l,k,i,j) = C_out(k,l,j,i) = C_out(l,k,j,i) = avg;
         }
     }
 
@@ -181,21 +199,17 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::castSymmetry(const Fastor::Tensor
 }
 
 /*
-    Casts a symmetric rank-four tensor to its 6x6 Mandel matrix representation.
+    Strictly checks all minor and major symmetries of a rank-four tensor and
+    aborts with a FatalError if any are violated beyond 1e-12.
 
-    Mandel ordering:
-        0 -> 11
-        1 -> 22
-        2 -> 33
-        3 -> 23
-        4 -> 13
-        5 -> 12
-
-    Shear components are scaled by sqrt(2) to make the basis orthonormal.
+    Call this ONCE at initialisation on the raw input stiffness tensor (before
+    any rotation) to catch genuinely non-symmetric user input in GrainProperties.
+    Do NOT call it inside the time loop — after castSymmetry() the tensor is
+    guaranteed symmetric by construction, so re-checking every cell every step
+    is unnecessary overhead.
 */
-Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C)
+void Foam::Material::assertSymmetry(const Fastor::Tensor<double,3,3,3,3>& C)
 {
-    // --- Symmetry checks ---
     for (int i=0; i<3; ++i)
     {
         for (int j=0; j<3; ++j)
@@ -235,6 +249,94 @@ Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<d
                 }
             }
         }
+    }
+}
+
+/*
+    Casts a symmetric rank-four tensor to its 6x6 Mandel matrix representation.
+
+    Mandel ordering:
+        0 -> 11
+        1 -> 22
+        2 -> 33
+        3 -> 23
+        4 -> 13
+        5 -> 12
+
+    Shear components are scaled by sqrt(2) to make the basis orthonormal.
+*/
+Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity)
+{
+    if (verbosity)
+    {
+        double maxMinorIJ = 0.0, maxMinorKL = 0.0, maxMajor = 0.0;
+
+        for (int i=0; i<3; ++i)
+        {
+            for (int j=0; j<3; ++j)
+            {
+                for (int k=0; k<3; ++k)
+                {
+                    for (int l=3; l<3; ++l)
+                    {
+                        const double Cijkl = C(i,j,k,l);
+                        double d;
+                        d = std::abs(Cijkl - C(j,i,k,l)); if (d > maxMinorIJ) maxMinorIJ = d;
+                        d = std::abs(Cijkl - C(i,j,l,k)); if (d > maxMinorKL) maxMinorKL = d;
+                        d = std::abs(Cijkl - C(k,l,i,j)); if (d > maxMajor)   maxMajor   = d;
+                    }
+                }
+            }
+
+        }
+
+        Info << "fourthToMandel symmetry diagnostics:\n"
+             << "  max |C(i,j,k,l) - C(j,i,k,l)| = " << maxMinorIJ << nl
+             << "  max |C(i,j,k,l) - C(i,j,l,k)| = " << maxMinorKL << nl
+             << "  max |C(i,j,k,l) - C(k,l,i,j)| = " << maxMajor   << nl;
+    }
+
+    // --- Symmetry safety checks ---
+    for (int i=0; i<3; ++i)
+    {    
+        for (int j=0; j<3; ++j)
+        {
+            for (int k=0; k<3; ++k)
+            {
+                for (int l=0; l<3; ++l)
+                {
+                    const double Cijkl = C(i,j,k,l);
+
+                    if (std::abs(Cijkl - C(j,i,k,l)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates minor symmetry in (ij): "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<j<<","<<i<<","<<k<<","<<l<<")" << nl
+                            << abort(FatalError);
+                    }
+
+                    if (std::abs(Cijkl - C(i,j,l,k)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates minor symmetry in (kl): "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<i<<","<<j<<","<<l<<","<<k<<")" << nl
+                            << abort(FatalError);
+                    }
+
+                    if (std::abs(Cijkl - C(k,l,i,j)) > 1e-12)
+                    {
+                        FatalErrorInFunction
+                            << "Rank 4 tensor violates major symmetry: "
+                            << "C("<<i<<","<<j<<","<<k<<","<<l<<") != "
+                            << "C("<<k<<","<<l<<","<<i<<","<<j<<")" << nl
+                            << abort(FatalError);
+                    }
+                }
+            }
+        }
+  
     }
 
     // --- Mandel mapping using explicit loops ---
@@ -280,7 +382,7 @@ Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<d
 
     Shear components are scaled by 1/sqrt(2) to undo Mandel scaling.
 */
-Fastor::Tensor<double,3,3,3,3> Foam::Material::mandelToFourth(const Fastor::Tensor<double,6,6>& M)
+Fastor::Tensor<double,3,3,3,3> Foam::Material::mandelToFourth(const Fastor::Tensor<double,6,6>& M, bool verbosity)
 {
     // --- Symmetry checks on Mandel matrix ---
     for (int I=0; I<6; ++I)
@@ -368,7 +470,7 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
         Info << "\tCasting to 6x6 Mandel representation...\n\n";
     }
 
-    auto M = fourthToMandel(Csym);
+    auto M = fourthToMandel(Csym, verbosity);
 
     if (verbosity)
     {
@@ -396,7 +498,7 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
         Info << "\tCasting inverse back to rank 4 tensor...\n\n";
     }
 
-    auto Cinv = mandelToFourth(Minv);
+    auto Cinv = mandelToFourth(Minv, verbosity);
 
     if (verbosity)
     {

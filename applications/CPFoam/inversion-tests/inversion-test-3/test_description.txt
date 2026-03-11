@@ -1,0 +1,45 @@
+INVERSION TEST 3 — Isotropic material, no rotation
+===================================================
+
+PURPOSE
+-------
+Uses a fully isotropic stiffness tensor with NO crystal rotation (phi1=0).
+The compliance of an isotropic material is also fully isotropic, with known
+analytical values, providing a ground-truth check on the inversion correctness.
+
+For an isotropic material:  C_ijkl = lambda*d_ij*d_kl + mu*(d_ik*d_jl + d_il*d_jk)
+
+Using steel-like parameters:  E = 200 GPa,  nu = 0.30
+  lambda = E*nu / ((1+nu)(1-2nu)) = 115.38e9  Pa
+  mu     = E / (2*(1+nu))         =  76.92e9  Pa
+
+This gives:
+  C11 = lambda + 2*mu = 269.23e9  Pa
+  C12 = lambda        = 115.38e9  Pa
+  C44 = mu            =  76.92e9  Pa
+
+Expected compliance (analytical):
+  S1111 = 1/E                = 5.000e-12  Pa^-1
+  S1122 = -nu/E              = -1.500e-12  Pa^-1
+  S1212 = (1+nu)/E = 1/(2mu) =  6.500e-12  Pa^-1
+
+In Mandel form (S_M = 2*S for shear entries):
+  S_M(0,0) = S_M(1,1) = S_M(2,2) =  5.000e-12  Pa^-1
+  S_M(0,1) = S_M(0,2) = S_M(1,2) = -1.500e-12  Pa^-1
+  S_M(3,3) = S_M(4,4) = S_M(5,5) = 13.000e-12  Pa^-1
+  All off-diagonal shear blocks = 0
+
+This test confirms:
+  - The Mandel inversion returns the correct analytical compliance.
+  - The compliance tensor is isotropic (off-diagonal shear blocks are zero).
+  - No rotation means symmetry residuals are 0 trivially (no FP noise introduced).
+
+Must be used with verbose option for inversion functionality.
+
+INPUT TENSOR
+------------
+  C0000 = C1111 = C2222 = 2.6923e11  Pa    (C11 = lambda + 2*mu)
+  C0011 = C0022 = C1122 = 1.1538e11  Pa    (C12 = lambda)
+  ... and all minor/major symmetric equivalents set equal
+
+  Crystal orientation: phi1=0, phi2=0, phi3=0  (no rotation)

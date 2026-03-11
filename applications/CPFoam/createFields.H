@@ -333,16 +333,20 @@ for (label i = 0; i < N_Mats; i++)
         }
     }
 
-    Cprime2[i] = Cprime_temp_Read;
+    // Enforce full minor and major symmetry via Mandel pair enumeration.
+    // This overwrites any asymmetry in the user's GrainProperties input
+    // (already warned about above) so that the tensor is bitwise symmetric
+    // before rotation and inversion.
+    Cprime2[i] = Foam::Material::castSymmetry(Cprime_temp_Read);
 
-    // take most recently read material's elastic stiffness tensor, ensuring symmetry ... 
-    //auto C = Foam::Material::castSymmetry(Cprime_temp_Read);
+    // Verify the symmetrised tensor passes strict checks before the solve begins.
+    Foam::Material::assertSymmetry(Cprime2[i]);
 
     // invert the stiffness tensor to get the compliance tensor
-    //auto S    = Foam::Material::invertRankFour(C, true);
+    //auto S    = Foam::Material::invertRankFour(Cprime2[i], true);
 
-    // Check the inversion was correct 
-    //bool isInverse = Foam::Material::isRankFourInverse(C, S, true);
+    // Check the inversion was correct
+    //bool isInverse = Foam::Material::isRankFourInverse(Cprime2[i], S, true);
 
    // exit(0);
 

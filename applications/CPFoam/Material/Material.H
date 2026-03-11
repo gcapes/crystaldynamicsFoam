@@ -101,9 +101,10 @@ namespace Foam
         static Fastor::Tensor<double,3,3,3,3> invertRankFour(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity = false);
         
         // Helper functions for inverting rank four ... 
-        static Fastor::Tensor<double,3,3,3,3> castSymmetry(const Fastor::Tensor<double,3,3,3,3>& C_in); 
-        static Fastor::Tensor<double,6,6> fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C);
-        static Fastor::Tensor<double,3,3,3,3> mandelToFourth(const Fastor::Tensor<double, 6, 6>& M); 
+        static Fastor::Tensor<double,3,3,3,3> castSymmetry(const Fastor::Tensor<double,3,3,3,3>& C_in);
+        static void assertSymmetry(const Fastor::Tensor<double,3,3,3,3>& C);
+        static Fastor::Tensor<double,6,6> fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity = false);
+        static Fastor::Tensor<double,3,3,3,3> mandelToFourth(const Fastor::Tensor<double, 6, 6>& M, bool verbosity = false);
         static bool isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
         static bool isMandelInverse(const Fastor::Tensor<double,3,3,3,3>& C, const Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
         static double doubleContractionTwice(const Fastor::Tensor<double, 3, 3>& second, const Fastor::Tensor<double,3,3,3,3>& fourth, bool verbosity = false); 

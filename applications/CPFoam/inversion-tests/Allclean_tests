@@ -1,0 +1,8 @@
+#!/bin/sh
+cd "${0%/*}" || exit 1
+
+for test in inversion-test-1 inversion-test-2 inversion-test-3 inversion-test-4
+do
+    echo "Cleaning $test"
+    ( cd "$test" && ./Allclean )
+done
