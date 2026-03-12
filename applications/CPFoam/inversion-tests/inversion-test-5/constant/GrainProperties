@@ -18,7 +18,7 @@ interface_width	4e-6;
 
 N_Phases	2;
 
-N_Materials	2;
+N_Materials	3;
 
 Phase2Material (0 1);
 
@@ -132,7 +132,7 @@ gammadot_0	1e-3;
 
 }
 
-Material.1 // Void/crack phase — C11 == C12 == 0.1 Pa (Tom's case, singular Mandel)
+Material.1 // Void/crack phase — C11 == C12 == 0.1 Pa: upper-left 3x3 singular
 {
 
 Cv	500;
@@ -163,6 +163,54 @@ rho_0	0.00001;
   C2211    1.0E-1;
   C0202    1.0E-1;
   C1212    1.0E-1;
+
+
+N_slips	0;
+
+
+
+
+initialCRSS	16e5;
+tau_S	300e6;
+h_0	1000e6;
+r	1.4;
+k_exponent	0.0;
+gammadot_0	0.0;
+
+
+}
+
+Material.2 // Void/crack phase — C0000=C1111=C2222=0.1 Pa, all shear=0: lower-right 3x3 singular
+{
+
+Cv	500;
+
+kappa	1.0;
+
+rho_0	6000;
+
+  C0000    1.0E-1;
+  C1111    1.0E-1;
+  C2222    1.0E-1;
+
+  C1010    0.0;
+  C2020    0.0;
+  C0011    0.0;
+  C1001    0.0;
+  C0022    0.0;
+  C2002    0.0;
+  C0110    0.0;
+  C1100    0.0;
+  C0101    0.0;
+  C2121    0.0;
+  C1122    0.0;
+  C2112    0.0;
+  C0220    0.0;
+  C2200    0.0;
+  C1221    0.0;
+  C2211    0.0;
+  C0202    0.0;
+  C1212    0.0;
 
 
 N_slips	0;

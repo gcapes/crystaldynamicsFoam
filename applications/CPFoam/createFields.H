@@ -432,9 +432,7 @@ for (label i = 0; i < N_Mats; i++)
     MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
-// If verbose mode was requested, all per-material inversion self-tests have
-// now been printed above.  Exit cleanly so the inversion-tests log checker
-// can validate the output without running a full simulation.
+// Exit cleanly so the inversion-tests log checker can validate
 if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
 {
     Info << "All material inversion self-tests complete. Exiting.\n" << endl;
