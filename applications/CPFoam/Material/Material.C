@@ -277,7 +277,7 @@ Fastor::Tensor<double,6,6> Foam::Material::fourthToMandel(const Fastor::Tensor<d
             {
                 for (int k=0; k<3; ++k)
                 {
-                    for (int l=3; l<3; ++l)
+                    for (int l=0; l<3; ++l)
                     {
                         const double Cijkl = C(i,j,k,l);
                         double d;
@@ -482,6 +482,42 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
     if (verbosity)
     {
         Info << "\tInverting Mandel matrix...\n\n";
+    }
+
+    /* 
+        Check for singularity of M before inverting.
+        The most common cause is C11 == C12 in GrainProperties (e.g. a void/crack
+        phase), which makes the upper-left 3x3 Mandel block rank-1.
+        Fastor::inverse on a singular matrix returns rubbish, which
+        produces an asymmetric Minv and a FatalError in mandelToFourth.
+        We detect this upfront via the upper-left 3x3 sub-determinant and
+        return zero compliance (physically correct for a stress-free void).
+        If M is not singular, invert normally and let mandelToFourth catch
+        any remaining issues.
+    */ 
+    {
+        const double m00 = M(0,0), m01 = M(0,1), m02 = M(0,2);
+        const double m10 = M(1,0), m11 = M(1,1), m12 = M(1,2);
+        const double m20 = M(2,0), m21 = M(2,1), m22 = M(2,2);
+        const double det3 = m00*(m11*m22 - m12*m21)
+                          - m01*(m10*m22 - m12*m20)
+                          + m02*(m10*m21 - m11*m20);
+        const double scale = std::abs(m00) * std::abs(m11) * std::abs(m22);
+        const bool isSingular = (scale > 0.0)
+                              ? (std::abs(det3 / scale) < 1e-6)
+                              : (std::abs(det3) < 1e-30);
+
+        if (isSingular)
+        {
+            WarningInFunction
+                << "Mandel matrix is singular (upper-left 3x3 det/scale = "
+                << (scale > 0.0 ? det3/scale : det3) << ").\n"
+                << "Most likely cause: C11 == C12 in GrainProperties makes\n"
+                << "the upper-left 3x3 Mandel block rank-1 and non-invertible.\n"
+                << "Ensure C11 > C12 for every material (elastic stability condition).\n"
+                << "Returning zero compliance tensor for this cell/phase.\n" << nl;
+            return Fastor::Tensor<double,3,3,3,3>(0.0);
+        }
     }
 
     auto Minv = Fastor::inverse(M);

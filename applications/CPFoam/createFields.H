@@ -342,13 +342,17 @@ for (label i = 0; i < N_Mats; i++)
     // Verify the symmetrised tensor passes strict checks before the solve begins.
     Foam::Material::assertSymmetry(Cprime2[i]);
 
-    // invert the stiffness tensor to get the compliance tensor
-    //auto S    = Foam::Material::invertRankFour(Cprime2[i], true);
-
-    // Check the inversion was correct
-    //bool isInverse = Foam::Material::isRankFourInverse(Cprime2[i], S, true);
-
-   // exit(0);
+    // Inversion self-test: enabled by setting "verbose true;" in GrainProperties.
+    // Runs the full invertRankFour pipeline with diagnostics printed, then
+    // exits cleanly so the inversion-tests can validate the output log.
+    if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
+    {
+        Info << "\n=== invertRankFour self-test for Material." << i << " ===\n" << nl;
+        auto S = Foam::Material::invertRankFour(Cprime2[i], true);
+        bool isInverse = Foam::Material::isRankFourInverse(Cprime2[i], S, true);
+        Info << "isRankFourInverse = " << isInverse << nl;
+        Info << "...complete\n" << nl;
+    }
 
     // // Quick check on the double contraction (twice) function 
     // Fastor::Tensor<double, 3,3,3,3> test_fourth_order(0.0); // Fourth order symmetry tensor 
@@ -428,7 +432,14 @@ for (label i = 0; i < N_Mats; i++)
     MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
-
+// If verbose mode was requested, all per-material inversion self-tests have
+// now been printed above.  Exit cleanly so the inversion-tests log checker
+// can validate the output without running a full simulation.
+if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
+{
+    Info << "All material inversion self-tests complete. Exiting.\n" << endl;
+    exit(0);
+}
 
 
 

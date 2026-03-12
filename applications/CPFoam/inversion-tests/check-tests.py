@@ -242,7 +242,44 @@ def check_test4():
         ok(f"test-4: M_inv diagonal parsed: S_M(0,0) = {diag[0]:.6e}")
 
 
-# main 
+# test-5: singular void phase (C11 == C12) - singularity warning, zero compliance returned
+
+def check_test5():
+    print(f"\n{BOLD}inversion-test-5{RESET}  (void phase C11==C12, singular Mandel - warning + zero compliance)")
+    log = read_log("inversion-test-5")
+    if log is None:
+        fail("test-5: log.CPFoam not found - did you run ./Allrun_tests?")
+        return
+
+    # Must NOT crash with FatalError
+    if "FOAM FATAL ERROR" in log or "FatalError" in log:
+        fail("test-5: FatalError found - singularity check did not prevent crash")
+    else:
+        ok("test-5: no FatalError: singular void phase handled gracefully")
+
+    # Must emit at least one singularity warning for Material.1
+    warning_count = log.count("Mandel matrix is singular")
+    if warning_count >= 1:
+        ok(f"test-5: {warning_count} 'Mandel matrix is singular' warning(s) issued for void phase")
+    else:
+        fail("test-5: no 'Mandel matrix is singular' warning found - singularity not detected")
+
+    # Material.0 (valid cubic FCC) should still complete the full inversion pipeline
+    check_complete(log, "test-5")
+    check_symmetry_diagnostics(log, "test-5")
+
+    # Material.0 compliance diagonal should match test-1 (~1.49e-10)
+    diag = parse_mandel_diagonal(log)
+    if diag is None:
+        fail("test-5: could not parse M_inv diagonal for Material.0")
+    else:
+        if approx_equal(diag[0], 1.49e-10, rtol=0.05):
+            ok(f"test-5: Material.0 M_inv(0,0) = {diag[0]:.6e}  (expected ~1.49e-10, same as test-1)")
+        else:
+            fail(f"test-5: Material.0 M_inv(0,0) = {diag[0]:.6e}  (expected ~1.49e-10)")
+
+
+# main
 
 if __name__ == "__main__":
     print(f"{BOLD}CPFoam inversion test checker{RESET}")
@@ -252,6 +289,7 @@ if __name__ == "__main__":
     check_test2()
     check_test3()
     check_test4()
+    check_test5()
 
     print()
     print("=" * 50)

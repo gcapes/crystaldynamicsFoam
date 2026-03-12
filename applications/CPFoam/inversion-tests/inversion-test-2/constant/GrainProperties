@@ -34,6 +34,8 @@ phi3 (0 0);
 
 Fracture true;
 
+verbose true;
+
 
 n_constitutive_substeps	25;
 

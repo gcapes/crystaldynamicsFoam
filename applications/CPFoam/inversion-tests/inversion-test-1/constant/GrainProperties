@@ -29,7 +29,9 @@ phi2 (0 0);
 phi3 (0 0);
 
 
-Fracture true;//
+Fracture true;
+
+verbose true;
 
 
 

@@ -1,0 +1,44 @@
+INVERSION TEST 5 — Singular void phase (C11 == C12), singularity warning path
+==============================================================================
+
+PURPOSE
+-------
+Reproduces Tom's crash from the Fracture tutorial (12/03/2026).
+Material.1 is a void/crack phase where all off-diagonal normal stiffness
+components equal the diagonal: C11 = C12 = C13 = C23 = ... = 0.1 Pa.
+This makes the upper-left 3x3 block of the Mandel matrix equal to
+C11 * ones(3,3), which is rank-1 (determinant = 0) and non-invertible.
+
+Before the fix, Fastor::inverse returned garbage for this block, producing
+an asymmetric Minv that caused mandelToFourth to abort with:
+  "Input Mandel matrix is not symmetric: M(0,2) != M(2,0)"
+
+This test verifies the fix: invertRankFour now detects the singularity
+BEFORE calling Fastor::inverse, issues a WarningInFunction, and returns a
+zero compliance tensor. Material.0 (valid cubic FCC) should still invert
+correctly via the full pipeline.
+
+INPUT TENSORS
+-------------
+Material.0 — Fe-35Ni crystal (identical to test-1, C11 > C12, invertible):
+  C11 = C22 = C33 = 1.40e10 Pa
+  C12 = C13 = C23 = 9.20e9  Pa
+  C44 = C55 = C66 = 1.11e10 Pa
+  Orientation: phi1=0.26, phi2=0, phi3=0
+
+Material.1 — void/crack phase (C11 == C12, singular):
+  All Cij = 0.1 Pa  (C0011 = C0022 = C1122 = ... = C0000/2 = 0.1 Pa)
+  N_slips = 0
+
+EXPECTED OUTPUT
+---------------
+  No FatalError — solver must NOT crash.
+
+  At least one FOAM Warning containing "Mandel matrix is singular" for
+  Material.1 cells.
+
+  Material.0 inversion completes normally:
+    fourthToMandel symmetry diagnostics all = 0
+    M_inv(0,0) ~ 1.49e-10 Pa^-1  (same as test-1)
+
+  Material.1 compliance = zero tensor (warning issued, no inversion attempted).
