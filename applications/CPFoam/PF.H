@@ -4,6 +4,26 @@
     
 
 
+    Sum_Phases.primitiveFieldRef() = 0.0;  
+GBREF.primitiveFieldRef() = 0.0;       
+
+for (label count = 0; count < N_Ori; count++)
+{
+    volScalarField& ni = PopBal[count];
+
+    Laplacian_n[count] = fvc::laplacian(ni);
+    Laplacian_n[count].correctBoundaryConditions();
+
+    PopBal_av[count] = fvc::average(ni);
+    PopBal_av[count].correctBoundaryConditions();
+
+    dpdt[count].primitiveFieldRef() = 0.0;  
+    dpdt[count].correctBoundaryConditions();
+
+    GBREF += PopBal_av[count] * PopBal_av[count];
+}
+
+GBREF.correctBoundaryConditions();
 
 
 

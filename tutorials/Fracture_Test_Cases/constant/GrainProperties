@@ -44,14 +44,14 @@ n_constitutive_substeps	25;
 Energy
 (
 (Material.0 Material.0) 0.3
-(Material.0 Material.1) 1e4
+(Material.0 Material.1) 1.0
 (Material.1 Material.1) 0.1
 );
 
 Mobility
 (
 (Material.0 Material.0) 5.1e-6
-(Material.0 Material.1) 1e-5//100.0e-4//10 too high
+(Material.0 Material.1) 1e-2//100.0e-4//10 too high
 (Material.1 Material.1) 0.0
 );
 
@@ -137,7 +137,7 @@ Cv	500;
 
 kappa	1.0;
 
-rho_0	0.00001;
+rho_0	6000;
 
   C0000    1.0E-1;	//	1.40E11; 	9.20E10;	1.11E11
   C1111    1.0E-1;
