@@ -54,11 +54,11 @@ namespace Foam
 // * * * * * * * * * * * * * * * Global Functions  * * * * * * * * * * * * * //
 
 // dynamicCode:
-// SHA1 = 4ee4ba1f1c1d7aacec113aaa22fc006bde55baf0
+// SHA1 = c2ffc3d6dde84ff0be843dc100610d3b890e42df
 //
 // unique function name that can be checked if the correct library version
 // has been loaded
-extern "C" void velocityProfiletop_4ee4ba1f1c1d7aacec113aaa22fc006bde55baf0(bool load)
+extern "C" void velocityProfiletop_c2ffc3d6dde84ff0be843dc100610d3b890e42df(bool load)
 {
     if (load)
     {
@@ -204,7 +204,7 @@ velocityProfiletopFixedValueFvPatchVectorField::updateCoeffs()
     #line 114 "/home/tomflint/OpenFOAM/custom/Euler_Solid_Mech/tutorials/Fracture_Test_Cases/0/U/boundaryField/atmosphere"
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
-scalar Peak=50.0;
+scalar Peak=10.0;
 scalar P =4.0;
 
             const vectorField& centre(patch().Cf());
