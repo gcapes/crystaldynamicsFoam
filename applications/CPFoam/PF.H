@@ -139,7 +139,7 @@ forAll(mesh.C(), cell)
 
                 for (label count_k = count_j + 1; count_k < n_active_phases; count_k++)
                 {
-                    double T_junction_energy = 0.0;
+                    // double T_junction_energy = 0.0;
                     double int_energy_ij = PF_Energy0_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
                     double int_energy_ik = PF_Energy0_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_k]]];
                     double int_energy_jk = PF_Energy0_array[Phase2Material[active_phases[count_j]]][Phase2Material[active_phases[count_k]]];
@@ -147,11 +147,35 @@ forAll(mesh.C(), cell)
                     // T_junction_energy = T_junction_energy > int_energy_ij ? T_junction_energy : int_energy_ij;//condition ? result_if_true : result_if_false
                     // T_junction_energy = T_junction_energy > int_energy_ik ? T_junction_energy : int_energy_ik;
                     // T_junction_energy = T_junction_energy > int_energy_jk ? T_junction_energy : int_energy_jk;
-                    T_junction_energy = max(int_energy_ij, max(int_energy_ik, int_energy_jk));
+                    // T_junction_energy = max(int_energy_ij, max(int_energy_ik, int_energy_jk));
 
-                    dfdp[count_i] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_j]][cell] * PopBal[active_phases[count_k]][cell]) / interface_width.value();
-                    dfdp[count_j] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_k]][cell]) / interface_width.value();
-                    dfdp[count_k] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]) / interface_width.value();
+                    // dfdp[count_i] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_j]][cell] * PopBal[active_phases[count_k]][cell]) / interface_width.value();
+                    // dfdp[count_j] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_k]][cell]) / interface_width.value();
+                    // dfdp[count_k] -= 4.0 * T_junction_energy * (PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]) / interface_width.value();
+
+
+
+                    dfdp[count_i] -= 4.0 * (int_energy_ij * int_energy_ik)
+                                    / max(int_energy_ij + int_energy_ik, SMALL)
+                                    * (PopBal[active_phases[count_j]][cell]
+                                    * PopBal[active_phases[count_k]][cell])
+                                    / interface_width.value();
+
+                               
+                    dfdp[count_j] -= 4.0 * (int_energy_ij * int_energy_jk)
+                                    / max(int_energy_ij + int_energy_jk, SMALL)
+                                    * (PopBal[active_phases[count_i]][cell]
+                                    * PopBal[active_phases[count_k]][cell])
+                                     / interface_width.value();
+
+
+                    dfdp[count_k] -= 4.0 * (int_energy_ik * int_energy_jk)
+                                    / max(int_energy_ik + int_energy_jk, SMALL)
+                                    * (PopBal[active_phases[count_i]][cell]
+                                    * PopBal[active_phases[count_j]][cell])
+                                    / interface_width.value();
+
+
 
                 }
 
