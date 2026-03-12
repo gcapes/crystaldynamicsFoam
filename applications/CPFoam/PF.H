@@ -79,7 +79,7 @@ forAll(mesh.C(), cell)
             Fastor::Tensor<double,3,3,3,3> C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             // C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             //
-            dfdp_mech [count_i] = Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);
+            dfdp_mech [count_i] = 0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);
 
 
 
@@ -156,7 +156,7 @@ forAll(mesh.C(), cell)
                 // if(PopBal[active_phases[count_i]][cell]>0.1&&PopBal[active_phases[count_j]][cell]>0.1){
                     driving_force_cut_off= (dfdp_G[count_i] - dfdp_G[count_j]) * ((8.0) / pi.value()) * Foam::sqrt(PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]);//ORIGINAL
 
-                double rhsval = (int_mobility) * ((dfdp[count_i] - dfdp[count_j])+(dfdp_aniso[count_i]/*-dfdp_aniso[count_j]*/) -
+                double rhsval = (int_mobility) * ((dfdp[count_i] - dfdp[count_j])+(dfdp_aniso[count_i]/*-dfdp_aniso[count_j]*/)+(dfdp_mech[count_i] -dfdp_mech[count_j]) -
                                                   driving_force_cut_off
                                                  );
                 //   Info<<"RHS"<<rhsval<<endl;
