@@ -69,7 +69,7 @@ class velocityProfilefrontFixedValueFvPatchVectorField
 public:
 
     //- SHA1 representation of the code content
-    static constexpr const char* const SHA1sum = "aa791055fe818ca442376f2dddd29134094c3256";
+    static constexpr const char* const SHA1sum = "64da6f59909e088c718a4674680f195b96a51825";
 
     //- Runtime type information
     TypeName("velocityProfilefront");
