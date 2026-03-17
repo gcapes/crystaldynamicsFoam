@@ -1,4 +1,32 @@
 {
+    if (!stressUpdate)
+    {
+        // Prescribed-stress mode: bypass the full CP/momentum solve.
+        // sigma[solid] = sigmaGlobal (prescribed);  sigma[crack/void] = 0.
+        //
+        for (label h = 0; h < N_Ori; h++)
+        {
+            if (Phase2Material[h] == 0)
+            {
+                sigma[h] = sigmaGlobal;
+                sigma[h].correctBoundaryConditions();
+            }
+            else
+            {
+                sigma[h] = dimensionedTensor(
+                    "zero", sigma[h].dimensions(), tensor::zero);
+                sigma[h].correctBoundaryConditions();
+            }
+        }
+
+        // Zero all flow fields so that rhoEqn, TEqn, and Advect.H see no
+        // advection.  The tensile U boundary conditions (+/-1 m/s) remain active via correctBoundaryConditions
+        phi    *= 0.0;
+        rhoPhi *= 0.0;
+    }
+    else
+    {
+
     sigmaGlobaltemp *= 0.0;
 
     // Fastor index helpers for einsum (C:epsilon contraction)
@@ -371,9 +399,10 @@
             double sig_out[9], Dp_out[9], Wp_out[9];
             double gdot_out[MAX_SLIPS], gamma_dot_out[MAX_SLIPS];
 
+            // Only compute on cells with phase fraction of n.N less than 0.95 
             constitutiveKernel(
                 sig_in, eps_in, omg_in, rot_ang,
-                g_in, gam_in, (PopBal_av[h][cell] > 0.0),
+                g_in, gam_in, (PopBal_av[h][cell] > 0.05),
                 sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,&C_rotated[h][cell]);
 
             for (int ci = 0; ci < 9; ci++)
@@ -423,7 +452,7 @@
                     constitutiveKernel(
                         sig_in, eps_in, omg_in, rot_ang,
                         g_in, gam_in,
-                        (PopBal_av[h].boundaryField()[patchI][faceI] > 0.0),
+                        (PopBal_av[h].boundaryField()[patchI][faceI] > 0.05),
                         sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,nullptr);//nullptr as only need cell values for mechanical driving force
 
                     for (int ci = 0; ci < 9; ci++)
@@ -531,4 +560,6 @@
 
         p = -(1.0/3.0) * tr(sigmaGlobal);
     }
+
+    } // end else (stressUpdate)
 }

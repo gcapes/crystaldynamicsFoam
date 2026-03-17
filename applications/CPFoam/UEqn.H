@@ -1,3 +1,9 @@
+// Momentum solve is bypassed when stressUpdate=false (prescribed-stress mode).
+// U, phi, and rhoPhi are held at their current values (zero for a fresh start),
+// preventing the prescribed sigma from driving spurious acceleration.
+if (stressUpdate)
+{
+
 // const surfaceTensorField sigma_f(fvc::interpolate(sigma));
 
 fvVectorMatrix UEqn(
@@ -36,5 +42,7 @@ rhoPhi = fvc::interpolate(rho) * phi;
 
 rhoPhi = fvc::interpolate(rho) * phi; // fvc::flux(U);
 K = 0.5 * magSqr(U);
+
+} // end if (stressUpdate)
 
 // sigmatemp*=0.0;

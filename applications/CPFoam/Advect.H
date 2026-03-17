@@ -1,3 +1,5 @@
+// Advection of plastic slip/hardening fields: only meaningful when the CP solve is active.
+if (stressUpdate)
 {
 
     // Advect hardening fields (CRSS per slip system)
@@ -84,4 +86,4 @@
         Euler_Angles[cell].component(1) = Rot2[largest_field][cell];
         Euler_Angles[cell].component(2) = Rot3[largest_field][cell];
     }
-}
+} // end if (stressUpdate)

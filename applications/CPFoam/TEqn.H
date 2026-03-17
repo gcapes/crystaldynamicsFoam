@@ -1,6 +1,8 @@
+// Energy equation: only active when momentum/CP solve is running.
+if (stressUpdate)
 {
 
-    
+
     const surfaceScalarField rhophicv(fvc::interpolate(Cv)*rhoPhi);
 
     const volScalarField rhoCv(rho*Cv);
@@ -34,7 +36,7 @@
 
         TEqn.solve();
 
-}
+} // end if (stressUpdate)
 
 
 
