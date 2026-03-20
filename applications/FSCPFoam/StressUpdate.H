@@ -234,6 +234,9 @@
 
     } // End phase loop
 
+    sigmaGlobaltemp.correctBoundaryConditions();
+rho_ref.correctBoundaryConditions();
+
     // ============ Final updates (on last PIMPLE iteration) ============
     if (pimple.finalIter())
     {

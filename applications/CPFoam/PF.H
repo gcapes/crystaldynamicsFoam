@@ -99,7 +99,7 @@ forAll(mesh.C(), cell)
             Fastor::Tensor<double,3,3,3,3> C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             // C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             //
-            dfdp_mech [count_i] = 0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);
+            dfdp_mech [count_i] = -0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);
 
 
 
