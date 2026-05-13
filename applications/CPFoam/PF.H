@@ -4,8 +4,11 @@
     
 
 
-    Sum_Phases.primitiveFieldRef() = 0.0;  
-GBREF.primitiveFieldRef() = 0.0;       
+    Sum_Phases.primitiveFieldRef() = 0.0;
+GBREF.primitiveFieldRef() = 0.0;
+W_mech.primitiveFieldRef()      = 0.0;
+W_interface.primitiveFieldRef() = 0.0;
+dpdt_crack.primitiveFieldRef()  = 0.0;
 
 for (label count = 0; count < N_Ori; count++)
 {
@@ -31,6 +34,8 @@ GBREF.correctBoundaryConditions();
 
 
 
+if (fracture)
+{
 forAll(mesh.C(), cell)
 {
     label active_phases[N_Ori] =
@@ -99,6 +104,7 @@ forAll(mesh.C(), cell)
             Fastor::Tensor<double,3,3,3,3> C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             // C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             //
+            // !!! Negative sign: dfdp_mech = -(dF/dn)_mech (accumulated with -= not +=) !!!
             dfdp_mech [count_i] = -0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);
 
 
@@ -211,6 +217,22 @@ forAll(mesh.C(), cell)
             }
             dpdt[active_phases[count_i]][cell] /= n_active_phases;
 
+            // Accumulate  diagnostics 
+            // W_mech: phase-weighted elastic energy density 
+            double ni_val = PopBal[active_phases[count_i]][cell];
+            W_mech[cell]      += ni_val * (-dfdp_mech[count_i]);
+            // W_interface: phase-weighted interfacial energy.
+            // dfdp is negative for phases that want to shrink
+            W_interface[cell] += ni_val * (-dfdp[count_i]);
+        }
+
+        // dpdt_crack: ROC of phase fields
+        for (label count_i = 0; count_i < n_active_phases; count_i++)
+        {
+            if (Phase2Material[active_phases[count_i]] != 0)
+            {
+                dpdt_crack[cell] += dpdt[active_phases[count_i]][cell];
+            }
         }
 
 
@@ -220,11 +242,10 @@ forAll(mesh.C(), cell)
         //     PopBal[active_phases[count_i]][cell]+=runTime.deltaT().value()*dpdt[active_phases[count_i]][cell];
         // }
 
-    }
+    }  // end if (n_active_phases > 1)
 
-
-}
-
+}  // end forAll(mesh.C(), cell)
+} // end if (fracture)
 
 
 
@@ -314,5 +335,8 @@ forAll(mesh.C(), cell)
         ni = temp_holder;
     }
 
+W_mech.correctBoundaryConditions();
+W_interface.correctBoundaryConditions();
+dpdt_crack.correctBoundaryConditions();
 
 }

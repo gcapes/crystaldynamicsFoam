@@ -242,10 +242,12 @@ def check_test4():
         ok(f"test-4: M_inv diagonal parsed: S_M(0,0) = {diag[0]:.6e}")
 
 
-# test-5: singular void phase (C11 == C12) - singularity warning, zero compliance returned
+# test-5: two singular void phases covering both Mandel singularity paths:
+#   Material.1: C11==C12 (all equal)  → upper-left 3x3 singular (normal block)
+#   Material.2: C0000/C1111/C2222>0, all shear=0 → lower-right 3x3 singular (shear block)
 
 def check_test5():
-    print(f"\n{BOLD}inversion-test-5{RESET}  (void phase C11==C12, singular Mandel - warning + zero compliance)")
+    print(f"\n{BOLD}inversion-test-5{RESET}  (two singular void phases: normal-block + shear-block singularity)")
     log = read_log("inversion-test-5")
     if log is None:
         fail("test-5: log.CPFoam not found - did you run ./Allrun_tests?")
@@ -255,14 +257,25 @@ def check_test5():
     if "FOAM FATAL ERROR" in log or "FatalError" in log:
         fail("test-5: FatalError found - singularity check did not prevent crash")
     else:
-        ok("test-5: no FatalError: singular void phase handled gracefully")
+        ok("test-5: no FatalError: both singular void phases handled gracefully")
 
-    # Must emit at least one singularity warning for Material.1
+    # Must emit exactly 2 singularity warnings: one per singular material
     warning_count = log.count("Mandel matrix is singular")
-    if warning_count >= 1:
-        ok(f"test-5: {warning_count} 'Mandel matrix is singular' warning(s) issued for void phase")
+    if warning_count >= 2:
+        ok(f"test-5: {warning_count} 'Mandel matrix is singular' warnings issued (expected >=2, one per singular material)")
     else:
-        fail("test-5: no 'Mandel matrix is singular' warning found - singularity not detected")
+        fail(f"test-5: only {warning_count} 'Mandel matrix is singular' warning(s) — expected >=2 (Material.1 normal-block + Material.2 shear-block)")
+
+    # Both singularity paths should be mentioned
+    if "normal block" in log:
+        ok("test-5: 'normal block' singularity path triggered (Material.1, C11==C12)")
+    else:
+        fail("test-5: 'normal block' path not triggered — Material.1 C11==C12 case not detected")
+
+    if "shear block" in log:
+        ok("test-5: 'shear block' singularity path triggered (Material.2, all shear=0)")
+    else:
+        fail("test-5: 'shear block' path not triggered — Material.2 zero-shear case not detected")
 
     # Material.0 (valid cubic FCC) should still complete the full inversion pipeline
     check_complete(log, "test-5")

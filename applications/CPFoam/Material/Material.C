@@ -486,16 +486,15 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
 
     /* 
         Check for singularity of M before inverting.
-        The most common cause is C11 == C12 in GrainProperties (e.g. a void/crack
-        phase), which makes the upper-left 3x3 Mandel block rank-1.
-        Fastor::inverse on a singular matrix returns rubbish, which
-        produces an asymmetric Minv and a FatalError in mandelToFourth.
-        We detect this upfront via the upper-left 3x3 sub-determinant and
-        return zero compliance (physically correct for a stress-free void).
-        If M is not singular, invert normally and let mandelToFourth catch
-        any remaining issues.
-    */ 
+        Two common causes in GrainProperties:
+          (a) C11 == C12 → upper-left 3x3 Mandel block rank-1.
+          (b) All shear components zero → lower-right 3x3 Mandel block rank-0.
+        Fastor::inverse on a singular matrix produces a FPE or rubbish.
+        We detect both cases and return zero compliance (physically correct
+        for a stress-free void/crack phase).
+    */
     {
+        // --- Upper-left 3x3 (normal stiffness) ---
         const double m00 = M(0,0), m01 = M(0,1), m02 = M(0,2);
         const double m10 = M(1,0), m11 = M(1,1), m12 = M(1,2);
         const double m20 = M(2,0), m21 = M(2,1), m22 = M(2,2);
@@ -503,18 +502,34 @@ Fastor::Tensor<double,3,3,3,3> Foam::Material::invertRankFour(const Fastor::Tens
                           - m01*(m10*m22 - m12*m20)
                           + m02*(m10*m21 - m11*m20);
         const double scale = std::abs(m00) * std::abs(m11) * std::abs(m22);
-        const bool isSingular = (scale > 0.0)
-                              ? (std::abs(det3 / scale) < 1e-6)
-                              : (std::abs(det3) < 1e-30);
+        const bool normalSingular = (scale > 0.0)
+                                  ? (std::abs(det3 / scale) < 1e-6)
+                                  : (std::abs(det3) < 1e-30);
 
-        if (isSingular)
+        // --- Lower-right 3x3 (shear stiffness) ---
+        const double m33 = M(3,3), m34 = M(3,4), m35 = M(3,5);
+        const double m43 = M(4,3), m44 = M(4,4), m45 = M(4,5);
+        const double m53 = M(5,3), m54 = M(5,4), m55 = M(5,5);
+        const double det3s = m33*(m44*m55 - m45*m54)
+                           - m34*(m43*m55 - m45*m53)
+                           + m35*(m43*m54 - m44*m53);
+        const double scales = std::abs(m33) * std::abs(m44) * std::abs(m55);
+        const bool shearSingular = (scales > 0.0)
+                                 ? (std::abs(det3s / scales) < 1e-6)
+                                 : (std::abs(det3s) < 1e-30);
+
+        if (normalSingular || shearSingular)
         {
             WarningInFunction
-                << "Mandel matrix is singular (upper-left 3x3 det/scale = "
-                << (scale > 0.0 ? det3/scale : det3) << ").\n"
-                << "Most likely cause: C11 == C12 in GrainProperties makes\n"
-                << "the upper-left 3x3 Mandel block rank-1 and non-invertible.\n"
-                << "Ensure C11 > C12 for every material (elastic stability condition).\n"
+                << "Mandel matrix is singular ("
+                << (normalSingular ? "normal block" : "shear block")
+                << " det/scale = "
+                << (normalSingular
+                    ? (scale  > 0.0 ? det3 /scale  : det3 )
+                    : (scales > 0.0 ? det3s/scales : det3s))
+                << ").\n"
+                << "Common causes: C11==C12 (normal block) or all shear\n"
+                << "components zero (shear block) in GrainProperties.\n"
                 << "Returning zero compliance tensor for this cell/phase.\n" << nl;
             return Fastor::Tensor<double,3,3,3,3>(0.0);
         }

@@ -432,9 +432,7 @@ for (label i = 0; i < N_Mats; i++)
     MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
-// If verbose mode was requested, all per-material inversion self-tests have
-// now been printed above.  Exit cleanly so the inversion-tests log checker
-// can validate the output without running a full simulation.
+// Exit cleanly so the inversion-tests log checker can validate
 if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
 {
     Info << "All material inversion self-tests complete. Exiting.\n" << endl;
@@ -746,7 +744,51 @@ for(label count = 0; count < N_Ori; count++)
     );
 }
 
+// Diagnostic fields: W_mech, W_interface, dpdt_crack
+volScalarField W_mech
+(
+    IOobject
+    (
+        "W_mech",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("W_mech", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
 
+volScalarField W_interface
+(
+    IOobject
+    (
+        "W_interface",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("W_interface", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField dpdt_crack
+(
+    IOobject
+    (
+        "dpdt_crack",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("dpdt_crack", dimensionSet(0, 0, -1, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
 
 
 
@@ -1449,6 +1491,14 @@ std::vector<std::vector<Fastor::Tensor<double,3,3,3,3>>> C_rotated(
 //             dimensionedTensor("ni", dimensionSet(0, 0, 0, 0, 0), (tensor::zero)),
 //             zeroGradientFvPatchTensorField::typeName));
 // }
+
+const bool stressUpdate =
+    GrainProperties.lookupOrDefault<Switch>("stressUpdate", true);
+
+if (!stressUpdate)
+{
+    Info << "stressUpdate=false: prescribed-stress PF mode\n" << endl;
+}
 
 
 //   forAll(mesh.C(), cell)
