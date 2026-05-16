@@ -2,6 +2,18 @@
 if (stressUpdate)
 {
 
+
+        for (label h = 0; h < N_Ori; h++)
+{
+    sigma[h].oldTime() == sigma[h];
+        Rot1[h].oldTime() == Rot1[h];
+    Rot2[h].oldTime() == Rot2[h];
+    Rot3[h].oldTime() == Rot3[h];
+}
+
+
+
+
     // Advect hardening fields (CRSS per slip system)
     for (label i = 0; i < N_Ori; i++)
     {
@@ -86,4 +98,30 @@ if (stressUpdate)
         Euler_Angles[cell].component(1) = Rot2[largest_field][cell];
         Euler_Angles[cell].component(2) = Rot3[largest_field][cell];
     }
+
+
+
+
+
+    // Transport per-phase sigma (already Jaumann-updated in StressUpdate.H)
+for (label h = 0; h < N_Ori; h++)
+{
+    solve(
+        fvm::ddt(rho, sigma[h]) + fvm::div(rhoPhi, sigma[h])
+    );
+    sigma[h].correctBoundaryConditions();
+}
+
+// Re-form mixture stress from the transported per-phase sigmas
+sigmaGlobal *= 0.0;
+for (label h = 0; h < N_Ori; h++)
+{
+    sigmaGlobal += PopBal[h] * sigma[h];
+}
+sigmaGlobal.correctBoundaryConditions();
+
+
+
+
+
 } // end if (stressUpdate)

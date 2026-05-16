@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-interface_width	4e-6;
+interface_width	6e-6;
 
 N_Phases	3;
 
@@ -51,7 +51,7 @@ Energy
 Mobility
 (
 (Material.0 Material.0) 5.1e-6
-(Material.0 Material.1) 1.0//100.0e-4//10 too high
+(Material.0 Material.1) 100.0//100.0e-4//10 too high
 (Material.1 Material.1) 0.0
 );
 
@@ -137,7 +137,7 @@ Cv	500;
 
 kappa	1.0;
 
-rho_0	6000;
+rho_0	7500;
 
   C0000    80e-1;	//	1.40E11; 	9.20E10;	1.11E11
   C0101    80e-1;

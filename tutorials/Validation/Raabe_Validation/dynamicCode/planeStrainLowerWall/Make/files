@@ -1,0 +1,6 @@
+/* dynamicCode:
+ * SHA1 = a210eb06e6080e519e33a583aebf30094bbbafa1
+ */
+fixedValueFvPatchFieldTemplate.C
+
+LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libplaneStrainLowerWall_a210eb06e6080e519e33a583aebf30094bbbafa1

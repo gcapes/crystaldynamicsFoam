@@ -1383,8 +1383,8 @@ for (label count = 0; count < N_Ori; count++)
                 "sigma", 
                 dimensionSet(1, -1, -2, 0, 0), 
                 tensor::zero  // Note: tensor::zero, not Tensor::zero
-            )//,
-            // zeroGradientFvPatchTensorField::typeName
+            ),
+             zeroGradientFvPatchTensorField::typeName
         )
     );
 }
