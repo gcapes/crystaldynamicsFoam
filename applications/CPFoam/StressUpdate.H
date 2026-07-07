@@ -90,6 +90,10 @@
                     gdot_out[s] = 0.0;
                     gamma_dot_out[s] = 0.0;
                 }
+                // Keep the stored rotated stiffness defined for inactive
+                // cells so downstream consumers (the phase-field mechanical
+                // driving force) never read stale or uninitialised memory.
+                if (C_rot_out) (*C_rot_out).zeros();
                 return;
             }
 
@@ -233,7 +237,14 @@
                 auto WeSig = Fastor::matmul(W_e, Fsigma);
                 auto SigWe = Fastor::matmul(Fsigma, W_e);
 
-                Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe);
+                // Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe);
+
+                const double trDe = (Fepsilon(0,0) - F_D_P(0,0))
+                                  + (Fepsilon(1,1) - F_D_P(1,1))
+                                  + (Fepsilon(2,2) - F_D_P(2,2));
+
+                Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe - trDe * Fsigma);
+
 
                 // Hardening
                 double total_slip = 0.0;
@@ -260,7 +271,8 @@
 
                     g_dot_sum[sa] += g_dot;
                     local_g[sa]   += sub_dt_val * g_dot;
-                    local_g[sa] = std::max(local_g[sa] + sub_dt_val * g_dot, tau_0 * 0.001);
+                    // local_g[sa] = std::max(local_g[sa] + sub_dt_val * g_dot, tau_0 * 0.001);
+                    local_g[sa]    = std::max(local_g[sa], tau_0 * 0.001);
                 }
 
                 for (int s = 0; s < N_Slips_h; s++)
@@ -471,6 +483,15 @@
         }
 
 
+        // Orientation update: apply the exponential map ONCE per time
+        // step, on the final outer corrector only.  On intermediate
+        // correctors the Rot fields keep the start-of-step angles, so the
+        // constitutive kernel above always rotates the stiffness and Schmid
+        // tensors from the start-of-step orientation -- consistent with the
+        // stress integration restarting from sigma^n on every corrector.
+        if (pimple.finalIter())
+        {
+
         // ================================================================
         //  ROTATION UPDATE  –  cell interior
         // ================================================================
@@ -526,6 +547,8 @@
         Rot1[h].correctBoundaryConditions();
         Rot2[h].correctBoundaryConditions();
         Rot3[h].correctBoundaryConditions();
+
+        } // end if (pimple.finalIter()): orientation updated once per step
 
         // Accumulate global stress
         sigmaGlobaltemp += PopBal[h] * sigtemp[h];

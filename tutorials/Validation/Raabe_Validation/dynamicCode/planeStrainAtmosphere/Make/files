@@ -1,6 +1,0 @@
-/* dynamicCode:
- * SHA1 = 1d8520ab9bed6ed77c1c3aaf7767cf128fe95801
- */
-fixedValueFvPatchFieldTemplate.C
-
-LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libplaneStrainAtmosphere_1d8520ab9bed6ed77c1c3aaf7767cf128fe95801

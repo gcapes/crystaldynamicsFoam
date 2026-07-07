@@ -153,17 +153,24 @@ int main(int argc, char *argv[])
 
         
 
-        for (label i = 0; i < N_Ori; i++)
-        {
-            sigtemp[i]=sigma[i];
-            sigtemp[i].correctBoundaryConditions();
-        }
         sigmaGlobaltemp = sigmaGlobal;
         sigmaGlobaltemp.correctBoundaryConditions();
         label pimpleIter = 0;
         while (pimple.loop())
         {
             pimpleIter++;
+
+            // Restart the objective stress integration from the committed
+            // start-of-step stress on EVERY outer corrector.  sigma[] holds
+            // sigma^n until the finalIter commit in StressUpdate.H, so each
+            // corrector integrates sigma^n -> sigma^* exactly once with the
+            // latest kinematics, rather than accumulating increments across
+            // correctors.
+            for (label i = 0; i < N_Ori; i++)
+            {
+                sigtemp[i] = sigma[i];
+                sigtemp[i].correctBoundaryConditions();
+            }
 
             volVectorField U_old = U;
             U_old.correctBoundaryConditions();

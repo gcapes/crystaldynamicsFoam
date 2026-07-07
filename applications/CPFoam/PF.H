@@ -81,7 +81,12 @@ forAll(mesh.C(), cell)
         {
 
 
-            if(fracture)
+            // Mechanical driving force only where the constitutive kernel
+            // is active (same PopBal_av > 0.05 threshold as StressUpdate.H),
+            // so C_rotated is never read where it has not been computed this
+            // step.  The interfacial terms below remain active over the full
+            // 0 < phi_av overlap.
+            if (PopBal_av[active_phases[count_i]][cell] > 0.05)
             {
             //
             // get stress in fastor format

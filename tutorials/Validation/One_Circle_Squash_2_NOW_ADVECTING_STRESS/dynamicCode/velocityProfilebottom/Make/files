@@ -1,6 +1,0 @@
-/* dynamicCode:
- * SHA1 = afa91c506ff6d8c7a45f3e2934f1c05e6d4cc206
- */
-fixedValueFvPatchFieldTemplate.C
-
-LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libvelocityProfilebottom_afa91c506ff6d8c7a45f3e2934f1c05e6d4cc206
