@@ -5,7 +5,8 @@ if (stressUpdate)
 
     const surfaceScalarField rhophicv(fvc::interpolate(Cv)*rhoPhi);
 
-    const volScalarField rhoCv(rho*Cv);
+    // const volScalarField rhoCv(rho*Cv);// NEEDS TO NOT BE CONST OTHERWISE DROPS TIME DERVATIVE IN RHOCV!!!!!!!!!!
+    rhoCv = rho*Cv;
 
     const volVectorField SigU(sigmaGlobal & U);
 

@@ -946,6 +946,15 @@ volScalarField rho(
 
 
 
+volScalarField rhoCv
+(
+    IOobject("rhoCv", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    rho*Cv
+);
+
+rhoCv.correctBoundaryConditions();
+
 
 volScalarField GBREF
 (

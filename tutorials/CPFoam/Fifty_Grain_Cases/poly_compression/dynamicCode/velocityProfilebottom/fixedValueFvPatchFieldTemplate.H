@@ -1,9 +1,11 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) YEAR OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2019-2021 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -32,10 +34,11 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef codedFixedValueFvPatchFieldTemplate_H
-#define codedFixedValueFvPatchFieldTemplate_H
+#ifndef fixedValueFvPatchTemplateVectorField_H
+#define fixedValueFvPatchTemplateVectorField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "dictionaryContent.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,30 +49,43 @@ namespace Foam
                          A templated FixedValueFvPatch
 \*---------------------------------------------------------------------------*/
 
-class velocityProfilefrontFixedValueFvPatchVectorField
+class velocityProfilebottomFixedValueFvPatchVectorField
 :
-    public fixedValueFvPatchField<vector>
+    public fixedValueFvPatchField<vector>,
+    public dictionaryContent
 {
+    //- The parent boundary condition type
+    typedef fixedValueFvPatchField<vector> parent_bctype;
+
+
+    // Private Member Functions
+
+        //- Report a message with the SHA1sum
+        inline static void printMessage(const char* message)
+        {
+            Info<< message << " sha1: " << SHA1sum << '\n';
+        }
+
 public:
 
-    //- Information about the SHA1 of the code itself
-    static const char* const SHA1sum;
+    //- SHA1 representation of the code content
+    static constexpr const char* const SHA1sum = "1b4d30e9df89753b94c2dc4bf4c7b2310a20a69d";
 
     //- Runtime type information
-    TypeName("velocityProfilefront");
+    TypeName("velocityProfilebottom");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        velocityProfilefrontFixedValueFvPatchVectorField
+        velocityProfilebottomFixedValueFvPatchVectorField
         (
             const fvPatch&,
             const DimensionedField<vector, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        velocityProfilefrontFixedValueFvPatchVectorField
+        velocityProfilebottomFixedValueFvPatchVectorField
         (
             const fvPatch&,
             const DimensionedField<vector, volMesh>&,
@@ -77,45 +93,54 @@ public:
         );
 
         //- Construct by mapping a copy onto a new patch
-        velocityProfilefrontFixedValueFvPatchVectorField
+        velocityProfilebottomFixedValueFvPatchVectorField
         (
-            const velocityProfilefrontFixedValueFvPatchVectorField&,
+            const velocityProfilebottomFixedValueFvPatchVectorField&,
             const fvPatch&,
             const DimensionedField<vector, volMesh>&,
             const fvPatchFieldMapper&
         );
 
-        //- Disallow copy without setting internal field reference
-        velocityProfilefrontFixedValueFvPatchVectorField
+        //- Construct as copy
+        velocityProfilebottomFixedValueFvPatchVectorField
         (
-            const velocityProfilefrontFixedValueFvPatchVectorField&
-        ) = delete;
+            const velocityProfilebottomFixedValueFvPatchVectorField&
+        );
 
-        //- Copy constructor setting internal field reference
-        velocityProfilefrontFixedValueFvPatchVectorField
+        //- Construct as copy setting internal field reference
+        velocityProfilebottomFixedValueFvPatchVectorField
         (
-            const velocityProfilefrontFixedValueFvPatchVectorField&,
+            const velocityProfilebottomFixedValueFvPatchVectorField&,
             const DimensionedField<vector, volMesh>&
         );
 
-        //- Construct and return a clone setting internal field reference
-        virtual tmp<fvPatchVectorField > clone
+        //- Return a clone
+        virtual tmp<fvPatchField<vector>> clone() const
+        {
+            return fvPatchField<vector>::Clone(*this);
+        }
+
+        //- Clone with an internal field reference
+        virtual tmp<fvPatchField<vector>> clone
         (
             const DimensionedField<vector, volMesh>& iF
         ) const
         {
-            return tmp<fvPatchVectorField >
-            (
-                new velocityProfilefrontFixedValueFvPatchVectorField(*this, iF)
-            );
+            return fvPatchField<vector>::Clone(*this, iF);
         }
 
 
     //- Destructor
-    virtual ~velocityProfilefrontFixedValueFvPatchVectorField();
+    virtual ~velocityProfilebottomFixedValueFvPatchVectorField();
 
 
     // Member Functions
+
+        //- Code context as a dictionary
+        const dictionary& codeContext() const noexcept
+        {
+            return dictionaryContent::dict();
+        }
 
         //- Update the coefficients associated with the patch field
         virtual void updateCoeffs();

@@ -1,9 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) YEAR OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2019-2021 OpenCFD Ltd.
+    Copyright (C) YEAR AUTHOR, AFFILIATION
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,12 +26,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "codedFixedValueFvPatchFieldTemplate.H"
+#include "fixedValueFvPatchFieldTemplate.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "unitConversion.H"
+#include "PatchFunction1.H"
+
 //{{{ begin codeInclude
 
 //}}} end codeInclude
@@ -48,23 +53,20 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * Global Functions  * * * * * * * * * * * * * //
 
-extern "C"
+// dynamicCode:
+// SHA1 = f9c154808bd53c32ad29a75ceea0478948b48a1e
+//
+// unique function name that can be checked if the correct library version
+// has been loaded
+extern "C" void velocityProfilefront_f9c154808bd53c32ad29a75ceea0478948b48a1e(bool load)
 {
-    // dynamicCode:
-    // SHA1 = ca23f9ebec2b768e9b9166a0624cdf8f995459ba
-    //
-    // unique function name that can be checked if the correct library version
-    // has been loaded
-    void velocityProfilefront_ca23f9ebec2b768e9b9166a0624cdf8f995459ba(bool load)
+    if (load)
     {
-        if (load)
-        {
-            // code that can be explicitly executed after loading
-        }
-        else
-        {
-            // code that can be explicitly executed before unloading
-        }
+        // Code that can be explicitly executed after loading
+    }
+    else
+    {
+        // Code that can be explicitly executed before unloading
     }
 }
 
@@ -76,13 +78,12 @@ makeRemovablePatchTypeField
     velocityProfilefrontFixedValueFvPatchVectorField
 );
 
-
-const char* const velocityProfilefrontFixedValueFvPatchVectorField::SHA1sum =
-    "ca23f9ebec2b768e9b9166a0624cdf8f995459ba";
+} // End namespace Foam
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+Foam::
 velocityProfilefrontFixedValueFvPatchVectorField::
 velocityProfilefrontFixedValueFvPatchVectorField
 (
@@ -90,16 +91,35 @@ velocityProfilefrontFixedValueFvPatchVectorField
     const DimensionedField<vector, volMesh>& iF
 )
 :
-    fixedValueFvPatchField<vector>(p, iF)
+    parent_bctype(p, iF)
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
-            " from patch/DimensionedField\n";
+        printMessage("Construct velocityProfilefront : patch/DimensionedField");
     }
 }
 
 
+Foam::
+velocityProfilefrontFixedValueFvPatchVectorField::
+velocityProfilefrontFixedValueFvPatchVectorField
+(
+    const velocityProfilefrontFixedValueFvPatchVectorField& rhs,
+    const fvPatch& p,
+    const DimensionedField<vector, volMesh>& iF,
+    const fvPatchFieldMapper& mapper
+)
+:
+    parent_bctype(rhs, p, iF, mapper)
+{
+    if (false)
+    {
+        printMessage("Construct velocityProfilefront : patch/DimensionedField/mapper");
+    }
+}
+
+
+Foam::
 velocityProfilefrontFixedValueFvPatchVectorField::
 velocityProfilefrontFixedValueFvPatchVectorField
 (
@@ -108,67 +128,67 @@ velocityProfilefrontFixedValueFvPatchVectorField
     const dictionary& dict
 )
 :
-    fixedValueFvPatchField<vector>(p, iF, dict)
+    parent_bctype(p, iF, dict)
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
-            " from patch/dictionary\n";
+        printMessage("Construct velocityProfilefront : patch/dictionary");
     }
 }
 
 
+Foam::
 velocityProfilefrontFixedValueFvPatchVectorField::
 velocityProfilefrontFixedValueFvPatchVectorField
 (
-    const velocityProfilefrontFixedValueFvPatchVectorField& ptf,
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
+    const velocityProfilefrontFixedValueFvPatchVectorField& rhs
 )
 :
-    fixedValueFvPatchField<vector>(ptf, p, iF, mapper)
+    parent_bctype(rhs),
+    dictionaryContent(rhs)
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba"
-            " from patch/DimensionedField/mapper\n";
+        printMessage("Copy construct velocityProfilefront");
     }
 }
 
 
+Foam::
 velocityProfilefrontFixedValueFvPatchVectorField::
 velocityProfilefrontFixedValueFvPatchVectorField
 (
-    const velocityProfilefrontFixedValueFvPatchVectorField& ptf,
+    const velocityProfilefrontFixedValueFvPatchVectorField& rhs,
     const DimensionedField<vector, volMesh>& iF
 )
 :
-    fixedValueFvPatchField<vector>(ptf, iF)
+    parent_bctype(rhs, iF)
 {
     if (false)
     {
-        Info<<"construct velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba "
-            "as copy/DimensionedField\n";
+        printMessage("Construct velocityProfilefront : copy/DimensionedField");
     }
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
+Foam::
 velocityProfilefrontFixedValueFvPatchVectorField::
 ~velocityProfilefrontFixedValueFvPatchVectorField()
 {
     if (false)
     {
-        Info<<"destroy velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba\n";
+        printMessage("Destroy velocityProfilefront");
     }
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void velocityProfilefrontFixedValueFvPatchVectorField::updateCoeffs()
+void
+Foam::
+velocityProfilefrontFixedValueFvPatchVectorField::updateCoeffs()
 {
     if (this->updated())
     {
@@ -177,14 +197,14 @@ void velocityProfilefrontFixedValueFvPatchVectorField::updateCoeffs()
 
     if (false)
     {
-        Info<<"updateCoeffs velocityProfilefront sha1: ca23f9ebec2b768e9b9166a0624cdf8f995459ba\n";
+        printMessage("updateCoeffs velocityProfilefront");
     }
 
 //{{{ begin code
-    #line 33 "/home/mbcx7tf3/OpenFOAM/custom/Eulerian_Mechanics/tutorials/Paper/poly_compression/0/U/boundaryField/Front"
+    #line 32 "/home/mbcx7tf3/Custom_OpenFoam/Eulerian_Mechanics/tutorials/CPFoam/Fifty_Grain_Cases/poly_compression/0/U/boundaryField/Front"
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
-scalar Peak=-10.0;
+scalar Peak=-50.0;
 scalar P =5.0;
 
             const vectorField& centre(patch().Cf());
@@ -201,13 +221,9 @@ scalar P =5.0;
 operator==(veloc);
 //}}} end code
 
-    this->fixedValueFvPatchField<vector>::updateCoeffs();
+    this->parent_bctype::updateCoeffs();
 }
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
 
 // ************************************************************************* //
 
