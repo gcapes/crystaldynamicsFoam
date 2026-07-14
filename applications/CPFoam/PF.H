@@ -211,9 +211,21 @@ forAll(mesh.C(), cell)
                 // if(PopBal[active_phases[count_i]][cell]>0.1&&PopBal[active_phases[count_j]][cell]>0.1){
                     driving_force_cut_off= (dfdp_G[count_i] - dfdp_G[count_j]) * ((8.0) / pi.value()) * Foam::sqrt(PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]);//ORIGINAL
 
-                double rhsval = (int_mobility) * ((dfdp[count_i] - dfdp[count_j])+(dfdp_aniso[count_i]/*-dfdp_aniso[count_j]*/)+(dfdp_mech[count_i] -dfdp_mech[count_j]) -
-                                                  driving_force_cut_off
-                                                 );
+                
+                    
+                    double rhsval = (int_mobility) * 
+                    (
+                        (dfdp[count_i] - dfdp[count_j])
+  + (dfdp_aniso[count_i])
+  + ((8.0)/pi.value())
+      * Foam::sqrt(max(
+            PopBal[active_phases[count_i]][cell]
+          * PopBal[active_phases[count_j]][cell], 0.0))
+      * (dfdp_mech[count_i] - dfdp_mech[count_j])
+  - driving_force_cut_off
+);
+
+
                 //   Info<<"RHS"<<rhsval<<endl;
                 // Driving_Force_info[cell]+=driving_force_cut_off;
 
