@@ -210,10 +210,19 @@ forAll(mesh.C(), cell)
 
                 // if(PopBal[active_phases[count_i]][cell]>0.1&&PopBal[active_phases[count_j]][cell]>0.1){
                     driving_force_cut_off= (dfdp_G[count_i] - dfdp_G[count_j]) * ((8.0) / pi.value()) * Foam::sqrt(PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]);//ORIGINAL
-
-                double rhsval = (int_mobility) * ((dfdp[count_i] - dfdp[count_j])+(dfdp_aniso[count_i]/*-dfdp_aniso[count_j]*/)+(dfdp_mech[count_i] -dfdp_mech[count_j]) -
-                                                  driving_force_cut_off
-                                                 );
+                
+                // Tom's mech driving force interpolation fix  
+                double rhsval = (int_mobility) *
+                (
+                    (dfdp[count_i] - dfdp[count_j])
+                  + (dfdp_aniso[count_i])
+                  + ((8.0)/pi.value())
+                      * Foam::sqrt(max(
+                            PopBal[active_phases[count_i]][cell]
+                          * PopBal[active_phases[count_j]][cell], 0.0))
+                      * (dfdp_mech[count_i] - dfdp_mech[count_j])
+                  - driving_force_cut_off
+                );
                 //   Info<<"RHS"<<rhsval<<endl;
                 // Driving_Force_info[cell]+=driving_force_cut_off;
 
@@ -231,12 +240,20 @@ forAll(mesh.C(), cell)
             W_interface[cell] += ni_val * (-dfdp[count_i]);
         }
 
-        // dpdt_crack: ROC of phase fields
+        // dpdt_crack: ROC of phase fields. If TrackedPhase is set, report
+        // that single phase's own dpdt directly. Otherwise, fall back to the
+        // sum over real crack/void materials (Phase2Material != 0).
         for (label count_i = 0; count_i < n_active_phases; count_i++)
         {
-            if (Phase2Material[active_phases[count_i]] != 0)
+            const label ph = active_phases[count_i];
+            const bool isTracked =
+                (trackedPhase >= 0)
+              ? (ph == trackedPhase)
+              : (Phase2Material[ph] != 0);
+
+            if (isTracked)
             {
-                dpdt_crack[cell] += dpdt[active_phases[count_i]][cell];
+                dpdt_crack[cell] += dpdt[ph][cell];
             }
         }
 
@@ -251,27 +268,6 @@ forAll(mesh.C(), cell)
 
 }  // end forAll(mesh.C(), cell)
 } // end if (fracture)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     Sum_Phases *= 0.0;
     for (label count = 0; count < N_Ori; count++)
@@ -302,7 +298,6 @@ forAll(mesh.C(), cell)
     {
 
         volScalarField & ni = PopBal[count];
-
         ni = max(min(ni, 1.0), 0.0);
         volScalarField temp_holder = ni;
 

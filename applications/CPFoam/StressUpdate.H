@@ -1,22 +1,32 @@
 {
     if (!stressUpdate)
     {
-        // Prescribed-stress mode: bypass the full CP/momentum solve.
-        // sigma[solid] = sigmaGlobal (prescribed);  sigma[crack/void] = 0.
-        //
-        for (label h = 0; h < N_Ori; h++)
+        if (!perPhaseSigma)
         {
-            if (Phase2Material[h] == 0)
+            for (label h = 0; h < N_Ori; h++)
             {
-                sigma[h] = sigmaGlobal;
-                sigma[h].correctBoundaryConditions();
+                if (Phase2Material[h] == 0)
+                {
+                    sigma[h] = sigmaGlobal;
+                    sigma[h].correctBoundaryConditions();
+                }
+                else
+                {
+                    sigma[h] = dimensionedTensor(
+                        "zero", sigma[h].dimensions(), tensor::zero);
+                    sigma[h].correctBoundaryConditions();
+                }
             }
-            else
+        }
+        else
+        {
+            // Re-form the phase-weighted mixture for diagnostics/visualisation 
+            sigmaGlobal *= 0.0;
+            for (label h = 0; h < N_Ori; h++)
             {
-                sigma[h] = dimensionedTensor(
-                    "zero", sigma[h].dimensions(), tensor::zero);
-                sigma[h].correctBoundaryConditions();
+                sigmaGlobal += PopBal[h] * sigma[h];
             }
+            sigmaGlobal.correctBoundaryConditions();
         }
 
         // Zero all flow fields so that rhoEqn, TEqn, and Advect.H see no

@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+// U is never actually solved in this tutorial (UEqn.H is entirely gated
+// behind stressUpdate=true: see constant/GrainProperties) and stays fixed at this
+// IC for the whole run.
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    frontAndBack
+    {
+        type            slip;
+    }
+    lowerWall
+    {
+        type            slip;
+    }
+    atmosphere
+    {
+        type            slip;
+    }
+    defaultFaces
+    {
+        type            empty;
+    }
+}
+// ************************************************************************* //

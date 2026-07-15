@@ -1509,6 +1509,44 @@ if (!stressUpdate)
     Info << "stressUpdate=false: prescribed-stress PF mode\n" << endl;
 }
 
+// Per-phase constant prescribed stress - only meaningful alongside stressUpdate=false 
+const bool perPhaseSigma =
+    GrainProperties.lookupOrDefault<Switch>("PerPhaseSigma", false);
+
+List<tensor> sigmaPrescribed;
+if (perPhaseSigma)
+{
+    GrainProperties.lookup("sigmaPrescribed") >> sigmaPrescribed;
+
+    if (sigmaPrescribed.size() != N_Ori)
+    {
+        FatalErrorInFunction
+            << "sigmaPrescribed has " << sigmaPrescribed.size()
+            << " entries but N_Phases = " << N_Ori
+            << " (PerPhaseSigma requires one tensor per phase)."
+            << exit(FatalError);
+    }
+
+    Info << "PerPhaseSigma=true: per-phase constant prescribed stress\n" << endl;
+}
+
+// Diagnostic only: which single phase dpdt_crack (PF.H) should report the
+// raw rate-of-change of. Default = -1
+const label trackedPhase =
+    GrainProperties.lookupOrDefault<label>("TrackedPhase", -1);
+
+if (trackedPhase >= 0)
+{
+    if (trackedPhase >= N_Ori)
+    {
+        FatalErrorInFunction
+            << "TrackedPhase = " << trackedPhase
+            << " is out of range for N_Phases = " << N_Ori
+            << exit(FatalError);
+    }
+    Info << "TrackedPhase=" << trackedPhase
+         << ": dpdt_crack reports this phase's rate of change\n" << endl;
+}
 
 //   forAll(mesh.C(), cell)
 //   {
