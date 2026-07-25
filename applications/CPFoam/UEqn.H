@@ -1,6 +1,4 @@
-// Momentum solve is bypassed when stressUpdate=false (prescribed-stress mode).
-// U, phi, and rhoPhi are held at their current values (zero for a fresh start),
-// preventing the prescribed sigma from driving spurious acceleration.
+
 if (stressUpdate)
 {
 
@@ -15,6 +13,12 @@ fvVectorMatrix UEqn(
     // ==
 
 );
+
+// Compact wave stabiliser (EOS mode, EOS_waveStabiliser > 0)
+if (useEOS && waveStabCoeff > 0.0)
+{
+    UEqn -= fvm::laplacian(muWaveEOS, U);
+}
 
 UEqn.relax();
 

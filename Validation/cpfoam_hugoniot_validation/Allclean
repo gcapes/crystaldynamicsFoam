@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "$(dirname "$0")" || exit 1
+rm -rf runs hugoniot_UsUp.png profiles_MieGruneisen.png profiles_linearElastic.png
+echo "cleaned."

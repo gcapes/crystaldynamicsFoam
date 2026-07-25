@@ -1,0 +1,143 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  Planar-impact Hugoniot validation: single-crystal copper, [100] loading.
+  MieGruneisen is substituted by Allrun (MieGruneisen | linearElastic).
+
+  Strength parameters are deliberately MINIMISED (flow stress ~50 MPa at
+  shock strain rates) so the measured shock speed isolates the volumetric
+  closure -- the physics under test.  See README.md.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      GrainProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+N_Phases                    1;
+N_Materials                 1;
+Phase2Material              (0);
+
+n_constitutive_substeps     50;
+
+stressUpdate                true;
+Fracture                    false;
+verbose                     false;
+
+// --- Equation-of-state selection (substituted by Allrun) ---
+EOSMode                     MieGruneisen;
+EOS_Tref                    300.0;
+EOS_qQuad                   1.2;
+EOS_qLinear                 0.06;
+
+// --- Initial lattice orientation (Bunge Euler angles, radians): cube ---
+phi1                        (0.0);
+phi2                        (0.0);
+phi3                        (0.0);
+
+// --- Phase-field machinery (inert here: single phase, Fracture off) ---
+interface_width             4.0e-5;
+
+Energy
+(
+    (Material.0 Material.0)    0.5
+);
+
+Mobility
+(
+    (Material.0 Material.0)    1.0e-12
+);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Material.0
+{
+    // Thermophysical (copper)
+    rho_0       8930.0;
+    Cv          385.0;
+    kappa       385.0;
+
+    // Mie-Gruneisen EOS (copper, linear Us-up Hugoniot)
+    // Consumed only when EOSMode = MieGruneisen.
+    c0          3940.0;
+    s_UsUp      1.489;
+    Gamma0      1.99;
+
+    // Cubic elastic constants (copper): C11 = 168.4, C12 = 121.4,
+    // C44 = 75.4 GPa.  All symmetry-equivalent permutations supplied
+    // explicitly.  Note K = (C11+2C12)/3 = 137.1 GPa vs rho0*c0^2 =
+    // 138.6 GPa: a ~1% inconsistency inherited from independent data
+    // sources, immaterial here (deviator uses C, pressure uses the EOS).
+    C0000       168.4e9;
+    C1111       168.4e9;
+    C2222       168.4e9;
+
+    C0011       121.4e9;
+    C1100       121.4e9;
+    C0022       121.4e9;
+    C2200       121.4e9;
+    C1122       121.4e9;
+    C2211       121.4e9;
+
+    C0101       75.4e9;
+    C0110       75.4e9;
+    C1001       75.4e9;
+    C1010       75.4e9;
+
+    C0202       75.4e9;
+    C0220       75.4e9;
+    C2002       75.4e9;
+    C2020       75.4e9;
+
+    C1212       75.4e9;
+    C1221       75.4e9;
+    C2112       75.4e9;
+    C2121       75.4e9;
+
+    // Crystal plasticity: rate-sensitive power law, hardening OFF
+    // (h_0 = 0), low CRSS.  With k_exponent = 5 and gammadot_0 = 1 the
+    // flow stress at shock strain rates (~2e7 1/s) is ~(2e7)^(1/5) *
+    // initialCRSS ~ 29 * 2 MPa ~ 58 MPa: dynamically negligible against
+    // 7-37 GPa shock stresses, and the moderate exponent keeps the
+    // explicit sub-stepping stable through the front.
+    N_slips         12;
+    initialCRSS     2.0e6;
+    tau_S           4.0e6;
+    h_0             0.0;
+    r               1.0;
+    k_exponent      5.0;
+    gammadot_0      1.0;
+
+    // FCC {111}<110>, normalised (m = direction, n = plane normal)
+    m0  ( 0.0                 0.7071067811865476 -0.7071067811865476);
+    n0  ( 0.5773502691896258  0.5773502691896258  0.5773502691896258);
+    m1  ( 0.7071067811865476  0.0                -0.7071067811865476);
+    n1  ( 0.5773502691896258  0.5773502691896258  0.5773502691896258);
+    m2  ( 0.7071067811865476 -0.7071067811865476  0.0               );
+    n2  ( 0.5773502691896258  0.5773502691896258  0.5773502691896258);
+
+    m3  ( 0.0                 0.7071067811865476 -0.7071067811865476);
+    n3  (-0.5773502691896258  0.5773502691896258  0.5773502691896258);
+    m4  ( 0.7071067811865476  0.0                 0.7071067811865476);
+    n4  (-0.5773502691896258  0.5773502691896258  0.5773502691896258);
+    m5  ( 0.7071067811865476  0.7071067811865476  0.0               );
+    n5  (-0.5773502691896258  0.5773502691896258  0.5773502691896258);
+
+    m6  ( 0.0                 0.7071067811865476  0.7071067811865476);
+    n6  ( 0.5773502691896258 -0.5773502691896258  0.5773502691896258);
+    m7  ( 0.7071067811865476  0.0                -0.7071067811865476);
+    n7  ( 0.5773502691896258 -0.5773502691896258  0.5773502691896258);
+    m8  ( 0.7071067811865476  0.7071067811865476  0.0               );
+    n8  ( 0.5773502691896258 -0.5773502691896258  0.5773502691896258);
+
+    m9  ( 0.0                 0.7071067811865476  0.7071067811865476);
+    n9  ( 0.5773502691896258  0.5773502691896258 -0.5773502691896258);
+    m10 ( 0.7071067811865476  0.0                 0.7071067811865476);
+    n10 ( 0.5773502691896258  0.5773502691896258 -0.5773502691896258);
+    m11 ( 0.7071067811865476 -0.7071067811865476  0.0               );
+    n11 ( 0.5773502691896258  0.5773502691896258 -0.5773502691896258);
+}
+
+// ************************************************************************* //

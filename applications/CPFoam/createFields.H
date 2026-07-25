@@ -334,7 +334,7 @@ for (label i = 0; i < N_Mats; i++)
     }
 
     // Enforce full minor and major symmetry via Mandel pair enumeration.
-    // This overwrites any asymmetry in the user's GrainProperties input
+    //  overwrites any asymmetry in the user's GrainProperties input
     // (already warned about above) so that the tensor is bitwise symmetric
     // before rotation and inversion.
     Cprime2[i] = Foam::Material::castSymmetry(Cprime_temp_Read);
@@ -342,10 +342,9 @@ for (label i = 0; i < N_Mats; i++)
     // Verify the symmetrised tensor passes strict checks before the solve begins.
     Foam::Material::assertSymmetry(Cprime2[i]);
 
-    // Inversion self-test: enabled by setting "verbose true;" in GrainProperties.
-    // Runs the full invertRankFour pipeline with diagnostics printed, then
-    // exits cleanly so the inversion-tests can validate the output log.
-    if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
+    // Inversion self-test: enabled by setting "verbose true;" in GrainProperties. -> Harry Smith
+
+    if (GrainProperties.lookupOrDefault<Switch>("verbose", false))//Harry Smith
     {
         Info << "\n=== invertRankFour self-test for Material." << i << " ===\n" << nl;
         auto S = Foam::Material::invertRankFour(Cprime2[i], true);
@@ -396,6 +395,17 @@ for (label i = 0; i < N_Mats; i++)
 
     label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
 
+    // Guard the fixed-size stack arrays in the constitutive kernel
+    // (MAX_SLIPS = 48 in StressUpdate.H)
+    if (N_slips_Temp < 0 || N_slips_Temp > 48)
+    {
+        FatalErrorInFunction
+            << Mat_dict << ": N_slips = " << N_slips_Temp
+            << " outside the supported range 0..48 "
+            << "(MAX_SLIPS stack arrays in StressUpdate.H)."
+            << exit(FatalError);
+    }
+
     MatList[i].N_Slips = N_slips_Temp;
 
     for (int j = 0; j < MatList[i].N_Slips; j++)
@@ -408,6 +418,31 @@ for (label i = 0; i < N_Mats; i++)
         vector temp_n(Mat.lookup(Slip_normal_name));
 
 
+        // normalise slip systems and ensure orthogonality
+        // -----------------------------------------------------------
+        const scalar magM = mag(temp_m);
+        const scalar magN = mag(temp_n);
+        if (magM < SMALL || magN < SMALL)
+        {
+            FatalErrorInFunction
+                << Mat_dict << ": slip system " << j
+                << " has a zero direction or normal vector."
+                << exit(FatalError);
+        }
+        temp_m /= magM;
+        temp_n /= magN;
+
+        const scalar mDotN = temp_m & temp_n;
+        if (mag(mDotN) > 1e-6)
+        {
+            FatalErrorInFunction
+                << Mat_dict << ": slip system " << j
+                << " is not orthogonal: normalised m.n = " << mDotN
+                << nl
+                << "For HCP pyramidal systems check that the c/a ratio "
+                << "used to build m matches the one used for n."
+                << exit(FatalError);
+        }
 
         MatList[i].SP_norm.push_back(temp_n);
         MatList[i].SP_direction.push_back(temp_m);

@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "$(dirname "$0")" || exit 1
+rm -rf runs riemann_profiles_MieGruneisen.png riemann_profiles_linearElastic.png riemann_pu_diagram.png
+echo "cleaned."

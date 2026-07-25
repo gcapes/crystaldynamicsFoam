@@ -41,22 +41,10 @@ License
 #include "fvmSup.H"
 
 
-Foam::Material::Material (/*const int N_slips*/)
-{
-// N_slips_=N_slips;
-}
-
-
-
-Foam::Material::Material (const Material& M1)
-{
-// Bi = new Polynomial<8>[M1.N_comp_];
-// *Bi=*M1.Bi; 
-}
-
-// Foam::Material::Material ()
-// {
-// }
+// Constructors are defaulted in Material.H (rule of zero): all members
+// are value types with in-class initialisers, so the compiler-generated
+// memberwise copy is correct.  The previous definitions here included an
+// empty-bodied copy constructor that copied nothing.
 
 
 

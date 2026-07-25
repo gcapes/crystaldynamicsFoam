@@ -29,8 +29,14 @@ Description
     
 Authors
     Tom Flint
-    Pratheek Shanthraj
+    Harry Smith
+    Maria Yankova
+    Joe Robson
+    Joao Fonseca
     Philip Cardiff
+    Pratheek Shanthraj
+    
+
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
@@ -73,23 +79,27 @@ int main(int argc, char *argv[])
     
     #include "initContinuityErrs.H"
     #include "createFields.H"
+    #include "createFieldsEOS.H"
     #include "CourantNo.H"
 
     #include "setInitialDeltaT.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    // Initialise stiffness tensor/prescribed stress for stressUpdate=false 
+    // Pre-populate C_rotated when stress solve is bypassed (stressUpdate=false).
     if (!stressUpdate)
     {
-        Info<< "stressUpdate=false:" << endl; 
+        Info<< "stressUpdate=false: initialising prescribed-stress mode\n" << endl;
+        // C_rotated pre-population AND the perPhaseSigma feature.
         #include "InitPrescribedStressMode.H"
+
     }
 
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
     {
+
         // int iCorr = 0;
         scalar initialResidual = 0;
 
@@ -98,13 +108,19 @@ int main(int argc, char *argv[])
 
         scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
+
+
         #include "readDyMControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
 
+
+
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
+
+        
 
         sigmaGlobaltemp = sigmaGlobal;
         sigmaGlobaltemp.correctBoundaryConditions();
@@ -113,12 +129,6 @@ int main(int argc, char *argv[])
         {
             pimpleIter++;
 
-            // Restart the objective stress integration from the committed
-            // start-of-step stress on EVERY outer corrector.  sigma[] holds
-            // sigma^n until the finalIter commit in StressUpdate.H, so each
-            // corrector integrates sigma^n -> sigma^* exactly once with the
-            // latest kinematics, rather than accumulating increments across
-            // correctors.
             for (label i = 0; i < N_Ori; i++)
             {
                 sigtemp[i] = sigma[i];
@@ -133,24 +143,34 @@ int main(int argc, char *argv[])
             #include "UEqn.H"
 
             #include "UpdateProps.H"
+            #include "EOS.H"
             #include "StressUpdate.H"
             #include "TEqn.H"
+            #include "EEqn.H"
+
         }
 
-        #include "PF.H"
-        //#include "TEqn.H"
-        //#include "rhoEqn.H"
+            #include "PF.H"
+
             
+
         #include "Advect.H"
         
+
+
+
+
+
+        
+
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
     }
-
     Info<< "End\n" << endl;
+
     return 0;
 }
 

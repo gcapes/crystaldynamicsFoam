@@ -25,6 +25,7 @@ Class
     Foam::multiphaseMixture
 
 Description
+    Dirty mess of functions and junk for solid dynamics and tensor maffs
 
 
 SourceFiles
@@ -61,20 +62,26 @@ namespace Foam
         static const Fastor::Tensor<double,6,3,3> M_;
     public:
         string Mat_type;
-        scalar rho_0;
-        scalar Cv;
-        scalar kappa;
-        int N_Slips;
+        scalar rho_0  = 0.0;
+        scalar Cv     = 0.0;
+        scalar kappa  = 0.0;
+        int N_Slips   = 0;
+
+        // Mie-Gruneisen EOS parameters 
+        scalar c0        = 0.0;   // bulk sound speed at reference   [m/s]
+        scalar s_UsUp    = 0.0;   // linear Us-up Hugoniot slope     [-]
+        scalar Gamma0    = 0.0;   // Gruneisen parameter             [-]
+        scalar cL0_bound = 0.0;   // derived CFL wave-speed bound    [m/s]
 
         std::vector<vector> SP_norm;
         std::vector<vector> SP_direction;
 
-        double initial_CRSS; // initial critically resolved shear stress
-        double tau_S;//saturation value for shear stress
-        double h_0;//initial hardening rate
-        double r;//latent hardening parameter
-        double   k_exponent;//exponent on slip rate term
-        double   ref_shear_rate;//exponent on slip rate term
+        double initial_CRSS = 0.0; // initial critically resolved shear stress
+        double tau_S = 0.0;//saturation value for shear stress
+        double h_0 = 0.0;//initial hardening rate
+        double r = 0.0;//latent hardening parameter
+        double   k_exponent = 0.0;//exponent on slip rate term
+        double   ref_shear_rate = 0.0;//exponent on slip rate term
 
         // Polynomial<8> A;
         // std::vector<Polynomial<8>> Bi;
@@ -84,9 +91,10 @@ namespace Foam
 
         // std::vector<Polynomial<8>> Qi;
 
-        Material (/*const int*/);
-        // Material ();
-        Material (const Material&);
+
+        Material() = default;
+        Material(const Material&) = default;
+        Material& operator=(const Material&) = default;
         virtual ~Material(){}
 
         //MEMBER FUNCTIONS
@@ -152,4 +160,3 @@ namespace Foam
 #endif
 
 // ************************************************************************* //
-

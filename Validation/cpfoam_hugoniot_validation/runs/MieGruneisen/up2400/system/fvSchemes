@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    // Catch-all for the advected microstructure history fields
+    // (g_alpha.*, gamma_alphas.*, Rot*, n.*, per-phase sigma.*)
+    default             Gauss vanLeer;
+
+    div(phi,rho)        Gauss vanLeer;
+    div(rhoPhi,U)       Gauss limitedLinearV 1;
+    div(sigma)          Gauss linear;
+    div((sigma&U))      Gauss linear;
+
+    // Legacy energy equation (EOSMode linearElastic)
+    div((Cv*rhoPhi),T)  Gauss vanLeer;
+
+    // EOS-mode energy equation (EOSMode MieGruneisen)
+    div(rhoPhi,e)       Gauss vanLeer;
+}
+
+laplacianSchemes
+{
+    default             Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //

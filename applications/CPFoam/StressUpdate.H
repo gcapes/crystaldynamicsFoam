@@ -1,32 +1,37 @@
 {
     if (!stressUpdate)
     {
+        // Prescribed-stress mode: bypass the full CP/momentum solve.
+        // TWO sub-modes, which MUST NOT be mixed:
+        //
+        //  * PerPhaseSigma false (legacy): ONE prescribed field,
+        //    sigmaGlobal, is copied into every solid phase each
+        //    corrector; sigma[crack/void] = 0.  Driving-force contrast
+        //    comes from per-phase orientation (C_rotated) under the
+        //    shared stress.
+        //
+        //  * PerPhaseSigma true: sigma.<i> are CONSTANT per-phase
+        //    labels, stamped ONCE by InitPrescribedStressMode.H and
+        //    held for the whole run.  The copy below must therefore be
+        //    SKIPPED -- running it wiped the labels on the first
+        //    corrector (sigmaGlobal is zero in such cases) and killed
+        //    the mechanical driving force entirely.
         if (!perPhaseSigma)
         {
-            for (label h = 0; h < N_Ori; h++)
+        for (label h = 0; h < N_Ori; h++)
+        {
+            if (Phase2Material[h] == 0)
             {
-                if (Phase2Material[h] == 0)
-                {
-                    sigma[h] = sigmaGlobal;
-                    sigma[h].correctBoundaryConditions();
-                }
-                else
-                {
-                    sigma[h] = dimensionedTensor(
-                        "zero", sigma[h].dimensions(), tensor::zero);
-                    sigma[h].correctBoundaryConditions();
-                }
+                sigma[h] = sigmaGlobal;
+                sigma[h].correctBoundaryConditions();
+            }
+            else
+            {
+                sigma[h] = dimensionedTensor(
+                    "zero", sigma[h].dimensions(), tensor::zero);
+                sigma[h].correctBoundaryConditions();
             }
         }
-        else
-        {
-            // Re-form the phase-weighted mixture for diagnostics/visualisation 
-            sigmaGlobal *= 0.0;
-            for (label h = 0; h < N_Ori; h++)
-            {
-                sigmaGlobal += PopBal[h] * sigma[h];
-            }
-            sigmaGlobal.correctBoundaryConditions();
         }
 
         // Zero all flow fields so that rhoEqn, TEqn, and Advect.H see no
@@ -199,6 +204,20 @@
                     }
             }
 
+            // EOS mode: the kernel evolves the per-phase DEVIATOR only
+            // (the pressure channel is owned by EOS.H).  Enforce the
+            // invariant on entry: deviatorises any user-supplied initial
+            // stress on the first visit, a no-op thereafter since every
+            // increment below is then traceless.
+            if (useEOS)
+            {
+                const double trsEOS =
+                    (Fsigma(0,0) + Fsigma(1,1) + Fsigma(2,2))/3.0;
+                Fsigma(0,0) -= trsEOS;
+                Fsigma(1,1) -= trsEOS;
+                Fsigma(2,2) -= trsEOS;
+            }
+
             double local_g[MAX_SLIPS], local_gamma[MAX_SLIPS];
             for (int s = 0; s < N_Slips_h; s++)
             {
@@ -242,6 +261,23 @@
                                              Fastor::Index<FK,FL>>(
                                   C_rot, Fepsilon - F_D_P);
 
+                // EOS mode: deviatoric projection of the stiffness action.
+                // The isotropic part (K tr(D-Dp) for cubic symmetry) is
+                // removed here and supplied instead by the Mie-Gruneisen
+                // p(rho,e) in EOS.H.  The subsequent -tr(De)*Fsigma term
+                // is retained: it is exactly the deviatoric part of the
+                // legacy volumetric-Jaumann equation, so at small
+                // compression the deviator evolution is IDENTICAL to the
+                // linearElastic path.
+                if (useEOS)
+                {
+                    const double trdsEOS =
+                        (dsigma(0,0) + dsigma(1,1) + dsigma(2,2))/3.0;
+                    dsigma(0,0) -= trdsEOS;
+                    dsigma(1,1) -= trdsEOS;
+                    dsigma(2,2) -= trdsEOS;
+                }
+
                 // Jaumann update (elastic spin = W - W_p)
                 auto W_e   = Fomega - F_Omega_P;
                 auto WeSig = Fastor::matmul(W_e, Fsigma);
@@ -261,10 +297,15 @@
                 for (int s = 0; s < N_Slips_h; s++)
                     total_slip += std::abs(local_gamma[s]);
 
-                double argument = std::min(
-                    (h_0 * total_slip) / (tau_S - tau_0), 500.0);
-                double h_gamma = h_0
-                    * Foam::pow(1.0 / Foam::cosh(argument), 2.0);
+                // Voce saturation guard
+                double h_gamma = 0.0;
+                if (h_0 > 0.0 && (tau_S - tau_0) > SMALL)
+                {
+                    double argument = std::min(
+                        (h_0 * total_slip) / (tau_S - tau_0), 500.0);
+                    h_gamma = h_0
+                        * Foam::pow(1.0 / Foam::cosh(argument), 2.0);
+                }
 
                 for (int sa = 0; sa < N_Slips_h; sa++)
                 {
@@ -424,7 +465,7 @@
             // Only compute on cells with phase fraction of n.N less than 0.95 
             constitutiveKernel(
                 sig_in, eps_in, omg_in, rot_ang,
-                g_in, gam_in, (PopBal_av[h][cell] > 0.05),
+                g_in, gam_in, (PopBal_av[h][cell] > SMALL),
                 sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,&C_rotated[h][cell]);
 
             for (int ci = 0; ci < 9; ci++)
@@ -474,7 +515,7 @@
                     constitutiveKernel(
                         sig_in, eps_in, omg_in, rot_ang,
                         g_in, gam_in,
-                        (PopBal_av[h].boundaryField()[patchI][faceI] > 0.05),
+                        (PopBal_av[h].boundaryField()[patchI][faceI] > SMALL),
                         sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,nullptr);//nullptr as only need cell values for mechanical driving force
 
                     for (int ci = 0; ci < 9; ci++)
@@ -494,11 +535,7 @@
 
 
         // Orientation update: apply the exponential map ONCE per time
-        // step, on the final outer corrector only.  On intermediate
-        // correctors the Rot fields keep the start-of-step angles, so the
-        // constitutive kernel above always rotates the stiffness and Schmid
-        // tensors from the start-of-step orientation -- consistent with the
-        // stress integration restarting from sigma^n on every corrector.
+        // step, on the final outer corrector 
         if (pimple.finalIter())
         {
 
@@ -565,6 +602,14 @@
 
     } // end loop over phases
 
+    // EOS mode: sigtemp/sigma hold per-phase deviatoric part.  Add the
+    // volumetric part later ....Mie-Gruneisen pressure plus
+    // artificial shock viscosity
+    if (useEOS)
+    {
+        sigmaGlobaltemp -= (p + qAV)*I_EOS;
+    }
+
     sigmaGlobaltemp.correctBoundaryConditions();
 
     // ==============================================================
@@ -591,7 +636,12 @@
         D = D + runTime.deltaT() * U;
         D.correctBoundaryConditions();
 
-        p = -(1.0/3.0) * tr(sigmaGlobal);
+        // diagnostic only: in EOS mode p is the 
+        // pressure (and tr(sigmaGlobal)/3 = -(p + q)
+        if (!useEOS)
+        {
+            p = -(1.0/3.0) * tr(sigmaGlobal);
+        }
     }
 
     } // end else (stressUpdate)

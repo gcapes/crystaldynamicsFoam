@@ -25,15 +25,69 @@ Global
     setDeltaT
 
 Description
-    Reset the timestep to maintain a constant maximum courant Number.
-    Reduction of time-step is immediate, but increase is damped to avoid
-    unstable oscillations.
+    MODIFIED FOR SOLID DYNAMICSS
 
 \*---------------------------------------------------------------------------*/
 
 if (adjustTimeStep)
 {
-    scalar deltaT = maxCo*runTime.deltaTValue()/(CoNum + SMALL);
+
+    const scalar CoLimitingEOS =
+        useEOS ? max(CoNum, acousticCoNum) : CoNum;
+
+    if (useEOS)
+    {
+        Info<< "Time-step limiting Courant number (acoustic): "
+            << CoLimitingEOS << endl;
+    }
+
+    scalar deltaT = maxCo*runTime.deltaTValue()/(CoLimitingEOS + SMALL);
+
+    if (fracture)
+    {
+        static scalar deltaTPFdiff = -1.0;
+        if (deltaTPFdiff < 0.0)
+        {
+            scalar MEmax = 0.0;
+            for (label a = 0; a < N_Mats; a++)
+            {
+                for (label b = 0; b < N_Mats; b++)
+                {
+                    MEmax = max
+                    (
+                        MEmax,
+                        PF_Mobility0_array[a][b]*PF_Energy0_array[a][b]
+                    );
+                }
+            }
+            const scalar dxMin = gMin(cellDx.primitiveField());
+            deltaTPFdiff =
+                0.5*sqr(dxMin)*sqr(pi.value())
+               /(6.0*4.0*max(MEmax, SMALL)*interface_width.value());
+            Info<< "PF stability: diffusive dt bound = "
+                << deltaTPFdiff << " s" << endl;
+        }
+
+        const scalar maxDPhi
+        (
+            GrainProperties.lookupOrDefault<scalar>("PF_maxDeltaPhi", 0.05)//MaX CHANGE IN PHI in a  GIVEN TIMESTEP
+        );
+        scalar dpdtMax = 0.0;
+        for (label h = 0; h < N_Ori; h++)
+        {
+            dpdtMax = max
+            (
+                dpdtMax,
+                gMax(mag(dpdt[h])().primitiveField())
+            );
+        }
+        deltaT = min
+        (
+            deltaT,
+            min(deltaTPFdiff, maxDPhi/max(dpdtMax, SMALL))
+        );
+    }
+
     deltaT = min(deltaT, maxTimeStep/*fvModels.maxDeltaT()*/);
     deltaT = min
     (

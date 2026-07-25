@@ -118,6 +118,20 @@ for (label h = 0; h < N_Ori; h++)
 {
     sigmaGlobal += PopBal[h] * sigma[h];
 }
+
+// EOS mode: the transported sigma[h] are per-phase DEVIATORS.  Refresh
+// the EOS on the end-of-step state (post-PF phase fields, solved rho
+// and e -- both conservatively transported, so p needs no advection of
+// its own) and add the volumetric channel.  This makes the committed
+// sigmaGlobal, which seeds sigmaGlobaltemp for the next step's first
+// momentum predictor, consistent with the state it will act on.
+// (EOS.H is self-guarded: a no-op when EOSMode is linearElastic.)
+#include "EOS.H"
+if (useEOS)
+{
+    sigmaGlobal -= (p + qAV)*I_EOS;
+}
+
 sigmaGlobal.correctBoundaryConditions();
 
 

@@ -1,0 +1,140 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      GrainProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+N_Phases        1;
+
+N_Materials     1;
+
+Phase2Material  (0 0 0);
+
+phi1 (0.0 0.0 0.0);
+phi2 (0.0 0.0 0.0);
+phi3 (0.0 0.0 0.0);
+
+n_constitutive_substeps 25;   
+
+
+interface_width	4e-6;
+
+Energy
+(
+(Material.0 Material.0) 0.3
+(Material.0 Material.1) 0.2
+(Material.1 Material.1) 0.1
+);
+
+Mobility
+(
+(Material.0 Material.0) 5.1e-6
+(Material.0 Material.1) 5.0e-4//100.0e-4//10 too high
+(Material.1 Material.1) 5.3e-6
+);
+
+
+
+EOSMode        MieGruneisen;    // default: linearElastic
+EOS_Tref       300.0;           // optional
+EOS_qQuad      0.0;             // optional
+EOS_qLinear    0.0;            // optional
+
+EOS_waveStabiliser  0.02;//stabilisation for oscillations that 
+
+
+
+
+Material.0 // Isotropic linear elasticity, mu = 80 GPa, nu = 0.3
+{
+
+c0    4714.045;
+s_UsUp         1.489;
+Gamma0         1.99;
+
+
+    Cv      500;
+
+    kappa   20.0;
+
+    rho_0   7800;
+
+    // Isotropic stiffness requires  C11 - C12 = 2*C44  (Zener ratio = 1).
+    // Chosen set: mu = C44 = 80 GPa (unchanged shear modulus),
+    //             lambda = 120 GPa  ->  C11 = lambda + 2 mu = 280 GPa,
+    //                                   C12 = lambda        = 120 GPa.
+    // Analytic wave speeds (rho_0 = 7800 kg/m^3):
+    //   shear        c_s = sqrt(C44/rho) = 3202.56 m/s
+    //   longitudinal c_p = sqrt(C11/rho) = 5991.45 m/s   (uniaxial strain)
+
+    C0000   280E9;
+    C1111   280E9;
+    C2222   280E9;
+
+    C0011   120E9;
+    C1100   120E9;
+    C0022   120E9;
+    C2200   120E9;
+    C1122   120E9;
+    C2211   120E9;
+
+    C0101   80E9;
+    C1010   80E9;
+    C0110   80E9;
+    C1001   80E9;
+    C0202   80E9;
+    C2020   80E9;
+    C0220   80E9;
+    C2002   80E9;
+    C1212   80E9;
+    C2121   80E9;
+    C1221   80E9;
+    C2112   80E9;
+
+    N_slips 12;
+
+    m0  (0.577    0.577    0.577);
+    m1  (0.577    0.577    0.577);
+    m2  (0.577    0.577    0.577);
+    m3  (-0.577   -0.577   0.577);
+    m4  (-0.577   -0.577   0.577);
+    m5  (-0.577   -0.577   0.577);
+    m6  (-0.577   0.577    0.577);
+    m7  (-0.577   0.577    0.577);
+    m8  (-0.577   0.577    0.577);
+    m9  (0.577    -0.577   0.577);
+    m10 (0.577    -0.577   0.577);
+    m11 (0.577    -0.577   0.577);
+
+    n0  (0        0.707    -0.707);
+    n1  (-0.707   0.0      0.707);
+    n2  (0.707    -0.707   0.0);
+    n3  (0        -0.707   -0.707);
+    n4  (0.707    0.0      0.707);
+    n5  (-0.707   0.707    0.0);
+    n6  (0        0.707    -0.707);
+    n7  (0.707    0.0      0.707);
+    n8  (-0.707   -0.707   0.0);
+    n9  (0        -0.707   -0.707);
+    n10 (-0.707   0.0      0.707);
+    n11 (0.707    0.707    0.0);
+
+    initialCRSS 16e6;
+    tau_S       148e6;
+    h_0         180e6;
+    r           1.1;
+    k_exponent  25.0;
+    gammadot_0  0.0;   // plasticity disabled for the elastic wave benchmark
+}
+
+// ************************************************************************* //

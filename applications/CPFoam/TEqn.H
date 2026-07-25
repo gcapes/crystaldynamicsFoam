@@ -1,5 +1,5 @@
-// Energy equation: only active when momentum/CP solve is running.
-if (stressUpdate)
+// OLD ORIGINAL ENERGY EQUATION FROM LINEARLEASTIC 
+if (stressUpdate && !useEOS)
 {
 
 
