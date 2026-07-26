@@ -25,6 +25,7 @@ Class
     Foam::multiphaseMixture
 
 Description
+    Dirty mess of functions and junk for solid dynamics and tensor maffs
 
 
 SourceFiles
@@ -35,6 +36,8 @@ SourceFiles
 #ifndef material_H
 #define material_H
 
+#include "Interface.H"
+
 #include <vector>
 #include "Polynomial.H"
 #include "IOdictionary.H"
@@ -42,68 +45,84 @@ SourceFiles
 #include "volFields.H"
 #include "surfaceFields.H"
 
+#include "Fastor.h"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-
-
  class Material
  {
     private:
-    // int N_slips_;
-    // double test[6];
-    // Polynomial<8>  * _arr;
-    
-  public:
-  string Mat_type;
+        // int N_slips_;
+        // double test[6];
+        // Polynomial<8>  * _arr;
 
-  scalar rho_0;
+        // Mandel tensor for converting between symmetric rank-four and Mandel representations
+        static const Fastor::Tensor<double,6,3,3> M_;
+    public:
+        string Mat_type;
+        scalar rho_0  = 0.0;
+        scalar Cv     = 0.0;
+        scalar kappa  = 0.0;
+        int N_Slips   = 0;
 
-  scalar Cv;
+        // Mie-Gruneisen EOS parameters 
+        scalar c0        = 0.0;   // bulk sound speed at reference   [m/s]
+        scalar s_UsUp    = 0.0;   // linear Us-up Hugoniot slope     [-]
+        scalar Gamma0    = 0.0;   // Gruneisen parameter             [-]
+        scalar cL0_bound = 0.0;   // derived CFL wave-speed bound    [m/s]
 
-  scalar kappa;
+        std::vector<vector> SP_norm;
+        std::vector<vector> SP_direction;
 
-  int N_Slips;
+        double initial_CRSS = 0.0; // initial critically resolved shear stress
+        double tau_S = 0.0;//saturation value for shear stress
+        double h_0 = 0.0;//initial hardening rate
+        double r = 0.0;//latent hardening parameter
+        double   k_exponent = 0.0;//exponent on slip rate term
+        double   ref_shear_rate = 0.0;//exponent on slip rate term
 
-  std::vector<vector> SP_norm;
-  std::vector<vector> SP_direction;
+        // Polynomial<8> A;
+        // std::vector<Polynomial<8>> Bi;
+        // std::vector<Polynomial<8>> Cij;
 
-  double initial_CRSS; // initial critically resolved shear stress
+        // std::vector<Polynomial<8>> eq_xi;
 
-  double tau_S;//saturation value for shear stress
+        // std::vector<Polynomial<8>> Qi;
 
-  double h_0;//initial hardening rate
 
-   double r;//latent hardening parameter
+        Material() = default;
+        Material(const Material&) = default;
+        Material& operator=(const Material&) = default;
+        virtual ~Material(){}
 
-  double   k_exponent;//exponent on slip rate term
+        //MEMBER FUNCTIONS
+        // int returnComponents();
+        // Material Material::operator=
 
-  double   ref_shear_rate;//exponent on slip rate term
+        void Print(label length);
+        double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
+        tensor RK4(scalar step_size);
 
-//   Polynomial<8> A;
-//   std::vector<Polynomial<8>> Bi;
-//   std::vector<Polynomial<8>> Cij;
+        // Bespoke tensor functions
+        static Fastor::Tensor<double,3,3,3,3> invertRankFour(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity = false);
+        
+        // Helper functions for inverting rank four ... 
+        static Fastor::Tensor<double,3,3,3,3> castSymmetry(const Fastor::Tensor<double,3,3,3,3>& C_in);
+        static void assertSymmetry(const Fastor::Tensor<double,3,3,3,3>& C);
+        static Fastor::Tensor<double,6,6> fourthToMandel(const Fastor::Tensor<double,3,3,3,3>& C, bool verbosity = false);
+        static Fastor::Tensor<double,3,3,3,3> mandelToFourth(const Fastor::Tensor<double, 6, 6>& M, bool verbosity = false);
+        static bool isRankFourInverse(const Fastor::Tensor<double,3,3,3,3>& C, Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
+        static bool isMandelInverse(const Fastor::Tensor<double,3,3,3,3>& C, const Fastor::Tensor<double,3,3,3,3>& S, bool verbosity = false);
+        static double doubleContractionTwice(const Fastor::Tensor<double, 3, 3>& second, const Fastor::Tensor<double,3,3,3,3>& fourth, bool verbosity = false); 
 
-//   std::vector<Polynomial<8>> eq_xi;
+        // Tensor utility functions 
+        static void printRankTwo(const Fastor::Tensor<double,3,3>& A, const word& name="Rank 2 Tensor");
+        static void printRankFour(const Fastor::Tensor<double,3,3,3,3>& A, const word& name="Rank 4 Tensor");
+        static void printMandelMatrix(const Fastor::Tensor<double,6,6>& M, const word& name="Mandel Matrix");
 
-//   std::vector<Polynomial<8>> Qi;
-
-  Material (/*const int*/);
-//   Material ();
-  Material (const Material&);
-  virtual ~Material(){}
-
-  //MEMBER FUNCTIONS
-//   int returnComponents();
-//   Material Material::operator=
-  void Print(label length);
-
-  double deltaG(scalar *mu_arr,scalar *xi_arr,const scalar& T,const label& length);
-
-  tensor RK4(scalar step_size);
-
+        static Fastor::Tensor<double,3,3> symm(const Fastor::Tensor<double,3,3>& A);
 };
 
 
@@ -121,94 +140,6 @@ namespace Foam
 
 
 
-
-
-class Interface
- :public IOdictionary
- {
-
-    public:
-
-    class interfacePair
-        :
-        public Pair<word>
-    {
-    public:
-
-        class hash
-            :
-            public Hash<interfacePair>
-        {
-        public:
-
-            hash()
-            {}
-
-            label operator()(const interfacePair& key) const
-            {
-                return word::hash()(key.first()) + word::hash()(key.second());
-            }
-        };
-
-
-        // Constructors
-
-        interfacePair()
-        {}
-
-        interfacePair(const word& alpha1Name, const word& alpha2Name)
-            :
-            Pair<word>(alpha1Name, alpha2Name)
-        {}
-
-        // interfacePair(const phase& alpha1, const phase& alpha2)
-        // :
-        //     Pair<word>(alpha1.name(), alpha2.name())
-        // {}
-
-
-        // Friend Operators
-
-        friend bool operator==
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return
-                (
-                    ((a.first() == b.first()) && (a.second() == b.second()))
-                );
-        }
-
-        friend bool operator!=
-        (
-            const interfacePair& a,
-            const interfacePair& b
-        )
-        {
-            return (!(a == b));
-        }
-    };
-    
-    private:
-    const fvMesh& mesh_;
-    const volScalarField& T_;
-    word Interface_type;
-  public:
-    Interface (word,const volScalarField&);
-    // Material (int,int);
-
-    virtual ~Interface()
-    {}
-
-    //Member Functions
-    void Assign_Energies(scalar **NRG_arr);
-    void Assign_Mobilities(scalar **NRG_arr);
-    void Assign_Anisotropy_Strength(scalar **Aniso_strength_arr);
-    scalar aniso_energy(scalar *tensor_i, scalar *tensor_j, scalar *vec_i, scalar *vec_j, const scalar& phi_i, const scalar& phi_j,const scalar& int_width, const scalar& deltaN);
-    // int area (void) {return (width*height);}
-};
 
 
 
@@ -229,4 +160,3 @@ class Interface
 #endif
 
 // ************************************************************************* //
-

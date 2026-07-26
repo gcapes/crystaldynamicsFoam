@@ -1,0 +1,31 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+defaultFieldValues
+(
+    volScalarFieldValue rho 8930
+    volTensorFieldValue sigma.0 (0 0 0 0 0 0 0 0 0)
+);
+
+regions
+(
+    boxToCell
+    {
+        box (-1 -1 -1) (0.005 1 1);
+        fieldValues
+        (
+            volScalarFieldValue rho 10579.45
+            volTensorFieldValue sigma.0
+                (-2.5319e10 0 0 0 -2.5319e10 0 0 0 -2.5319e10)
+        );
+    }
+);
+
+// ************************************************************************* //

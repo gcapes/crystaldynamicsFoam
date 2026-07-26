@@ -29,26 +29,31 @@ Description
     
 Authors
     Tom Flint
-    Pratheek Shanthraj
+    Harry Smith
+    Maria Yankova
+    Joe Robson
+    Joao Fonseca
     Philip Cardiff
+    Pratheek Shanthraj
+    
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "dynamicFvMesh.H"
 #include "EulerDdtScheme.H"
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
 //#include "pisoControl.H"
 #include "pimpleControl.H"
-#include "fvModels.H"
-#include "fvConstraints.H"
+#include "fvOptions.H"
 #include "CorrectPhi.H"
 
 #include "Material.H"
 
 
-#include <Fastor/Fastor.h> 
+#include "Fastor.h" 
 #include <random>
 #include <math.h>
 
@@ -56,7 +61,14 @@ Authors
 
 int main(int argc, char *argv[])
 {
-#include "postProcess.H"
+
+        argList::addNote
+    (
+        "Solver for"
+    );
+
+    
+    #include "postProcess.H"
 
     #include "setRootCaseLists.H"
     #include "createTime.H"
@@ -67,15 +79,25 @@ int main(int argc, char *argv[])
     
     #include "initContinuityErrs.H"
     #include "createFields.H"
+    #include "createFieldsEOS.H"
     #include "CourantNo.H"
 
     #include "setInitialDeltaT.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    // Pre-populate C_rotated when stress solve is bypassed (stressUpdate=false).
+    if (!stressUpdate)
+    {
+        Info<< "stressUpdate=false: initialising prescribed-stress mode\n" << endl;
+        // C_rotated pre-population AND the perPhaseSigma feature.
+        #include "InitPrescribedStressMode.H"
+
+    }
+
     Info<< "\nStarting time loop\n" << endl;
 
-    while (pimple.run(runTime))
+    while (runTime.run())
     {
 
         // int iCorr = 0;
@@ -94,57 +116,47 @@ int main(int argc, char *argv[])
 
 
 
-        runTime++;
+        ++runTime;
 
-        Info<< "Time = " << runTime.userTimeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << nl << endl;
 
         
 
-        // volTensorField sigtemp(sigma);
-          for (label i = 0; i < N_Ori; i++)
-            {
-                sigtemp[i]=sigma[i];
-                sigtemp[i].correctBoundaryConditions();
-            }
-            sigmaGlobaltemp = sigmaGlobal;
-            sigmaGlobaltemp.correctBoundaryConditions();
+        sigmaGlobaltemp = sigmaGlobal;
+        sigmaGlobaltemp.correctBoundaryConditions();
         label pimpleIter = 0;
-        while (pimple.loop())//TOM - UEqn DEFINITELY goes inside the loop - need to take update rotation out of PIMPLE loop
+        while (pimple.loop())
         {
             pimpleIter++;
-            // Info<< "PIMPLE iteration: " << pimpleIter << endl;
 
-            //const volTensorField dsigold(dsigmadt);
-        // do
-        // {
+            for (label i = 0; i < N_Ori; i++)
+            {
+                sigtemp[i] = sigma[i];
+                sigtemp[i].correctBoundaryConditions();
+            }
 
+            volVectorField U_old = U;
+            U_old.correctBoundaryConditions();
             
+            #include "rhoEqn.H"
+
             #include "UEqn.H"
-        // #include "setU.H"
-            
 
             #include "UpdateProps.H"
+            #include "EOS.H"
             #include "StressUpdate.H"
+            #include "TEqn.H"
+            #include "EEqn.H"
 
         }
 
             #include "PF.H"
-            #include "TEqn.H"
-            #include "rhoEqn.H"
+
             
 
-        
-        // #include "RotationUpdate.H"
         #include "Advect.H"
         
-    // } while (initialResidual > convergenceTolerance && ++iCorr < nCorr);
 
-            
-
-        // #include "TEqn.H"
-        
-
-        
 
 
 

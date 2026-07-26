@@ -1,0 +1,264 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2306                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      inflowBoundaries;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ENHANCED INFLOW CONFIGURATION
+// Use with handleMPMInflow_enhanced.H
+
+inflows
+{
+    // =========================================================================
+    // EXAMPLE 1: Simple Extrusion (No Pre-stress)
+    // =========================================================================
+    
+    inletb
+    {
+        // Basic parameters
+        patch               atmosphere;
+        velocity            (0 100.0 0.0 );      // 0.5 m/s extrusion velocity
+        materialID          0;
+        particlesPerCell    50;
+        
+        // Nucleation control
+        minDensityFraction  0.75;            //0.5 Spawn when <50% full
+        randomizePositions  true;//false;          // Regular grid
+        
+        // Stress initialization
+        stressInitialization  zero;         // Start with zero stress
+        
+        // Spawn strategy
+        spawnStrategy       nearBoundary;//cellCenter;     // Spawn at cell centers////nearBoundary
+        
+        // Crystal orientation
+        grainID             0;
+        phi1                0.0;
+        Phi                 0.0;
+        phi2                0.0;
+    }
+    
+    
+        inletbottom
+    {
+        // Basic parameters
+        patch               lowerWall;
+        velocity            (0 -100.0 0.0 );      // 0.5 m/s extrusion velocity
+        materialID          0;
+        particlesPerCell    50;
+        
+        // Nucleation control
+        minDensityFraction  0.75;            //0.5 Spawn when <50% full
+        randomizePositions  true;//false;          // Regular grid
+        
+        // Stress initialization
+        stressInitialization  zero;         // Start with zero stress
+        
+        // Spawn strategy
+        spawnStrategy       nearBoundary;//cellCenter;     // Spawn at cell centers////nearBoundary
+        
+        // Crystal orientation
+        grainID             0;
+        phi1                0.0;
+        Phi                 0.0;
+        phi2                0.0;
+    }
+    
+    // =========================================================================
+    // EXAMPLE 2: Compression Test (Hydrostatic Pre-stress)
+    // =========================================================================
+    /*
+    topCompression
+    {
+        patch               top;
+        velocity            (0 -1.0 0);     // 1 m/s downward
+        materialID          0;
+        particlesPerCell    12;
+        minDensityFraction  0.6;
+        randomizePositions  true;
+        
+        // Initialize with compressive stress
+        stressInitialization  hydrostatic;
+        pressure              100e6;        // 100 MPa compression
+        
+        spawnStrategy       nearBoundary;   // Spawn near inlet face
+        
+        grainID             0;
+        phi1                0.0;
+        Phi                 0.0;
+        phi2                0.0;
+    }
+    */
+    
+    // =========================================================================
+    // EXAMPLE 3: High-Speed Impact (Acoustic Stress)
+    // =========================================================================
+    /*
+    impactor
+    {
+        patch               left;
+        velocity            (100 0 0);      // 100 m/s impact
+        materialID          0;
+        particlesPerCell    10;
+        minDensityFraction  0.4;
+        randomizePositions  false;
+        
+        // Automatically compute stress from acoustic impedance
+        // σ = ρ * c * v where c = sqrt(E/ρ)
+        stressInitialization  acoustic;
+        
+        spawnStrategy       nearBoundary;
+        
+        grainID             0;
+        phi1                0.0;
+        Phi                 0.0;
+        phi2                0.0;
+    }
+    */
+    
+    // =========================================================================
+    // EXAMPLE 4: Rolling (Uniaxial Pre-stress)
+    // =========================================================================
+    /*
+    leftRoll
+    {
+        patch               left;
+        velocity            (2.0 -0.2 0);   // 2 m/s with slight downward
+        materialID          0;
+        particlesPerCell    12;
+        minDensityFraction  0.5;
+        randomizePositions  false;
+        
+        // Initialize with tensile stress in rolling direction
+        stressInitialization  uniaxial;
+        stress                50e6;         // 50 MPa tension
+        direction             (1 0 0);      // X-direction
+        
+        spawnStrategy       layered;        // Spawn in multiple layers
+        spawnDepth          2;              // 2 layers deep
+        
+        grainID             0;
+        phi1                0.0;
+        Phi                 0.0;
+        phi2                0.0;
+    }
+    
+    rightRoll
+    {
+        patch               right;
+        velocity            (-2.0 -0.2 0);
+        materialID          0;
+        particlesPerCell    12;
+        minDensityFraction  0.5;
+        randomizePositions  false;
+        
+        stressInitialization  uniaxial;
+        stress                50e6;
+        direction             (-1 0 0);
+        
+        spawnStrategy       layered;
+        spawnDepth          2;
+        
+        // Different texture for right roll
+        grainID             1;
+        phi1                1.047198;       // 60 degrees
+        Phi                 0.523599;       // 30 degrees
+        phi2                0.0;
+    }
+    */
+    
+    // =========================================================================
+    // EXAMPLE 5: Multi-layer Extrusion (Different materials/textures)
+    // =========================================================================
+    /*
+    bottomLayer
+    {
+        patch               inlet;
+        velocity            (0.5 0 0);
+        materialID          0;              // Soft aluminum layer
+        particlesPerCell    8;
+        minDensityFraction  0.5;
+        
+        stressInitialization  zero;
+        spawnStrategy       cellCenter;
+        
+        // Random texture
+        grainID             0;
+        phi1                0.523599;       // 30 degrees
+        Phi                 0.785398;       // 45 degrees
+        phi2                0.261799;       // 15 degrees
+    }
+    
+    topLayer
+    {
+        patch               inletTop;
+        velocity            (0.5 0 0);
+        materialID          1;              // Hard steel layer
+        particlesPerCell    8;
+        minDensityFraction  0.5;
+        
+        stressInitialization  zero;
+        spawnStrategy       cellCenter;
+        
+        grainID             1;
+        phi1                1.570796;       // 90 degrees
+        Phi                 0.523599;       // 30 degrees
+        phi2                0.785398;       // 45 degrees
+    }
+    */
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// PARAMETER GUIDE
+// ===============
+//
+// Required:
+// ---------
+// patch               : Name of boundary patch
+// velocity            : Inflow velocity vector [m/s]
+// materialID          : Material index (0, 1, 2, ...)
+// particlesPerCell    : Target particles per cell (8-12 recommended)
+//
+// Optional - Nucleation:
+// ----------------------
+// minDensityFraction  : Spawn when count < this * particlesPerCell (default: 0.5)
+// randomizePositions  : true/false (default: false)
+//
+// Optional - Stress Initialization:
+// ----------------------------------
+// stressInitialization : "zero", "hydrostatic", "uniaxial", or "acoustic"
+//   
+//   For "hydrostatic":
+//     pressure : Hydrostatic pressure [Pa] (positive = compression)
+//   
+//   For "uniaxial":
+//     stress    : Uniaxial stress [Pa] (positive = tension)
+//     direction : Direction vector (will be normalized)
+//   
+//   For "acoustic":
+//     (no extra parameters - computed from velocity and material)
+//
+// Optional - Spawn Strategy:
+// ---------------------------
+// spawnStrategy : "cellCenter", "nearBoundary", or "layered"
+//   
+//   For "layered":
+//     spawnDepth : Number of cell layers to monitor (default: 1)
+//
+// Optional - Crystal Orientation:
+// --------------------------------
+// grainID : Grain identifier (default: 0)
+// phi1    : Bunge angle α [radians] (default: 0)
+// Phi     : Bunge angle β [radians] (default: 0)
+// phi2    : Bunge angle γ [radians] (default: 0)

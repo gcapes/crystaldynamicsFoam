@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  1-D bar for planar-impact Hugoniot validation.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1.0;
+
+L   16.0e-3;     // bar length  [m]
+H   1.0e-5;     // bar height  [m] (single cell; empty directions)
+
+vertices
+(
+    (0   0   0)
+    ($L  0   0)
+    ($L  $H  0)
+    (0   $H  0)
+    (0   0   $H)
+    ($L  0   $H)
+    ($L  $H  $H)
+    (0   $H  $H)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (800 1 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    piston
+    {
+        type patch;
+        faces ((0 4 7 3));
+    }
+    farEnd
+    {
+        type patch;
+        faces ((1 2 6 5));
+    }
+    sides
+    {
+        type empty;
+        faces
+        (
+            (0 1 5 4)
+            (3 7 6 2)
+            (0 3 2 1)
+            (4 5 6 7)
+        );
+    }
+);
+
+// ************************************************************************* //

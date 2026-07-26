@@ -1,727 +1,648 @@
 {
+    if (!stressUpdate)
+    {
+        // Prescribed-stress mode: bypass the full CP/momentum solve.
+        // TWO sub-modes, which MUST NOT be mixed:
+        //
+        //  * PerPhaseSigma false (legacy): ONE prescribed field,
+        //    sigmaGlobal, is copied into every solid phase each
+        //    corrector; sigma[crack/void] = 0.  Driving-force contrast
+        //    comes from per-phase orientation (C_rotated) under the
+        //    shared stress.
+        //
+        //  * PerPhaseSigma true: sigma.<i> are CONSTANT per-phase
+        //    labels, stamped ONCE by InitPrescribedStressMode.H and
+        //    held for the whole run.  The copy below must therefore be
+        //    SKIPPED -- running it wiped the labels on the first
+        //    corrector (sigmaGlobal is zero in such cases) and killed
+        //    the mechanical driving force entirely.
+        if (!perPhaseSigma)
+        {
+        for (label h = 0; h < N_Ori; h++)
+        {
+            if (Phase2Material[h] == 0)
+            {
+                sigma[h] = sigmaGlobal;
+                sigma[h].correctBoundaryConditions();
+            }
+            else
+            {
+                sigma[h] = dimensionedTensor(
+                    "zero", sigma[h].dimensions(), tensor::zero);
+                sigma[h].correctBoundaryConditions();
+            }
+        }
+        }
+
+        // Zero all flow fields so that rhoEqn, TEqn, and Advect.H see no
+        // advection.  The tensile U boundary conditions (+/-1 m/s) remain active via correctBoundaryConditions
+        phi    *= 0.0;
+        rhoPhi *= 0.0;
+    }
+    else
+    {
+
     sigmaGlobaltemp *= 0.0;
-    
-    // Create working copies of rotation fields for PIMPLE iterations
-    //  PtrList<volScalarField> Rot1_working;
-    //  PtrList<volScalarField> Rot2_working;
-    // PtrList<volScalarField> Rot3_working;
-    
-    // // Initialize working rotations at start of PIMPLE loop
-    // if (pimpleIter == 1) 
-    // {
-    //     Rot1_working.clear();
-    //     Rot2_working.clear();
-    //     Rot3_working.clear();
-    //     Rot1_working.resize(N_Ori);
-    //     Rot2_working.resize(N_Ori);
-    //     Rot3_working.resize(N_Ori);
-        
-    //     for (label h = 0; h < N_Ori; h++)
-    //     {
-    //         Rot1_working.set(
-    //             h,
-    //             new volScalarField(Rot1[h])
-    //         );
-    //         Rot2_working.set(
-    //             h,
-    //             new volScalarField(Rot2[h])
-    //         );
-    //         Rot3_working.set(
-    //             h,
-    //             new volScalarField(Rot3[h])
-    //         );
-    //     }
-    // }
+
+    // Fastor index helpers for einsum (C:epsilon contraction)
+    enum FastorIdx { FI = 0, FJ = 1, FK = 2, FL = 3 };
+
+    // Maximum slip systems (stack-allocated arrays)
+    const int MAX_SLIPS = 48;
 
     for (label h = 0; h < N_Ori; h++)
     {
-        Info << "Phase " << h << " - Number of Stress Integration Sub-Steps: " << n_substeps << endl;
-        dimensionedScalar sub_dt = runTime.deltaT() / n_substeps;
-        
-        // Working copy of stress for sub-stepping
-        volTensorField sigma_working = sigtemp[h];
-        
-        // Create working copies of hardening variables for sub-stepping
-        PtrList<volScalarField> g_alphas_working(MatList[Phase2Material[h]].N_Slips);
-        for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-        {
-            g_alphas_working.set(
-                s,
-                new volScalarField(g_alphas[h][s])
-            );
-        }
-        
-        // Fields to accumulate plastic deformation over sub-steps
-        volTensorField accumulated_plastic_strain(
-            IOobject(
-                "accumulated_plastic_strain",
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh,
-            dimensionedTensor("zero", dimensionSet(0, 0, 0, 0, 0), tensor::zero)
-        );
-        
-        volTensorField accumulated_plastic_spin(
-            IOobject(
-                "accumulated_plastic_spin",
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh,
-            dimensionedTensor("zero", dimensionSet(0, 0, 0, 0, 0), tensor::zero)
-        );
-        
-        // Sub-stepping loop for stress integration
-        for (int step = 0; step < n_substeps; step++) 
-        {
-            // Local fields for this sub-step
-            volTensorField dsigmadt_local(
-                IOobject(
-                    "dsigmadt_local",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh,
-                dimensionedTensor("zero", dimensionSet(1, -1, -3, 0, 0), tensor::zero)
-            );
-            
-            // Step 1: Calculate CP constitutive response for cells
-            forAll(mesh.C(), cell)
-            {
-                if (PopBal_av[h][cell] > 0.0)
-                {
-                    // Extract current stress and strain rate
-                    Fastor::Tensor<double, 3, 3> Fsigma(0.0);
-                    Fastor::Tensor<double, 3, 3> Fepsilon_dot(0.0);
-                    int count_index = 0;
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 0; j < 3; j++)
-                        {
-                            Fsigma(i, j) = sigma_working[cell].component(count_index);
-                            Fepsilon_dot(i, j) = epsilon_dot[cell].component(count_index);
-                            count_index++;
-                        }
-                    }
-                    
-                    // Use WORKING rotation for this phase
-                    double phi_1 = Rot1[h][cell];
-                    double phi_2 = Rot2[h][cell];
-                    double phi_3 = Rot3[h][cell];
-                    
-                    Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
-                    Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
-                    Rot_matrix(0, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) - 
-                                       (Foam::cos(phi_1) * Foam::sin(phi_3));
-                    Rot_matrix(0, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) + 
-                                       (Foam::sin(phi_1) * Foam::sin(phi_3));
-                    Rot_matrix(1, 0) = Foam::cos(phi_2) * Foam::sin(phi_3);
-                    Rot_matrix(1, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) + 
-                                       (Foam::cos(phi_1) * Foam::cos(phi_3));
-                    Rot_matrix(1, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) - 
-                                       (Foam::sin(phi_1) * Foam::cos(phi_3));
-                    Rot_matrix(2, 0) = -Foam::sin(phi_2);
-                    Rot_matrix(2, 1) = Foam::sin(phi_1) * Foam::cos(phi_2);
-                    Rot_matrix(2, 2) = Foam::cos(phi_1) * Foam::cos(phi_2);
-                    
-                    // Rotate stiffness tensor
-                    Fastor::Tensor<double, 3, 3, 3, 3> Cprime(0.0);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 0; j < 3; j++)
-                        {
-                            for (int k = 0; k < 3; k++)
-                            {
-                                for (int l = 0; l < 3; l++)
-                                {
-                                    double value = 0.0;
-                                    for (int m = 0; m < 3; m++)
-                                    {
-                                        for (int n = 0; n < 3; n++)
-                                        {
-                                            for (int p = 0; p < 3; p++)
-                                            {
-                                                for (int q = 0; q < 3; q++)
-                                                {
-                                                    value += Rot_matrix(i, m) * Rot_matrix(j, n) * 
-                                                            Rot_matrix(k, p) * Rot_matrix(l, q) * 
-                                                            Cprime2[Phase2Material[h]](m, n, p, q);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    Cprime(i, j, k, l) = value;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Calculate plastic deformation rate
-                    Fastor::Tensor<double, 3, 3> F_D_P(0.0);
-                    Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
-                    
-                    for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-                    {
-                        // Get slip system vectors
-                        Fastor::Tensor<double, 3> F_n_alpha(0.0);
-                        Fastor::Tensor<double, 3> F_m_alpha(0.0);
-                        
-                        F_n_alpha(0) = MatList[Phase2Material[h]].SP_norm[s].component(0);
-                        F_n_alpha(1) = MatList[Phase2Material[h]].SP_norm[s].component(1);
-                        F_n_alpha(2) = MatList[Phase2Material[h]].SP_norm[s].component(2);
-                        
-                        F_m_alpha(0) = MatList[Phase2Material[h]].SP_direction[s].component(0);
-                        F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1);
-                        F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2);
-                        
-                        // Rotate slip systems
-                        Fastor::Tensor<double, 3> F_n_alpha_Rot(0.0);
-                        Fastor::Tensor<double, 3> F_m_alpha_Rot(0.0);
-                        
-                        for (int i = 0; i < 3; i++)
-                        {
-                            for (int j = 0; j < 3; j++)
-                            {
-                                F_n_alpha_Rot(i) += Rot_matrix(i, j) * F_n_alpha(j);
-                                F_m_alpha_Rot(i) += Rot_matrix(i, j) * F_m_alpha(j);
-                            }
-                        }
-                        
-                        // Calculate Schmid tensor and resolved shear stress
-                        Fastor::Tensor<double, 3, 3> P_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) + 
-                                                                      outer(F_n_alpha_Rot, F_m_alpha_Rot));
-                        Fastor::Tensor<double, 3, 3> omega_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) - 
-                                                                          outer(F_n_alpha_Rot, F_m_alpha_Rot));
-                        
-                        double tau_alpha = 0.0;
-                        for (int i = 0; i < 3; i++)
-                        {
-                            for (int j = 0; j < 3; j++)
-                            {
-                                tau_alpha += Fsigma(i, j) * P_alpha(i, j);
-                            }
-                        }
-                        
-                        // Calculate slip rate using current hardening
-                        double k_exponent = MatList[Phase2Material[h]].k_exponent;
-                        double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate;
-                        
-                        gamma_alpha_dots[h][s][cell] = ref_shear_rate * 
-                            Foam::pow(mag(tau_alpha / g_alphas_working[s][cell]), k_exponent) * 
-                            sign(tau_alpha);
-                        
-                        // Accumulate plastic deformation
-                        F_D_P += P_alpha * gamma_alpha_dots[h][s][cell];
-                        F_Omega_P += omega_alpha * gamma_alpha_dots[h][s][cell];
-                    }
-                    
-                    // Calculate elastic stress rate
-                    enum { I, J, K, L };
-                    Fastor::Tensor<double, 3, 3> dsigma_elastic = 
-                        Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L>>(
-                            Cprime, Fepsilon_dot - F_D_P);
-                    
-                    // Store stress rate and accumulate plastic deformation
-                    count_index = 0;
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 0; j < 3; j++)
-                        {
-                            dsigmadt_local[cell].component(count_index) = dsigma_elastic(i, j);
-accumulated_plastic_strain[cell].component(count_index) += 
-    (sub_dt * F_D_P(i, j)).value();
-accumulated_plastic_spin[cell].component(count_index) += 
-    (sub_dt * F_Omega_P(i, j)).value();
-                            count_index++;
-                        }
-                    }
-                    
-                    // Update hardening evolution
-                    double total_slip = 0.0;
-                    for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-                    {
-                        total_slip += mag(gamma_alphas[h][s][cell]) + 
-                                     sub_dt.value() * mag(gamma_alpha_dots[h][s][cell]);
-                    }
-                    
-                    for (int S_alpha = 0; S_alpha < MatList[Phase2Material[h]].N_Slips; S_alpha++)
-                    {
-                        double g_dot = 0.0;
-                        
-                        for (int S_beta = 0; S_beta < MatList[Phase2Material[h]].N_Slips; S_beta++)
-                        {
-                            double argument = (MatList[Phase2Material[h]].h_0 * total_slip) / 
-                                             (MatList[Phase2Material[h]].tau_S - 
-                                              MatList[Phase2Material[h]].initial_CRSS);
-                            double h_of_gamma = MatList[Phase2Material[h]].h_0 * 
-                                               Foam::pow(1.0 / Foam::cosh(argument), 2.0);
-                            
-                            double h_alpha_beta = (S_beta == S_alpha) ? 
-                                h_of_gamma * (MatList[Phase2Material[h]].r + 
-                                             (1.0 - MatList[Phase2Material[h]].r)) :
-                                h_of_gamma * MatList[Phase2Material[h]].r;
-                            
-                            g_dot += h_alpha_beta * mag(gamma_alpha_dots[h][S_beta][cell]);
-                        }
-                        
-                        g_alpha_dots[h][S_alpha][cell] = g_dot;
-                        
-                        // Limit hardening rate
-                        double max_g_increment = 0.1 * g_alphas_working[S_alpha][cell];
-                        double max_rate_from_increment = (n_substeps * max_g_increment) / 
-                                                        runTime.deltaT().value();
-                        g_alpha_dots[h][S_alpha][cell] = sign(g_alpha_dots[h][S_alpha][cell]) * 
-                            min(mag(g_alpha_dots[h][S_alpha][cell]), max_rate_from_increment);
-                    }
-                }
-            }
-            
-            // Boundary condition handling
-            forAll(T.boundaryField(), patchI)
-            {
-                if (!T.boundaryField()[patchI].coupled() && 
-                    T.boundaryField()[patchI].size() > 0)
-                {
-                    forAll(T.boundaryField()[patchI], faceI)
-                    {
-                        if (PopBal_av[h].boundaryField()[patchI][faceI] > 0.0)
-                        {
-                            // Extract current stress and strain rate at boundary
-                            Fastor::Tensor<double, 3, 3> Fsigma(0.0);
-                            Fastor::Tensor<double, 3, 3> Fepsilon_dot(0.0);
-                            int count_index = 0;
-                            for (int i = 0; i < 3; i++)
-                            {
-                                for (int j = 0; j < 3; j++)
-                                {
-                                    Fsigma(i, j) = sigma_working.boundaryField()[patchI][faceI].component(count_index);
-                                    Fepsilon_dot(i, j) = epsilon_dot.boundaryField()[patchI][faceI].component(count_index);
-                                    count_index++;
-                                }
-                            }
-                            
-                            // Use WORKING rotation for boundary
-                            double phi_1 = Rot1[h].boundaryField()[patchI][faceI];
-                            double phi_2 = Rot2[h].boundaryField()[patchI][faceI];
-                            double phi_3 = Rot3[h].boundaryField()[patchI][faceI];
-                            
-                            Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
-                            Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
-                            Rot_matrix(0, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) - 
-                                               (Foam::cos(phi_1) * Foam::sin(phi_3));
-                            Rot_matrix(0, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) + 
-                                               (Foam::sin(phi_1) * Foam::sin(phi_3));
-                            Rot_matrix(1, 0) = Foam::cos(phi_2) * Foam::sin(phi_3);
-                            Rot_matrix(1, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) + 
-                                               (Foam::cos(phi_1) * Foam::cos(phi_3));
-                            Rot_matrix(1, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) - 
-                                               (Foam::sin(phi_1) * Foam::cos(phi_3));
-                            Rot_matrix(2, 0) = -Foam::sin(phi_2);
-                            Rot_matrix(2, 1) = Foam::sin(phi_1) * Foam::cos(phi_2);
-                            Rot_matrix(2, 2) = Foam::cos(phi_1) * Foam::cos(phi_2);
-                            
-                            // Rotate stiffness tensor for boundary
-                            Fastor::Tensor<double, 3, 3, 3, 3> Cprime(0.0);
-                            for (int i = 0; i < 3; i++)
-                            {
-                                for (int j = 0; j < 3; j++)
-                                {
-                                    for (int k = 0; k < 3; k++)
-                                    {
-                                        for (int l = 0; l < 3; l++)
-                                        {
-                                            double value = 0.0;
-                                            for (int m = 0; m < 3; m++)
-                                            {
-                                                for (int n = 0; n < 3; n++)
-                                                {
-                                                    for (int p = 0; p < 3; p++)
-                                                    {
-                                                        for (int q = 0; q < 3; q++)
-                                                        {
-                                                            value += Rot_matrix(i, m) * Rot_matrix(j, n) * 
-                                                                    Rot_matrix(k, p) * Rot_matrix(l, q) * 
-                                                                    Cprime2[Phase2Material[h]](m, n, p, q);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            Cprime(i, j, k, l) = value;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // Calculate plastic deformation rate for boundary
-                            Fastor::Tensor<double, 3, 3> F_D_P(0.0);
-                            Fastor::Tensor<double, 3, 3> F_Omega_P(0.0);
-                            
-                            for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-                            {
-                                Fastor::Tensor<double, 3> F_n_alpha(0.0);
-                                Fastor::Tensor<double, 3> F_m_alpha(0.0);
-                                
-                                F_n_alpha(0) = MatList[Phase2Material[h]].SP_norm[s].component(0);
-                                F_n_alpha(1) = MatList[Phase2Material[h]].SP_norm[s].component(1);
-                                F_n_alpha(2) = MatList[Phase2Material[h]].SP_norm[s].component(2);
-                                
-                                F_m_alpha(0) = MatList[Phase2Material[h]].SP_direction[s].component(0);
-                                F_m_alpha(1) = MatList[Phase2Material[h]].SP_direction[s].component(1);
-                                F_m_alpha(2) = MatList[Phase2Material[h]].SP_direction[s].component(2);
-                                
-                                // Rotate slip systems
-                                Fastor::Tensor<double, 3> F_n_alpha_Rot(0.0);
-                                Fastor::Tensor<double, 3> F_m_alpha_Rot(0.0);
-                                
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    for (int j = 0; j < 3; j++)
-                                    {
-                                        F_n_alpha_Rot(i) += Rot_matrix(i, j) * F_n_alpha(j);
-                                        F_m_alpha_Rot(i) += Rot_matrix(i, j) * F_m_alpha(j);
-                                    }
-                                }
-                                
-                                Fastor::Tensor<double, 3, 3> P_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) + 
-                                                                              outer(F_n_alpha_Rot, F_m_alpha_Rot));
-                                Fastor::Tensor<double, 3, 3> omega_alpha = 0.5 * (outer(F_m_alpha_Rot, F_n_alpha_Rot) - 
-                                                                                  outer(F_n_alpha_Rot, F_m_alpha_Rot));
-                                
-                                double tau_alpha = 0.0;
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    for (int j = 0; j < 3; j++)
-                                    {
-                                        tau_alpha += Fsigma(i, j) * P_alpha(i, j);
-                                    }
-                                }
-                                
-                                double k_exponent = MatList[Phase2Material[h]].k_exponent;
-                                double ref_shear_rate = MatList[Phase2Material[h]].ref_shear_rate;
-                                
-                                gamma_alpha_dots[h][s].boundaryFieldRef()[patchI][faceI] = ref_shear_rate * 
-                                    Foam::pow(mag(tau_alpha / g_alphas_working[s].boundaryField()[patchI][faceI]), k_exponent) * 
-                                    sign(tau_alpha);
-                                
-                                F_D_P += P_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI];
-                                F_Omega_P += omega_alpha * gamma_alpha_dots[h][s].boundaryField()[patchI][faceI];
-                            }
-                            
-                            // Calculate elastic stress rate for boundary
-                            enum { I, J, K, L };
-                            Fastor::Tensor<double, 3, 3> dsigma_elastic = 
-                                Fastor::einsum<Fastor::Index<I, J, K, L>, Fastor::Index<K, L>>(
-                                    Cprime, Fepsilon_dot - F_D_P);
-                            
-                            count_index = 0;
-                            for (int i = 0; i < 3; i++)
-                            {
-                                for (int j = 0; j < 3; j++)
-                                {
-                                    dsigmadt_local.boundaryFieldRef()[patchI][faceI].component(count_index) = dsigma_elastic(i, j);
-                                    accumulated_plastic_strain.boundaryFieldRef()[patchI][faceI].component(count_index) += 
-    (sub_dt * F_D_P(i, j)).value();
-accumulated_plastic_spin.boundaryFieldRef()[patchI][faceI].component(count_index) += 
-    (sub_dt * F_Omega_P(i, j)).value();
-                                    count_index++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Step 2: Update stress for this sub-step
-            // volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt.value() * (step + 1));
-            volTensorField omega_p_rate = accumulated_plastic_spin / (sub_dt * (step + 1));
-            omega_p_rate.correctBoundaryConditions();
-            
-            sigma_working += sub_dt * dsigmadt_local;
-            sigma_working -= sub_dt * ((sigma_working & omega_dot) + (omega_dot & sigma_working));
-            sigma_working += sub_dt * ((sigma_working & omega_p_rate) - (omega_p_rate & sigma_working));
-            
-            sigma_working.correctBoundaryConditions();
+        // --- Cache material properties for this phase ---
+        const Material& mat = MatList[Phase2Material[h]];
+        const int N_Slips_h  = mat.N_Slips;
+        const double k_exp   = mat.k_exponent;
+        const double ref_shear = mat.ref_shear_rate;
+        const double h_0     = mat.h_0;
+        const double tau_S   = mat.tau_S;
+        const double tau_0   = mat.initial_CRSS;
+        const double r_param = mat.r;
+        const double dt_val  = runTime.deltaT().value();
+        const double sub_dt_val = dt_val / n_substeps;
 
-            // Step 3: Update hardening values for next sub-step
-            for (int s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
+        Info << "Phase " << h << " - Sub-Steps: " << n_substeps << endl;
+
+        // =============================================================
+        //  Constitutive integration kernel (shared by cells & boundary)
+        //
+        //  Inputs:  sigma_in[9], epsilon_in[9], omega_in[9],
+        //           rot_angles[3], g_in[N_Slips], gamma_in[N_Slips],
+        //           phase_active (bool)
+        //
+        //  Outputs: sigma_out[9], Dp_out[9], Wp_out[9],
+        //           gdot_out[N_Slips], gamma_dot_out[N_Slips]
+        // =============================================================
+        auto constitutiveKernel = [&](
+            const double* sigma_in,
+            const double* epsilon_in,
+            const double* omega_in,
+            const double* rot_angles,
+            const double* g_in,
+            const double* gamma_in,
+            bool phase_active,
+            double* sigma_out,
+            double* Dp_out,
+            double* Wp_out,
+            double* gdot_out,
+            double* gamma_dot_out,
+    Fastor::Tensor<double,3,3,3,3>* C_rot_out)
+        {
+            // Passthrough if phase not active
+            if (!phase_active)
             {
-                g_alphas_working[s] += sub_dt * g_alpha_dots[h][s];
-                g_alphas_working[s].correctBoundaryConditions();  // 
-                gamma_alphas[h][s] += sub_dt * gamma_alpha_dots[h][s];
-                gamma_alphas[h][s].correctBoundaryConditions();  //
-            }
-        } // End sub-stepping loop
-        
-        // Store converged stress
-        sigtemp[h] = sigma_working;
-        sigtemp[h].correctBoundaryConditions();
-        
-        // Update actual hardening fields with converged values
-        for (label s = 0; s < MatList[Phase2Material[h]].N_Slips; s++)
-        {
-            g_alphas[h][s] = g_alphas_working[s];
-            g_alphas[h][s].correctBoundaryConditions();  //
-        }
-        
-        // Store plastic deformation rates (average over time step)
-        Plastic_Strain[h] = accumulated_plastic_strain / runTime.deltaT();
-        Omega_P[h] = accumulated_plastic_spin / runTime.deltaT();
-        
-        // ROTATION UPDATE - ONCE per time step, updates WORKING copies
-        // Process cells
-        forAll(mesh.C(), cell)
-        {
-            // if (PopBal_av[h][cell] > 0.0)
-            // {
-                // Calculate total elastic spin over full time step
-                Fastor::Tensor<double, 3, 3> Elastic_Spin(0.0);
-                int count_index_E = 0;
-                for (int ii = 0; ii < 3; ii++)
+                for (int c = 0; c < 9; c++)
                 {
+                    sigma_out[c] = sigma_in[c];
+                    Dp_out[c] = 0.0;
+                    Wp_out[c] = 0.0;
+                }
+                for (int s = 0; s < N_Slips_h; s++)
+                {
+                    gdot_out[s] = 0.0;
+                    gamma_dot_out[s] = 0.0;
+                }
+                // Keep the stored rotated stiffness defined for inactive
+                // cells so downstream consumers (the phase-field mechanical
+                // driving force) never read stale or uninitialised memory.
+                if (C_rot_out) (*C_rot_out).zeros();
+                return;
+            }
+
+            // --- Extract strain rate & spin ---
+            Fastor::Tensor<double,3,3> Fomega(0.0), Fepsilon(0.0);
+            {
+                int ci = 0;
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                    {
+                        Fomega(i,j)   = omega_in[ci];
+                        Fepsilon(i,j) = epsilon_in[ci];
+                        ci++;
+                    }
+            }
+
+            // --- Rotation matrix (ONCE) ---
+            const double p1 = rot_angles[0], p2 = rot_angles[1], p3 = rot_angles[2];
+            const double c1 = Foam::cos(p1), s1 = Foam::sin(p1);
+            const double c2 = Foam::cos(p2), s2 = Foam::sin(p2);
+            const double c3 = Foam::cos(p3), s3 = Foam::sin(p3);
+
+            Fastor::Tensor<double,3,3> R(0.0);
+            R(0,0) =  c2*c3;
+            R(0,1) =  s1*s2*c3 - c1*s3;
+            R(0,2) =  c1*s2*c3 + s1*s3;
+            R(1,0) =  c2*s3;
+            R(1,1) =  s1*s2*s3 + c1*c3;
+            R(1,2) =  c1*s2*s3 - s1*c3;
+            R(2,0) = -s2;
+            R(2,1) =  s1*c2;
+            R(2,2) =  c1*c2;
+
+            // --- Rotate stiffness tensor (ONCE) ---
+            Fastor::Tensor<double,3,3,3,3> C_rot(0.0);
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    for (int k = 0; k < 3; k++)
+                        for (int l = 0; l < 3; l++)
+                        {
+                            double val = 0.0;
+                            for (int m = 0; m < 3; m++)
+                                for (int n = 0; n < 3; n++)
+                                    for (int p = 0; p < 3; p++)
+                                        for (int q = 0; q < 3; q++)
+                                            val += R(i,m)*R(j,n)*R(k,p)*R(l,q)
+                                                 * Cprime2[Phase2Material[h]](m,n,p,q);
+                            C_rot(i,j,k,l) = val;
+                        }
+
+            // --- Pre-compute rotated Schmid & spin tensors (ONCE) ---
+
+            // C_rotated[h][cellI] = C_rot;
+            if (C_rot_out) *C_rot_out = C_rot;
+
+
+
+            Fastor::Tensor<double,3,3> P_a[MAX_SLIPS];
+            Fastor::Tensor<double,3,3> W_a[MAX_SLIPS];
+
+            for (int s = 0; s < N_Slips_h; s++)
+            {
+                Fastor::Tensor<double,3> n_cr(0.0), m_cr(0.0);
+                for (int d = 0; d < 3; d++)
+                {
+                    n_cr(d) = mat.SP_norm[s].component(d);
+                    m_cr(d) = mat.SP_direction[s].component(d);
+                }
+
+                Fastor::Tensor<double,3> n_gl(0.0), m_gl(0.0);
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                    {
+                        n_gl(i) += R(i,j) * n_cr(j);
+                        m_gl(i) += R(i,j) * m_cr(j);
+                    }
+
+                auto mn = Fastor::outer(m_gl, n_gl);
+                auto nm = Fastor::outer(n_gl, m_gl);
+                P_a[s] = 0.5 * (mn + nm);
+                W_a[s] = 0.5 * (mn - nm);
+            }
+
+            // --- Initialise working state ---
+            Fastor::Tensor<double,3,3> Fsigma(0.0);
+            {
+                int ci = 0;
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                    {
+                        Fsigma(i,j) = sigma_in[ci];
+                        ci++;
+                    }
+            }
+
+            // EOS mode: the kernel evolves the per-phase DEVIATOR only
+            // (the pressure channel is owned by EOS.H).  Enforce the
+            // invariant on entry: deviatorises any user-supplied initial
+            // stress on the first visit, a no-op thereafter since every
+            // increment below is then traceless.
+            if (useEOS)
+            {
+                const double trsEOS =
+                    (Fsigma(0,0) + Fsigma(1,1) + Fsigma(2,2))/3.0;
+                Fsigma(0,0) -= trsEOS;
+                Fsigma(1,1) -= trsEOS;
+                Fsigma(2,2) -= trsEOS;
+            }
+
+            double local_g[MAX_SLIPS], local_gamma[MAX_SLIPS];
+            for (int s = 0; s < N_Slips_h; s++)
+            {
+                local_g[s]     = g_in[s];
+                local_gamma[s] = gamma_in[s];
+            }
+
+            double gamma_dot_sum[MAX_SLIPS] = {0.0};
+            double g_dot_sum[MAX_SLIPS]     = {0.0};
+            Fastor::Tensor<double,3,3> D_P_sum(0.0), Omega_P_sum(0.0);
+
+            // --- Sub-stepping loop ---
+            for (int step = 0; step < n_substeps; step++)
+            {
+                // Slip rates & plastic deformation
+                Fastor::Tensor<double,3,3> F_D_P(0.0), F_Omega_P(0.0);
+                double gdot_step[MAX_SLIPS] = {0.0};
+
+                for (int s = 0; s < N_Slips_h; s++)
+                {
+                    double tau = 0.0;
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 3; j++)
+                            tau += Fsigma(i,j) * P_a[s](i,j);
+
+                    gdot_step[s] = ref_shear
+                                 * Foam::pow(mag(tau / local_g[s]), k_exp)
+                                 * Foam::sign(tau);
+
+                    F_D_P     += P_a[s] * gdot_step[s];
+                    F_Omega_P += W_a[s] * gdot_step[s];
+                }
+
+                for (int s = 0; s < N_Slips_h; s++)
+                    gamma_dot_sum[s] += gdot_step[s];
+                D_P_sum     += F_D_P;
+                Omega_P_sum += F_Omega_P;
+
+                // Elastic stress rate  C : (D - D_p)
+                auto dsigma = Fastor::einsum<Fastor::Index<FI,FJ,FK,FL>,
+                                             Fastor::Index<FK,FL>>(
+                                  C_rot, Fepsilon - F_D_P);
+
+                // EOS mode: deviatoric projection of the stiffness action.
+                // The isotropic part (K tr(D-Dp) for cubic symmetry) is
+                // removed here and supplied instead by the Mie-Gruneisen
+                // p(rho,e) in EOS.H.  The subsequent -tr(De)*Fsigma term
+                // is retained: it is exactly the deviatoric part of the
+                // legacy volumetric-Jaumann equation, so at small
+                // compression the deviator evolution is IDENTICAL to the
+                // linearElastic path.
+                if (useEOS)
+                {
+                    const double trdsEOS =
+                        (dsigma(0,0) + dsigma(1,1) + dsigma(2,2))/3.0;
+                    dsigma(0,0) -= trdsEOS;
+                    dsigma(1,1) -= trdsEOS;
+                    dsigma(2,2) -= trdsEOS;
+                }
+
+                // Jaumann update (elastic spin = W - W_p)
+                auto W_e   = Fomega - F_Omega_P;
+                auto WeSig = Fastor::matmul(W_e, Fsigma);
+                auto SigWe = Fastor::matmul(Fsigma, W_e);
+
+                // Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe);
+
+                const double trDe = (Fepsilon(0,0) - F_D_P(0,0))
+                                  + (Fepsilon(1,1) - F_D_P(1,1))
+                                  + (Fepsilon(2,2) - F_D_P(2,2));
+
+                Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe - trDe * Fsigma);
+
+
+                // Hardening
+                double total_slip = 0.0;
+                for (int s = 0; s < N_Slips_h; s++)
+                    total_slip += std::abs(local_gamma[s]);
+
+                // Voce saturation guard
+                double h_gamma = 0.0;
+                if (h_0 > 0.0 && (tau_S - tau_0) > SMALL)
+                {
+                    double argument = std::min(
+                        (h_0 * total_slip) / (tau_S - tau_0), 500.0);
+                    h_gamma = h_0
+                        * Foam::pow(1.0 / Foam::cosh(argument), 2.0);
+                }
+
+                for (int sa = 0; sa < N_Slips_h; sa++)
+                {
+                    double g_dot = 0.0;
+                    for (int sb = 0; sb < N_Slips_h; sb++)
+                    {
+                        double h_ab = (sb == sa) ? h_gamma
+                                                 : h_gamma * r_param;
+                        g_dot += h_ab * std::abs(gdot_step[sb]);
+                    }
+
+                    g_dot = std::min(g_dot,
+                                    0.1 * local_g[sa] / sub_dt_val);
+
+                    g_dot_sum[sa] += g_dot;
+                    local_g[sa]   += sub_dt_val * g_dot;
+                    // local_g[sa] = std::max(local_g[sa] + sub_dt_val * g_dot, tau_0 * 0.001);
+                    local_g[sa]    = std::max(local_g[sa], tau_0 * 0.001);
+                }
+
+                for (int s = 0; s < N_Slips_h; s++)
+                    local_gamma[s] += sub_dt_val * gdot_step[s];
+
+            } // end sub-stepping
+
+            // --- Write outputs ---
+            {
+                int ci = 0;
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                    {
+                        sigma_out[ci] = Fsigma(i,j);
+                        Dp_out[ci]    = D_P_sum(i,j) / n_substeps;
+                        Wp_out[ci]    = Omega_P_sum(i,j) / n_substeps;
+                        ci++;
+                    }
+            }
+
+            for (int s = 0; s < N_Slips_h; s++)
+            {
+                gamma_dot_out[s] = gamma_dot_sum[s] / n_substeps;
+                gdot_out[s]      = g_dot_sum[s]     / n_substeps;
+            }
+        }; // end constitutiveKernel
+
+
+        // =============================================================
+        //  Rotation update kernel (shared by cells & boundary)
+        // =============================================================
+        auto rotationKernel = [&](
+            const double* omega_in,
+            const double* Wp_in,
+            const double* rot_in,
+            double* rot_out)
+        {
+            Fastor::Tensor<double,3,3> W_e(0.0);
+            {
+                int ci = 0;
+                for (int ii = 0; ii < 3; ii++)
                     for (int jj = 0; jj < 3; jj++)
                     {
-                        double total_plastic_spin = accumulated_plastic_spin[cell].component(count_index_E);
-                        Elastic_Spin(ii, jj) = (omega_dot[cell].component(count_index_E)) - Omega_P[h][cell].component(count_index_E);
-                    //   total_plastic_spin;
-                        count_index_E++;
+                        W_e(ii,jj) = omega_in[ci] - Wp_in[ci];
+                        ci++;
                     }
-                }
-                
-                // Calculate rotation update using exponential map
-                Fastor::Tensor<double, 3, 3> Elastic_Spin_sq = Fastor::matmul(Elastic_Spin, Elastic_Spin);
-                Fastor::Tensor<double, 3, 3> I_d(0.0);
-                for(int set = 0; set < 3; set++) {
-                    I_d(set, set) = 1.0;
-                }
-                
-                double X_comps = Foam::sqrt(
-                    Foam::pow(Elastic_Spin(2,1), 2.0) +
-                    Foam::pow(Elastic_Spin(0,2), 2.0) +
-                    Foam::pow(Elastic_Spin(1,0), 2.0));
-                //* runTime.deltaT().value()
+            }
 
-                // Info<<X_comps<<endl;
-                Fastor::Tensor<double, 3, 3> e_to_the_C = I_d;
-                if (X_comps > SMALL) {
-                    e_to_the_C += (Foam::sin(X_comps* runTime.deltaT().value()) / X_comps) * Elastic_Spin + 
-                                 ((1.0 - Foam::cos(X_comps* runTime.deltaT().value())) / Foam::pow(X_comps, 2.0)) * Elastic_Spin_sq;
+            auto W_e_sq = Fastor::matmul(W_e, W_e);
+
+            double theta = Foam::sqrt(
+                  Foam::pow(W_e(2,1), 2.0)
+                + Foam::pow(W_e(0,2), 2.0)
+                + Foam::pow(W_e(1,0), 2.0));
+
+            Fastor::Tensor<double,3,3> expW(0.0);
+            expW(0,0) = 1.0; expW(1,1) = 1.0; expW(2,2) = 1.0;
+
+            if (theta > SMALL)
+            {
+                double tdt = theta * dt_val;
+                expW += (Foam::sin(tdt) / theta) * W_e
+                      + ((1.0 - Foam::cos(tdt)) / (theta*theta)) * W_e_sq;
+            }
+
+            const double rp1 = rot_in[0], rp2 = rot_in[1], rp3 = rot_in[2];
+            const double rc1 = Foam::cos(rp1), rs1 = Foam::sin(rp1);
+            const double rc2 = Foam::cos(rp2), rs2 = Foam::sin(rp2);
+            const double rc3 = Foam::cos(rp3), rs3 = Foam::sin(rp3);
+
+            Fastor::Tensor<double,3,3> Rold(0.0);
+            Rold(0,0) =  rc2*rc3;
+            Rold(0,1) =  rs1*rs2*rc3 - rc1*rs3;
+            Rold(0,2) =  rc1*rs2*rc3 + rs1*rs3;
+            Rold(1,0) =  rc2*rs3;
+            Rold(1,1) =  rs1*rs2*rs3 + rc1*rc3;
+            Rold(1,2) =  rc1*rs2*rs3 - rs1*rc3;
+            Rold(2,0) = -rs2;
+            Rold(2,1) =  rs1*rc2;
+            Rold(2,2) =  rc1*rc2;
+
+            auto Rnew = Fastor::matmul(expW, Rold);
+
+            double psi_a = 0.0, theta_a = 0.0, phi_a = 0.0;
+
+            if (mag(Rnew(2,0)) < 1.0 - 1e-12)
+            {
+                theta_a = -std::asin(Rnew(2,0));
+                double ct = std::cos(theta_a);
+                psi_a = std::atan2(Rnew(2,1)/ct, Rnew(2,2)/ct);
+                phi_a = std::atan2(Rnew(1,0)/ct, Rnew(0,0)/ct);
+            }
+            else
+            {
+                phi_a = 0.0;
+                if (Rnew(2,0) < 0.0)
+                {
+                    theta_a =  M_PI / 2.0;
+                    psi_a   =  std::atan2(Rnew(0,1), Rnew(0,2));
                 }
-                
-                // Get current WORKING rotation matrix
-                double phi_1 = Rot1[h][cell];
-                double phi_2 = Rot2[h][cell];
-                double phi_3 = Rot3[h][cell];
-                
-                Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
-                Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
-                Rot_matrix(0, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) - 
-                                   (Foam::cos(phi_1) * Foam::sin(phi_3));
-                Rot_matrix(0, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) + 
-                                   (Foam::sin(phi_1) * Foam::sin(phi_3));
-                Rot_matrix(1, 0) = Foam::cos(phi_2) * Foam::sin(phi_3);
-                Rot_matrix(1, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) + 
-                                   (Foam::cos(phi_1) * Foam::cos(phi_3));
-                Rot_matrix(1, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) - 
-                                   (Foam::sin(phi_1) * Foam::cos(phi_3));
-                Rot_matrix(2, 0) = -Foam::sin(phi_2);
-                Rot_matrix(2, 1) = Foam::sin(phi_1) * Foam::cos(phi_2);
-                Rot_matrix(2, 2) = Foam::cos(phi_1) * Foam::cos(phi_2);
-                
-                // Update rotation
-                Fastor::Tensor<double, 3, 3> Rot_matrix_N_plus_one = Fastor::matmul(e_to_the_C, Rot_matrix);
-                
-                // Extract Euler angles from updated rotation matrix
-                double theta_angle = 0.0;
-                double psi_angle = 0.0;
-                double phi_angle = 0.0;
-                
-                if (mag(Rot_matrix_N_plus_one(2,0)) != 1.0) {
-                    double theta_1 = -std::asin(Rot_matrix_N_plus_one(2,0));
-                    double theta_2 = M_PI - theta_1;
-                    double psi_1 = std::atan2(Rot_matrix_N_plus_one(2,1)/std::cos(theta_1),
-                                              Rot_matrix_N_plus_one(2,2)/std::cos(theta_1));
-                    double psi_2 = std::atan2(Rot_matrix_N_plus_one(2,1)/std::cos(theta_2),
-                                              Rot_matrix_N_plus_one(2,2)/std::cos(theta_2));
-                    double phi_1 = std::atan2(Rot_matrix_N_plus_one(1,0)/std::cos(theta_1),
-                                              Rot_matrix_N_plus_one(0,0)/std::cos(theta_1));
-                    double phi_2 = std::atan2(Rot_matrix_N_plus_one(1,0)/std::cos(theta_2),
-                                              Rot_matrix_N_plus_one(0,0)/std::cos(theta_2));
-                    
-                    theta_angle = theta_1;
-                    psi_angle = psi_1;
-                    phi_angle = phi_1;
-                } else {
-                    phi_angle = 0.0;
-                    if (Rot_matrix_N_plus_one(2,0) == -1.0) {
-                        theta_angle = M_PI/2.0;
-                        psi_angle = phi_angle + std::atan2(Rot_matrix_N_plus_one(0,1),
-                                                           Rot_matrix_N_plus_one(0,2));
-                    } else {
-                        theta_angle = -M_PI/2.0;
-                        psi_angle = -phi_angle + std::atan2(-Rot_matrix_N_plus_one(0,1),
-                                                            -Rot_matrix_N_plus_one(0,2));
-                    }
+                else
+                {
+                    theta_a = -M_PI / 2.0;
+                    psi_a   =  std::atan2(-Rnew(0,1), -Rnew(0,2));
                 }
-                
-                // Update WORKING rotation fields
-                Rot1[h][cell] = psi_angle;
-                Rot2[h][cell] = theta_angle;
-                Rot3[h][cell] = phi_angle;
-            // }
+            }
+
+            rot_out[0] = psi_a;
+            rot_out[1] = theta_a;
+            rot_out[2] = phi_a;
+        }; // end rotationKernel
+
+
+        // ================================================================
+        //  CELL INTERIOR  –  constitutive integration
+        // ================================================================
+        forAll(mesh.C(), cell)
+        {
+            double sig_in[9], eps_in[9], omg_in[9], rot_ang[3];
+            double g_in[MAX_SLIPS], gam_in[MAX_SLIPS];
+            for (int ci = 0; ci < 9; ci++)
+            {
+                sig_in[ci] = sigtemp[h][cell].component(ci);
+                eps_in[ci] = epsilon_dot[cell].component(ci);
+                omg_in[ci] = omega_dot[cell].component(ci);
+            }
+            rot_ang[0] = Rot1[h][cell];
+            rot_ang[1] = Rot2[h][cell];
+            rot_ang[2] = Rot3[h][cell];
+            for (int s = 0; s < N_Slips_h; s++)
+            {
+                g_in[s]   = g_alphas[h][s][cell];
+                gam_in[s] = gamma_alphas[h][s][cell];
+            }
+
+            double sig_out[9], Dp_out[9], Wp_out[9];
+            double gdot_out[MAX_SLIPS], gamma_dot_out[MAX_SLIPS];
+
+            // Only compute on cells with phase fraction of n.N less than 0.95 
+            constitutiveKernel(
+                sig_in, eps_in, omg_in, rot_ang,
+                g_in, gam_in, (PopBal_av[h][cell] > SMALL),
+                sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,&C_rotated[h][cell]);
+
+            for (int ci = 0; ci < 9; ci++)
+            {
+                sigtemp[h][cell].component(ci)        = sig_out[ci];
+                Plastic_Strain[h][cell].component(ci) = Dp_out[ci];
+                Omega_P[h][cell].component(ci)        = Wp_out[ci];
+            }
+            for (int s = 0; s < N_Slips_h; s++)
+            {
+                gamma_alpha_dots[h][s][cell] = gamma_dot_out[s];
+                g_alpha_dots[h][s][cell]     = gdot_out[s];
+            }
         }
-        
-        // Process boundaries for rotation update
+
+
+        // ================================================================
+        //  BOUNDARY FACES  –  constitutive integration
+        // ================================================================
         forAll(T.boundaryField(), patchI)
         {
-            if (!T.boundaryField()[patchI].coupled() && 
-                T.boundaryField()[patchI].size() > 0)
+            if (!T.boundaryField()[patchI].coupled()
+             && T.boundaryField()[patchI].size() > 0)
             {
                 forAll(T.boundaryField()[patchI], faceI)
                 {
-                    // if (PopBal_av[h].boundaryField()[patchI][faceI] > 0.0)
-                    // {
-                        // Calculate total elastic spin over full time step for boundary
-                        Fastor::Tensor<double, 3, 3> Elastic_Spin(0.0);
-                        int count_index_E = 0;
-                        for (int ii = 0; ii < 3; ii++)
-                        {
-                            for (int jj = 0; jj < 3; jj++)
-                            {
-                                double total_plastic_spin = accumulated_plastic_spin.boundaryField()[patchI][faceI].component(count_index_E);
-                                Elastic_Spin(ii, jj) = (omega_dot.boundaryField()[patchI][faceI].component(count_index_E) ) - Omega_P[h].boundaryField()[patchI][faceI].component(count_index_E);
-                    //   total_plastic_spin;
-                                count_index_E++;
-                            }
-                        }
-                        
-                        // Calculate rotation update using exponential map
-                        Fastor::Tensor<double, 3, 3> Elastic_Spin_sq = Fastor::matmul(Elastic_Spin, Elastic_Spin);
-                        Fastor::Tensor<double, 3, 3> I_d(0.0);
-                        for(int set = 0; set < 3; set++) {
-                            I_d(set, set) = 1.0;
-                        }
-                        
-                        double X_comps = Foam::sqrt(
-                            Foam::pow(Elastic_Spin(2,1), 2.0) +
-                            Foam::pow(Elastic_Spin(0,2), 2.0) +
-                            Foam::pow(Elastic_Spin(1,0), 2.0));
-                        
-                        Fastor::Tensor<double, 3, 3> e_to_the_C = I_d;
-                        if (X_comps > SMALL) {
-                            e_to_the_C += (Foam::sin(X_comps* runTime.deltaT().value()) / X_comps) * Elastic_Spin + 
-                                         ((1.0 - Foam::cos(X_comps* runTime.deltaT().value())) / Foam::pow(X_comps, 2.0)) * Elastic_Spin_sq;
-                        }
-                        
-                        // Get current WORKING rotation matrix for boundary
-                        double phi_1 = Rot1[h].boundaryField()[patchI][faceI];
-                        double phi_2 = Rot2[h].boundaryField()[patchI][faceI];
-                        double phi_3 = Rot3[h].boundaryField()[patchI][faceI];
-                        
-                        Fastor::Tensor<double, 3, 3> Rot_matrix(0.0);
-                        Rot_matrix(0, 0) = Foam::cos(phi_2) * Foam::cos(phi_3);
-                        Rot_matrix(0, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) - 
-                                           (Foam::cos(phi_1) * Foam::sin(phi_3));
-                        Rot_matrix(0, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::cos(phi_3)) + 
-                                           (Foam::sin(phi_1) * Foam::sin(phi_3));
-                        Rot_matrix(1, 0) = Foam::cos(phi_2) * Foam::sin(phi_3);
-                        Rot_matrix(1, 1) = (Foam::sin(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) + 
-                                           (Foam::cos(phi_1) * Foam::cos(phi_3));
-                        Rot_matrix(1, 2) = (Foam::cos(phi_1) * Foam::sin(phi_2) * Foam::sin(phi_3)) - 
-                                           (Foam::sin(phi_1) * Foam::cos(phi_3));
-                        Rot_matrix(2, 0) = -Foam::sin(phi_2);
-                        Rot_matrix(2, 1) = Foam::sin(phi_1) * Foam::cos(phi_2);
-                        Rot_matrix(2, 2) = Foam::cos(phi_1) * Foam::cos(phi_2);
-                        
-                        // Update rotation
-                        Fastor::Tensor<double, 3, 3> Rot_matrix_N_plus_one = Fastor::matmul(e_to_the_C, Rot_matrix);
-                        
-                        // Extract Euler angles from updated rotation matrix
-                        double theta_angle = 0.0;
-                        double psi_angle = 0.0;
-                        double phi_angle = 0.0;
-                        
-                        if (mag(Rot_matrix_N_plus_one(2,0)) != 1.0) {
-                            double theta_1 = -std::asin(Rot_matrix_N_plus_one(2,0));
-                            double theta_2 = M_PI - theta_1;
-                            double psi_1 = std::atan2(Rot_matrix_N_plus_one(2,1)/std::cos(theta_1),
-                                                      Rot_matrix_N_plus_one(2,2)/std::cos(theta_1));
-                            double psi_2 = std::atan2(Rot_matrix_N_plus_one(2,1)/std::cos(theta_2),
-                                                      Rot_matrix_N_plus_one(2,2)/std::cos(theta_2));
-                            double phi_1 = std::atan2(Rot_matrix_N_plus_one(1,0)/std::cos(theta_1),
-                                                      Rot_matrix_N_plus_one(0,0)/std::cos(theta_1));
-                            double phi_2 = std::atan2(Rot_matrix_N_plus_one(1,0)/std::cos(theta_2),
-                                                      Rot_matrix_N_plus_one(0,0)/std::cos(theta_2));
-                            
-                            theta_angle = theta_1;
-                            psi_angle = psi_1;
-                            phi_angle = phi_1;
-                        } else {
-                            phi_angle = 0.0;
-                            if (Rot_matrix_N_plus_one(2,0) == -1.0) {
-                                theta_angle = M_PI/2.0;
-                                psi_angle = phi_angle + std::atan2(Rot_matrix_N_plus_one(0,1),
-                                                                   Rot_matrix_N_plus_one(0,2));
-                            } else {
-                                theta_angle = -M_PI/2.0;
-                                psi_angle = -phi_angle + std::atan2(-Rot_matrix_N_plus_one(0,1),
-                                                                    -Rot_matrix_N_plus_one(0,2));
-                            }
-                        }
-                        
-                        // Update WORKING rotation fields for boundary
-                        Rot1[h].boundaryFieldRef()[patchI][faceI] = psi_angle;
-                        Rot2[h].boundaryFieldRef()[patchI][faceI] = theta_angle;
-                        Rot3[h].boundaryFieldRef()[patchI][faceI] = phi_angle;
-                    // }
+                    double sig_in[9], eps_in[9], omg_in[9], rot_ang[3];
+                    double g_in[MAX_SLIPS], gam_in[MAX_SLIPS];
+                    for (int ci = 0; ci < 9; ci++)
+                    {
+                        sig_in[ci] = sigtemp[h].boundaryField()[patchI][faceI].component(ci);
+                        eps_in[ci] = epsilon_dot.boundaryField()[patchI][faceI].component(ci);
+                        omg_in[ci] = omega_dot.boundaryField()[patchI][faceI].component(ci);
+                    }
+                    rot_ang[0] = Rot1[h].boundaryField()[patchI][faceI];
+                    rot_ang[1] = Rot2[h].boundaryField()[patchI][faceI];
+                    rot_ang[2] = Rot3[h].boundaryField()[patchI][faceI];
+                    for (int s = 0; s < N_Slips_h; s++)
+                    {
+                        g_in[s]   = g_alphas[h][s].boundaryField()[patchI][faceI];
+                        gam_in[s] = gamma_alphas[h][s].boundaryField()[patchI][faceI];
+                    }
+
+                    double sig_out[9], Dp_out[9], Wp_out[9];
+                    double gdot_out[MAX_SLIPS], gamma_dot_out[MAX_SLIPS];
+
+                    constitutiveKernel(
+                        sig_in, eps_in, omg_in, rot_ang,
+                        g_in, gam_in,
+                        (PopBal_av[h].boundaryField()[patchI][faceI] > SMALL),
+                        sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,nullptr);//nullptr as only need cell values for mechanical driving force
+
+                    for (int ci = 0; ci < 9; ci++)
+                    {
+                        sigtemp[h].boundaryFieldRef()[patchI][faceI].component(ci)        = sig_out[ci];
+                        Plastic_Strain[h].boundaryFieldRef()[patchI][faceI].component(ci) = Dp_out[ci];
+                        Omega_P[h].boundaryFieldRef()[patchI][faceI].component(ci)        = Wp_out[ci];
+                    }
+                    for (int s = 0; s < N_Slips_h; s++)
+                    {
+                        gamma_alpha_dots[h][s].boundaryFieldRef()[patchI][faceI] = gamma_dot_out[s];
+                        g_alpha_dots[h][s].boundaryFieldRef()[patchI][faceI]     = gdot_out[s];
+                    }
                 }
             }
         }
-        
-        // Correct boundary conditions for working rotations
+
+
+        // Orientation update: apply the exponential map ONCE per time
+        // step, on the final outer corrector 
+        if (pimple.finalIter())
+        {
+
+        // ================================================================
+        //  ROTATION UPDATE  –  cell interior
+        // ================================================================
+        forAll(mesh.C(), cell)
+        {
+            double omg_in[9], Wp_in[9], rot_in[3], rot_out[3];
+            for (int ci = 0; ci < 9; ci++)
+            {
+                omg_in[ci] = omega_dot[cell].component(ci);
+                Wp_in[ci]  = Omega_P[h][cell].component(ci);
+            }
+            rot_in[0] = Rot1[h][cell];
+            rot_in[1] = Rot2[h][cell];
+            rot_in[2] = Rot3[h][cell];
+
+            rotationKernel(omg_in, Wp_in, rot_in, rot_out);
+
+            Rot1[h][cell] = rot_out[0];
+            Rot2[h][cell] = rot_out[1];
+            Rot3[h][cell] = rot_out[2];
+        }
+
+
+        // ================================================================
+        //  ROTATION UPDATE  –  boundary faces
+        // ================================================================
+        forAll(T.boundaryField(), patchI)
+        {
+            if (!T.boundaryField()[patchI].coupled()
+             && T.boundaryField()[patchI].size() > 0)
+            {
+                forAll(T.boundaryField()[patchI], faceI)
+                {
+                    double omg_in[9], Wp_in[9], rot_in[3], rot_out[3];
+                    for (int ci = 0; ci < 9; ci++)
+                    {
+                        omg_in[ci] = omega_dot.boundaryField()[patchI][faceI].component(ci);
+                        Wp_in[ci]  = Omega_P[h].boundaryField()[patchI][faceI].component(ci);
+                    }
+                    rot_in[0] = Rot1[h].boundaryField()[patchI][faceI];
+                    rot_in[1] = Rot2[h].boundaryField()[patchI][faceI];
+                    rot_in[2] = Rot3[h].boundaryField()[patchI][faceI];
+
+                    rotationKernel(omg_in, Wp_in, rot_in, rot_out);
+
+                    Rot1[h].boundaryFieldRef()[patchI][faceI] = rot_out[0];
+                    Rot2[h].boundaryFieldRef()[patchI][faceI] = rot_out[1];
+                    Rot3[h].boundaryFieldRef()[patchI][faceI] = rot_out[2];
+                }
+            }
+        }
+
         Rot1[h].correctBoundaryConditions();
         Rot2[h].correctBoundaryConditions();
         Rot3[h].correctBoundaryConditions();
-        
+
+        } // end if (pimple.finalIter()): orientation updated once per step
+
         // Accumulate global stress
         sigmaGlobaltemp += PopBal[h] * sigtemp[h];
-        
-    } // End loop over phases
-    
-    sigmaGlobaltemp.correctBoundaryConditions();
-    
-    // Update committed state ONLY on final PIMPLE iteration
-    if (pimple.finalPimpleIter())
+
+    } // end loop over phases
+
+    // EOS mode: sigtemp/sigma hold per-phase deviatoric part.  Add the
+    // volumetric part later ....Mie-Gruneisen pressure plus
+    // artificial shock viscosity
+    if (useEOS)
     {
-        Info << "Updating committed fields on final PIMPLE iteration" << endl;
+        sigmaGlobaltemp -= (p + qAV)*I_EOS;
+    }
+
+    sigmaGlobaltemp.correctBoundaryConditions();
+
+    // ==============================================================
+    //  Commit state on final PIMPLE iteration
+    // ==============================================================
+    if (pimple.finalIter())
+    {
+        Info << "Updating committed fields on final PIMPLE iteration"
+             << endl;
+
         for (label h = 0; h < N_Ori; h++)
         {
-            // Commit stress
             sigma[h] = sigtemp[h];
             sigma[h].correctBoundaryConditions();
-            
-            // Commit rotations
-            // Rot1[h] = Rot1_working[h];
-            // Rot2[h] = Rot2_working[h];
-            // Rot3[h] = Rot3_working[h];
 
             Rot1[h].correctBoundaryConditions();
             Rot2[h].correctBoundaryConditions();
             Rot3[h].correctBoundaryConditions();
-
         }
+
         sigmaGlobal = sigmaGlobaltemp;
         sigmaGlobal.correctBoundaryConditions();
-        
+
         D = D + runTime.deltaT() * U;
         D.correctBoundaryConditions();
-        
-        p = -(1.0/3.0) * tr(sigmaGlobal);
+
+        // diagnostic only: in EOS mode p is the 
+        // pressure (and tr(sigmaGlobal)/3 = -(p + q)
+        if (!useEOS)
+        {
+            p = -(1.0/3.0) * tr(sigmaGlobal);
+        }
     }
+
+    } // end else (stressUpdate)
 }

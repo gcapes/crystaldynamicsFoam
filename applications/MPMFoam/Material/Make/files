@@ -1,0 +1,5 @@
+Material.C
+MaterialPointParcel.C
+CloudInstantiation.C
+
+LIB = $(FOAM_USER_LIBBIN)/libMPMMaterial

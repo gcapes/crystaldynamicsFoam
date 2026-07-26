@@ -26,7 +26,9 @@ IOdictionary controlDict(
 
 dictionary &PimpleDICT = solutionDict.subDict("PIMPLE");
 
-int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+// int n_sub_steps(readLabel(PimpleDICT.lookup("nOuterCorrectors")));
+
+scalar pimple_relax_U = PimpleDICT.lookupOrDefault<scalar>("relaxU", 0.5);
 
 // scalar maxTimeStep(readScalar(controlDict.lookup("maxDeltaT")));
 
@@ -230,7 +232,7 @@ volScalarField Sum_Phases(
     mesh,
     dimensionedScalar("Sum_Phases", dimensionSet(0, 0, 0, 0, 0), 0.0));
 
-// const label N_Ori=20;
+
 
 IOdictionary GrainProperties(
     IOobject(
@@ -240,6 +242,24 @@ IOdictionary GrainProperties(
         IOobject::MUST_READ, // must exist, otherwise failure
         IOobject::NO_WRITE   // dict is only read by the solver
         ));
+
+
+dimensionedScalar interface_width("interface_width", dimensionSet(0, 1, 0, 0, 0), GrainProperties);
+
+// const Switch fracture(GrainProperties.lookup("Fracture"));
+
+const Switch fracture(GrainProperties.lookupOrDefault<Switch>("Fracture", false));
+
+/*
+lookupOrDefault<Switch>("Radial_Polar_HS", true)
+*/
+
+// const dimensionedScalar Mm
+// (
+//     "Mm",
+//     dimensionSet(1, 0, 0, 0, -1),
+//     transportProperties//.lookup("Mm")
+// );
 
 label N_Ori(readLabel(GrainProperties.lookup("N_Phases")));
 Info << "Number of Phase Field Order Parameters: " << N_Ori << endl;
@@ -283,25 +303,89 @@ for (label i = 0; i < N_Mats; i++)
             {
                 for (int q = 0; q < 3; q++)
                 {
-
+                    // Check for symmetry (minor and major) and warn the user ... 
                     word Cijkl("C" + name(m) + name(n) + name(p) + name(q));
+                    word Cjikl("C" + name(n) + name(m) + name(p) + name(q));
+                    word Cijlk("C" + name(m) + name(n) + name(q) + name(p));
+                    word Cjilk("C" + name(n) + name(m) + name(q) + name(p));
 
-                    Cprime_temp_Read(m, n, p, q) = Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+                    double a = Mat.lookupOrDefault<scalar>(Cijkl, 0.0);
+                    double b = Mat.lookupOrDefault<scalar>(Cjikl, 0.0);
+                    double c = Mat.lookupOrDefault<scalar>(Cijlk, 0.0);
+                    double d = Mat.lookupOrDefault<scalar>(Cjilk, 0.0);
+
+                    double tol = 1e-12;
+                    if (std::abs(a - b) > tol || std::abs(a - c) > tol || std::abs(a - d) > tol ||
+                        std::abs(b - c) > tol || std::abs(b - d) > tol || std::abs(c - d) > tol)
+                    {
+                        WarningInFunction << "non-symmetric elastic stiffness detected:\n"
+                                        << "      components:\n"
+                                        << "         C_" << m << n << p << q << " = " << a << "\n"
+                                        << "         C_" << n << m << p << q << " = " << b << "\n"
+                                        << "         C_" << m << n << q << p << " = " << c << "\n"
+                                        << "         C_" << n << m << q << p << " = " << d << "\n" << nl << endl;
+                                        // << "      ...Taking the weighted average of the four..." << nl << endl;
+                    }
+
+                    Cprime_temp_Read(m, n, p, q) = a; 
                 }
             }
         }
     }
 
-    Cprime2[i] = Cprime_temp_Read;
+    // Enforce full minor and major symmetry via Mandel pair enumeration.
+    //  overwrites any asymmetry in the user's GrainProperties input
+    // (already warned about above) so that the tensor is bitwise symmetric
+    // before rotation and inversion.
+    Cprime2[i] = Foam::Material::castSymmetry(Cprime_temp_Read);
 
+    // Verify the symmetrised tensor passes strict checks before the solve begins.
+    Foam::Material::assertSymmetry(Cprime2[i]);
 
+    // Inversion self-test: enabled by setting "verbose true;" in GrainProperties. -> Harry Smith
+
+    if (GrainProperties.lookupOrDefault<Switch>("verbose", false))//Harry Smith
+    {
+        Info << "\n=== invertRankFour self-test for Material." << i << " ===\n" << nl;
+        auto S = Foam::Material::invertRankFour(Cprime2[i], true);
+        bool isInverse = Foam::Material::isRankFourInverse(Cprime2[i], S, true);
+        Info << "isRankFourInverse = " << isInverse << nl;
+        Info << "...complete\n" << nl;
+    }
+
+    // // Quick check on the double contraction (twice) function 
+    // Fastor::Tensor<double, 3,3,3,3> test_fourth_order(0.0); // Fourth order symmetry tensor 
+    // Fastor::Tensor<double,3,3> test_second_order(0.0);      // Second order identity tensor 
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     for (int j = 0; j < 3; j++)
+    //     {
+    //         for (int k = 0; k < 3; k++)
+    //         {
+    //             for (int l = 0; l < 3; l++) 
+    //             {
+    //                 test_fourth_order(i,j,k,l) = 0.5 * ( (i==k && j==l) + (i==l && j==k) );
+    //             }
+    //         }
+    //     }
+    // }
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     test_second_order(i,i) = 1.0; 
+    // }
+
+    // double testContraction = Material::doubleContractionTwice(test_second_order, test_fourth_order, true); 
+    
+    // exit(0); 
 // dimensionedScalar Cvtemp("Cvtemp", dimensionSet(0, 2, -2, -1, 0), Mat.lookup("Cv"));
 // dimensionedScalar kappatemp("kappatemp", dimensionSet(1, 1, -3, -1, 0), Mat.lookup("kappa"));
 // dimensionedScalar rho_0temp("rho_0temp", dimensionSet(1, -3, 0, 0, 0), Mat.lookup("rho_0"));
 
-scalar Cvtemp(readScalar(Mat.lookup("Cv")));
-scalar kappatemp(readScalar(Mat.lookup("kappa")));
-scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
+    scalar Cvtemp(readScalar(Mat.lookup("Cv")));
+    scalar kappatemp(readScalar(Mat.lookup("kappa")));
+    scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
 
     // scalar rho
     MatList[i].rho_0 = rho_0temp;
@@ -310,6 +394,17 @@ scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
 
 
     label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
+
+    // Guard the fixed-size stack arrays in the constitutive kernel
+    // (MAX_SLIPS = 48 in StressUpdate.H)
+    if (N_slips_Temp < 0 || N_slips_Temp > 48)
+    {
+        FatalErrorInFunction
+            << Mat_dict << ": N_slips = " << N_slips_Temp
+            << " outside the supported range 0..48 "
+            << "(MAX_SLIPS stack arrays in StressUpdate.H)."
+            << exit(FatalError);
+    }
 
     MatList[i].N_Slips = N_slips_Temp;
 
@@ -323,6 +418,31 @@ scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
         vector temp_n(Mat.lookup(Slip_normal_name));
 
 
+        // normalise slip systems and ensure orthogonality
+        // -----------------------------------------------------------
+        const scalar magM = mag(temp_m);
+        const scalar magN = mag(temp_n);
+        if (magM < SMALL || magN < SMALL)
+        {
+            FatalErrorInFunction
+                << Mat_dict << ": slip system " << j
+                << " has a zero direction or normal vector."
+                << exit(FatalError);
+        }
+        temp_m /= magM;
+        temp_n /= magN;
+
+        const scalar mDotN = temp_m & temp_n;
+        if (mag(mDotN) > 1e-6)
+        {
+            FatalErrorInFunction
+                << Mat_dict << ": slip system " << j
+                << " is not orthogonal: normalised m.n = " << mDotN
+                << nl
+                << "For HCP pyramidal systems check that the c/a ratio "
+                << "used to build m matches the one used for n."
+                << exit(FatalError);
+        }
 
         MatList[i].SP_norm.push_back(temp_n);
         MatList[i].SP_direction.push_back(temp_m);
@@ -347,7 +467,12 @@ scalar rho_0temp(readScalar(Mat.lookup("rho_0")));
     MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
-
+// Exit cleanly so the inversion-tests log checker can validate
+if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
+{
+    Info << "All material inversion self-tests complete. Exiting.\n" << endl;
+    exit(0);
+}
 
 
 
@@ -589,6 +714,125 @@ for(label count = 0; count < N_Ori; count++)
     );
 }
 
+
+
+
+
+
+
+
+
+
+
+PtrList<volScalarField> Laplacian_n(N_Ori);
+
+for(label count = 0; count < N_Ori; count++)
+{
+
+    word name_laplacian ("Laplacian" + name(count));
+
+    Laplacian_n.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_laplacian,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("Laplacian_n",dimensionSet(0, -2, 0, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+
+
+PtrList<volScalarField> dpdt(N_Ori);
+for(label count = 0; count < N_Ori; count++)
+{
+
+    word name_dpdt ("dpdt" + name(count));
+
+    dpdt.set
+    (
+        count,
+        new volScalarField
+        (
+            IOobject
+            (
+                name_dpdt,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("dpdt",dimensionSet(0, 0, -1, 0, 0),0.0),
+            zeroGradientFvPatchScalarField::typeName
+        )
+    );
+}
+
+// Diagnostic fields: W_mech, W_interface, dpdt_crack
+volScalarField W_mech
+(
+    IOobject
+    (
+        "W_mech",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("W_mech", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField W_interface
+(
+    IOobject
+    (
+        "W_interface",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("W_interface", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+volScalarField dpdt_crack
+(
+    IOobject
+    (
+        "dpdt_crack",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("dpdt_crack", dimensionSet(0, 0, -1, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+
+
+
+
+
+
+
+
 Sum_Phases *= 0.0;
 for (label count = 0; count < N_Ori; count++)
 {
@@ -736,6 +980,15 @@ volScalarField rho(
 // rho.write();
 
 
+
+volScalarField rhoCv
+(
+    IOobject("rhoCv", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    rho*Cv
+);
+
+rhoCv.correctBoundaryConditions();
 
 
 volScalarField GBREF
@@ -1174,13 +1427,76 @@ for (label count = 0; count < N_Ori; count++)
                 "sigma", 
                 dimensionSet(1, -1, -2, 0, 0), 
                 tensor::zero  // Note: tensor::zero, not Tensor::zero
-            )//,
-            // zeroGradientFvPatchTensorField::typeName
+            ),
+             zeroGradientFvPatchTensorField::typeName
         )
     );
 }
 
 #include "createPhi.H"
+
+
+
+
+
+
+double **PF_Energy0_array;
+PF_Energy0_array = new double *[N_Mats];
+for(int i = 0; i <N_Mats; i++)
+{
+    PF_Energy0_array[i]=new double[N_Mats];
+}
+
+double **PF_Mobility0_array;
+PF_Mobility0_array = new double *[N_Mats];
+for(int i = 0; i <N_Mats; i++)
+{
+    PF_Mobility0_array[i]=new double[N_Mats];
+}
+
+Interface dummy("isotropic",T);
+dummy.Assign_Energies(PF_Energy0_array);
+dummy.Assign_Mobilities(PF_Mobility0_array);
+
+
+
+
+
+
+
+
+// NEED TO STORE THE ROTATED STIFFNESS TENSOR FOR ALL PHASES FOR ALL CELLS
+std::vector<std::vector<Fastor::Tensor<double,3,3,3,3>>> C_rotated(
+    N_Ori,
+    std::vector<Fastor::Tensor<double,3,3,3,3>>(mesh.nCells())
+);
+
+
+
+// PtrList<volScalarField> PopBal(N_Ori); // pointer to phase fields
+
+// for (label count = 0; count < N_Ori; count++) // how to assign the popbal array of fields
+// {
+
+//     word name_ni("n." + name(count));
+
+//     PopBal.set(
+//         count,
+//         new volScalarField(
+//             IOobject(
+//                 name_ni,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::READ_IF_PRESENT, // IOobject::MUST_READ,
+//                 IOobject::AUTO_WRITE),
+//             mesh,
+//             dimensionedScalar("ni", dimensionSet(0, 0, 0, 0, 0), 0.0),
+//             zeroGradientFvPatchScalarField::typeName));
+// }
+
+
+
+
 
 
 
@@ -1220,6 +1536,52 @@ for (label count = 0; count < N_Ori; count++)
 //             zeroGradientFvPatchTensorField::typeName));
 // }
 
+const bool stressUpdate =
+    GrainProperties.lookupOrDefault<Switch>("stressUpdate", true);
+
+if (!stressUpdate)
+{
+    Info << "stressUpdate=false: prescribed-stress PF mode\n" << endl;
+}
+
+// Per-phase constant prescribed stress - only meaningful alongside stressUpdate=false 
+const bool perPhaseSigma =
+    GrainProperties.lookupOrDefault<Switch>("PerPhaseSigma", false);
+
+List<tensor> sigmaPrescribed;
+if (perPhaseSigma)
+{
+    GrainProperties.lookup("sigmaPrescribed") >> sigmaPrescribed;
+
+    if (sigmaPrescribed.size() != N_Ori)
+    {
+        FatalErrorInFunction
+            << "sigmaPrescribed has " << sigmaPrescribed.size()
+            << " entries but N_Phases = " << N_Ori
+            << " (PerPhaseSigma requires one tensor per phase)."
+            << exit(FatalError);
+    }
+
+    Info << "PerPhaseSigma=true: per-phase constant prescribed stress\n" << endl;
+}
+
+// Diagnostic only: which single phase dpdt_crack (PF.H) should report the
+// raw rate-of-change of. Default = -1
+const label trackedPhase =
+    GrainProperties.lookupOrDefault<label>("TrackedPhase", -1);
+
+if (trackedPhase >= 0)
+{
+    if (trackedPhase >= N_Ori)
+    {
+        FatalErrorInFunction
+            << "TrackedPhase = " << trackedPhase
+            << " is out of range for N_Phases = " << N_Ori
+            << exit(FatalError);
+    }
+    Info << "TrackedPhase=" << trackedPhase
+         << ": dpdt_crack reports this phase's rate of change\n" << endl;
+}
 
 //   forAll(mesh.C(), cell)
 //   {

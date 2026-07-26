@@ -1,0 +1,72 @@
+#!/bin/sh
+# =============================================================================
+#  Allrun -- CPFoam elastic wave-speed validation
+#
+#  Runs the square-pulse wave case twice from the same base configuration:
+#    runs/shearWave    : 10 m/s pulse tangential to the driven patch (x)
+#                        -> shear wave,        c_s = sqrt(C44/rho)
+#    runs/pressureWave : 10 m/s pulse normal to the driven patch (y)
+#                        -> longitudinal wave, c_p = sqrt(C11/rho)
+#
+#  then fits the numerical wave speed from the probe first-arrival times and
+#  compares against the analytic values read from constant/GrainProperties.
+#
+#  Exit status is 0 only if both measured speeds are within tolerance
+#  (default 2%), so this script can be used directly as a regression test.
+# =============================================================================
+cd "${0%/*}" || exit 1
+
+solver=CPFoam
+
+command -v "$solver" >/dev/null 2>&1 || {
+    echo "ERROR: solver '$solver' not found in PATH."
+    echo "       Source your OpenFOAM environment and compile CPFoam first."
+    exit 1
+}
+
+for mode in shear pressure
+do
+    case="runs/${mode}Wave"
+    echo "==== ${mode} wave: ${case} ===="
+
+    rm -rf "$case"
+    mkdir -p "$case"
+    cp -r 0 constant system "$case"/
+
+    # Select the boundary condition for this wave type
+    cp "$case/0/U.$mode" "$case/0/U"
+    rm -f "$case/0/U.shear" "$case/0/U.pressure"
+
+    (
+        cd "$case" || exit 1
+
+        echo "  blockMesh ..."
+        blockMesh > log.blockMesh 2>&1 || {
+            echo "  FAILED: see $case/log.blockMesh"; exit 1; }
+
+        echo "  setFields ...   (sets n.0 = 1 -- do not skip)"
+        setFields > log.setFields 2>&1 || {
+            echo "  FAILED: see $case/log.setFields"; exit 1; }
+
+        echo "  $solver ..."
+        "$solver" > "log.$solver" 2>&1 || {
+            echo "  FAILED: see $case/log.$solver"; exit 1; }
+    ) || exit 1
+
+    echo "  done."
+done
+
+echo "==== postprocessing ===="
+python3 plotWaveSpeed.py runs/shearWave runs/pressureWave \
+    -o waveSpeedValidation.png
+status=$?
+
+if [ $status -eq 0 ]
+then
+    echo "==== VALIDATION PASSED ===="
+else
+    echo "==== VALIDATION FAILED (see summary above) ===="
+fi
+exit $status
+
+# -----------------------------------------------------------------------------

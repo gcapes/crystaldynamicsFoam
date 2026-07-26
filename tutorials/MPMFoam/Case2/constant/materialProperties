@@ -1,0 +1,178 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2506                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      materialProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Define materials used in simulation
+
+  nMaterials  3;  
+  
+  
+  material0
+{
+    Mat_type        "Titanium";
+    rho_0           4506;
+    Cv              523;
+    kappa           21.9;
+    
+    elasticType     cubic;
+    C11             162.4e9;        // Pa
+    C33             180.7e9;        // Pa
+    C12             92.0e9;         // Pa
+    C13             69.0e9;         // Pa
+    C44             46.7e9;         // Pa
+    // C66 is automatically calculated: C66 = (C11 - C12)/2
+    
+    // Crystal plasticity for HCP
+    crystalStructure    HCP;
+    N_Slips         12;             // 3 basal + 3 prismatic + 6 pyramidal
+    initial_CRSS    50.0e6;
+    ref_shear_rate  1.0e-3;
+    k_exponent      25.0;
+}
+  
+ material1
+{
+    Mat_type        "Titanium";
+    rho_0           4506;
+    Cv              523;
+    kappa           21.9;
+    
+    elasticType     cubic;
+    C11             162.4e9;        // Pa
+    C33             180.7e9;        // Pa
+    C12             92.0e9;         // Pa
+    C13             69.0e9;         // Pa
+    C44             46.7e9;         // Pa
+    // C66 is automatically calculated: C66 = (C11 - C12)/2
+    
+    // Crystal plasticity for HCP
+    crystalStructure    BCC;
+    N_Slips         12;             // 3 basal + 3 prismatic + 6 pyramidal
+    initial_CRSS    50.0e6;
+    ref_shear_rate  1.0e-3;
+    k_exponent      25.0;
+} 
+  
+
+material2
+{
+    Mat_type        "Titanium";
+    rho_0           4506;
+    Cv              523;
+    kappa           21.9;
+    
+    elasticType     hexagonal;
+    C11             162.4e9;        // Pa
+    C33             180.7e9;        // Pa
+    C12             92.0e9;         // Pa
+    C13             69.0e9;         // Pa
+    C44             46.7e9;         // Pa
+    // C66 is automatically calculated: C66 = (C11 - C12)/2
+    
+    // Crystal plasticity for HCP
+    crystalStructure    FCC;
+    N_Slips         12;             // 3 basal + 3 prismatic + 6 pyramidal
+    initial_CRSS    50.0e6;
+    ref_shear_rate  1.0e-3;
+    k_exponent      25.0;
+}
+
+  
+/*
+material0
+{
+    name                aluminum;
+    rho                 2700.0;
+ //   youngModulus        70e9;
+ //   poissonRatio        0.33;
+    crystalStructure    FCC;
+    
+        
+        // Elastic properties (anisotropic - cubic symmetry)
+        anisotropic         true;
+        C11                 108e9;          // Pa
+        C12                 62e9;           // Pa
+        C44                 28.3e9;         // Pa
+        
+        
+            // Crystal plasticity - hardening
+        initialCRSS         25e6;           // Initial CRSS g₀ [Pa] (~25 MPa)
+        saturationCRSS      80e6;           // Saturation CRSS g_sat [Pa] (~80 MPa)
+        hardeningModulus    500e6;          // Initial hardening h₀ [Pa]
+        latentRatio         1.4;            // Latent hardening ratio q
+    refSlipRate         1e-3;
+    rateExponent        20.0;
+}
+
+material1
+{
+
+    name                steel;
+    rho                 7850.0;
+    crystalStructure    BCC;            // Body-centered cubic
+        
+        // Anisotropic elasticity
+        anisotropic         true;
+        C11                 237e9;          // Pa
+        C12                 141e9;          // Pa
+        C44                 116e9;          // Pa
+        
+        // Alternative: Isotropic
+        // anisotropic       false;
+        // E                 200e9;
+        // nu                0.3;
+        
+        // Crystal plasticity
+        refSlipRate         1e-3;
+        rateExponent        25;             // Higher rate sensitivity
+        
+        initialCRSS         50e6;           // ~50 MPa
+        saturationCRSS      200e6;          // ~200 MPa
+        hardeningModulus    2e9;            // Higher hardening than FCC
+        latentRatio         1.0;            // Often ~1.0 for BCC
+        
+        
+}
+
+material2
+{
+
+    name                copper;
+    rho                 8960.0;
+  //  youngModulus        130e9;
+  //  poissonRatio        0.34;
+    crystalStructure    FCC;
+    
+            // Anisotropic elasticity
+        anisotropic         true;
+        C11                 168e9;          // Pa
+        C12                 121e9;          // Pa
+        C44                 75e9;           // Pa
+        
+        
+        // Crystal plasticity
+        refSlipRate         1e-3;
+        rateExponent        20;
+        
+        initialCRSS         35e6;           // ~35 MPa
+        saturationCRSS      120e6;          // ~120 MPa
+        hardeningModulus    800e6;
+        latentRatio         1.4;
+}
+*/
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

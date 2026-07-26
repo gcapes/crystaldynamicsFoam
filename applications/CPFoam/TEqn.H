@@ -1,9 +1,12 @@
+// OLD ORIGINAL ENERGY EQUATION FROM LINEARLEASTIC 
+if (stressUpdate && !useEOS)
 {
 
-    
+
     const surfaceScalarField rhophicv(fvc::interpolate(Cv)*rhoPhi);
 
-    const volScalarField rhoCv(rho*Cv);
+    // const volScalarField rhoCv(rho*Cv);// NEEDS TO NOT BE CONST OTHERWISE DROPS TIME DERVATIVE IN RHOCV!!!!!!!!!!
+    rhoCv = rho*Cv;
 
     const volVectorField SigU(sigmaGlobal & U);
 
@@ -34,7 +37,7 @@
 
         TEqn.solve();
 
-}
+} // end if (stressUpdate)
 
 
 

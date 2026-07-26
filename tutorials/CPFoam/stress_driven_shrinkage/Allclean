@@ -1,0 +1,8 @@
+#!/bin/bash
+# Allclean: stress_driven_shrinkage
+cd "$(dirname "$0")" || exit 1
+. "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+
+rm -rf 0/ processor*/ dynamicCode/ VTK/ constant/polyMesh/
+foamListTimes -rm 2>/dev/null
+rm -f log.* system/controlDict.bak
