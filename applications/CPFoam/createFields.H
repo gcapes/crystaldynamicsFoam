@@ -272,6 +272,12 @@ Info << "Number of Materials: " << N_Mats << endl;
 label n_substeps(readLabel(GrainProperties.lookup("n_constitutive_substeps")));
 Info << "Number of Constitutive Sub-cycling steps: " << n_substeps << endl;
 
+
+scalar overstress_cap(GrainProperties.lookupOrDefault<scalar>("overstress_cap", 3.0));
+Info << "Flow-rule overstress cap |tau|/g: " << overstress_cap << endl;
+
+
+
 labelList Phase2Material(N_Ori, 0);
 
 GrainProperties.lookup("Phase2Material") >> Phase2Material;

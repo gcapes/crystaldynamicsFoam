@@ -4,19 +4,7 @@
         // Prescribed-stress mode: bypass the full CP/momentum solve.
         // TWO sub-modes, which MUST NOT be mixed:
         //
-        //  * PerPhaseSigma false (legacy): ONE prescribed field,
-        //    sigmaGlobal, is copied into every solid phase each
-        //    corrector; sigma[crack/void] = 0.  Driving-force contrast
-        //    comes from per-phase orientation (C_rotated) under the
-        //    shared stress.
-        //
         //  * PerPhaseSigma true: sigma.<i> are CONSTANT per-phase
-        //    labels, stamped ONCE by InitPrescribedStressMode.H and
-        //    held for the whole run.  The copy below must therefore be
-        //    SKIPPED -- running it wiped the labels on the first
-        //    corrector (sigmaGlobal is zero in such cases) and killed
-        //    the mechanical driving force entirely.
-        if (!perPhaseSigma)
         {
         for (label h = 0; h < N_Ori; h++)
         {
@@ -65,6 +53,10 @@
         const double sub_dt_val = dt_val / n_substeps;
 
         Info << "Phase " << h << " - Sub-Steps: " << n_substeps << endl;
+
+        // Diagnostic: counts flow-rule evaluations where |tau|/g exceeded
+        // overstress_cap this timestep (see guard in constitutiveKernel).
+        label nCapped = 0;
 
         // =============================================================
         //  Constitutive integration kernel (shared by cells & boundary)
@@ -205,10 +197,7 @@
             }
 
             // EOS mode: the kernel evolves the per-phase DEVIATOR only
-            // (the pressure channel is owned by EOS.H).  Enforce the
-            // invariant on entry: deviatorises any user-supplied initial
-            // stress on the first visit, a no-op thereafter since every
-            // increment below is then traceless.
+            
             if (useEOS)
             {
                 const double trsEOS =
@@ -243,8 +232,14 @@
                         for (int j = 0; j < 3; j++)
                             tau += Fsigma(i,j) * P_a[s](i,j);
 
+                    // Overstress ratio, limited
+                    const double x_raw =
+                        mag(tau) / std::max(local_g[s], tau_0);
+                    if (x_raw > overstress_cap) ++nCapped;
+
                     gdot_step[s] = ref_shear
-                                 * Foam::pow(mag(tau / local_g[s]), k_exp)
+                                 * Foam::pow(std::min(x_raw, overstress_cap),
+                                             k_exp)
                                  * Foam::sign(tau);
 
                     F_D_P     += P_a[s] * gdot_step[s];
@@ -261,14 +256,7 @@
                                              Fastor::Index<FK,FL>>(
                                   C_rot, Fepsilon - F_D_P);
 
-                // EOS mode: deviatoric projection of the stiffness action.
-                // The isotropic part (K tr(D-Dp) for cubic symmetry) is
-                // removed here and supplied instead by the Mie-Gruneisen
-                // p(rho,e) in EOS.H.  The subsequent -tr(De)*Fsigma term
-                // is retained: it is exactly the deviatoric part of the
-                // legacy volumetric-Jaumann equation, so at small
-                // compression the deviator evolution is IDENTICAL to the
-                // linearElastic path.
+
                 if (useEOS)
                 {
                     const double trdsEOS =
@@ -531,6 +519,14 @@
                     }
                 }
             }
+        }
+
+         if the overstress guard engaged
+        if (nCapped > 0)
+        {
+            Pout << "StressUpdate: overstress cap (" << overstress_cap
+                 << ") engaged " << nCapped
+                 << " times for phase " << h << endl;
         }
 
 
