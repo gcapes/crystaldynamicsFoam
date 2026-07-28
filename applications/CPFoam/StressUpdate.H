@@ -521,7 +521,7 @@
             }
         }
 
-         if the overstress guard engaged
+         //if the overstress guard engaged
         if (nCapped > 0)
         {
             Pout << "StressUpdate: overstress cap (" << overstress_cap
