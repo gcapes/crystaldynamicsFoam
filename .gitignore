@@ -1,5 +1,6 @@
 # Solution Files
 log*
+*.log
 0*
 1*
 2*
@@ -52,6 +53,10 @@ core
 # lnInclude (symlink) folders - anywhere
 lnInclude
 
+# Python bytecode cache - anywhere
+__pycache__/
+*.pyc
+
 # A hidden file created by the Mac OS X Finder.
 .DS_Store
 
@@ -66,3 +71,6 @@ linuxming*/
 SiCortex*Gcc*/
 solaris*Gcc*/
 SunOS*Gcc*/
+
+# Local-only work-in-progress benchmark, not ready to share yet
+/tutorials/CPFoam/Jamshidian2014_Benchmark/

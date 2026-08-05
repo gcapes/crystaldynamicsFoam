@@ -24,7 +24,7 @@ Phase2Material              (0);
 n_constitutive_substeps     50;
 
 stressUpdate                true;
-Fracture                    false;
+PF_drivingForceActive       false;
 verbose                     false;
 
 // ===========================================================================
@@ -85,7 +85,7 @@ phi1                        (0.0);
 phi2                        (0.0);
 phi3                        (0.0);
 
-// --- Phase-field machinery (inert here: single phase, Fracture off) ---
+// --- Phase-field machinery (inert here: single phase, PF_drivingForceActive off) ---
 interface_width             4.0e-5;
 
 Energy

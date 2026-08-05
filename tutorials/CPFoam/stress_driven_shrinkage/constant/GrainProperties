@@ -238,7 +238,7 @@ phi3 // third euler angle per phase
 // --- Solver Mode ---
 stressUpdate	false;        // prescribed stress (bypass solve)
 PerPhaseSigma	true;         // constant per-phase stress enabled
-Fracture	true;             // multiphasefield evolution enabled
+PF_drivingForceActive	true;             // multiphasefield evolution enabled
 TrackedPhase	3;            // dpdt_crack reports n.3 rate of change
 n_constitutive_substeps	10; // not used 
 

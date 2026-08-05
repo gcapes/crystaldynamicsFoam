@@ -64,7 +64,7 @@ GBREF.correctBoundaryConditions();
 
 
 
-if (fracture)
+if (PF_drivingForceActive)
 {
 forAll(mesh.C(), cell)
 {
@@ -217,7 +217,7 @@ forAll(mesh.C(), cell)
 
 
 
-        }//enf of fracture conditional
+        }//enf of PF_drivingForceActive conditional
 
 
 
@@ -383,7 +383,7 @@ forAll(mesh.C(), cell)
     }  // end if (n_active_phases > 1)
 
 }  // end forAll(mesh.C(), cell)
-} // end if (fracture)
+} // end if (PF_drivingForceActive)
 
 
 

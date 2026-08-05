@@ -43,7 +43,7 @@ if (adjustTimeStep)
 
     scalar deltaT = maxCo*runTime.deltaTValue()/(CoLimitingEOS + SMALL);
 
-    if (fracture)
+    if (PF_drivingForceActive)
     {
         static scalar deltaTPFdiff = -1.0;
         if (deltaTPFdiff < 0.0)

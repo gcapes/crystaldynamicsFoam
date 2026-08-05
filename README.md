@@ -96,7 +96,7 @@ where the mechanical driving force per phase is the elastic energy density
 $\tfrac{1}{2} \boldsymbol{\sigma}_i : \mathbb{C}_i^{-1} :
 \boldsymbol{\sigma}_i$. So the stress state drives the microstructure
 evolution directly (interface migration, growth of damage). Setting the
-mobilities to zero, or `Fracture false;`, recovers the pure advection of the
+mobilities to zero, or `PF_drivingForceActive false;`, recovers the pure advection of the
 microstructure.
 
 **Shock compression (optional).** For the strong shocks, where the
@@ -139,13 +139,13 @@ structures or numbers of phases. The top-level entries:
 | `stressUpdate` | Switch | Optional; `false` gives the prescribed-stress mode (default `true`) |
 | `PerPhaseSigma` | Switch | Optional; distinct constant stress per order parameter in the prescribed-stress mode (default `false`) |
 | `sigmaPrescribed` | List\<tensor\> | Required if `PerPhaseSigma true;`, one Cauchy stress per order parameter |
-| `Fracture` | Switch | Optional; activates the phase-field driving force (default `false`) |
+| `PF_drivingForceActive` | Switch | Optional; activates the phase-field driving force (default `false`) |
 | `verbose` | Switch | Optional; tensor-inversion self-tests and exit (default `false`) |
 | `EOSMode` | word | Optional; `linearElastic` (default) or `MieGruneisen` |
 | `EOS_Tref` | scalar | Optional; EOS reference temperature (default 300 K) |
 | `EOS_qQuad`, `EOS_qLinear` | scalar | Optional; artificial viscosity coefficients (defaults 1.2, 0.06) |
 | `EOS_waveStabiliser` | scalar | Optional; momentum stabiliser coefficient (default 0, off) |
-| `PF_maxDeltaPhi` | scalar | Optional; per-step order-parameter change cap with `Fracture true;` (default 0.05) |
+| `PF_maxDeltaPhi` | scalar | Optional; per-step order-parameter change cap with `PF_drivingForceActive true;` (default 0.05) |
 
 And per material, in the sub-dictionaries `Material.<i>`:
 

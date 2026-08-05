@@ -246,9 +246,9 @@ IOdictionary GrainProperties(
 
 dimensionedScalar interface_width("interface_width", dimensionSet(0, 1, 0, 0, 0), GrainProperties);
 
-// const Switch fracture(GrainProperties.lookup("Fracture"));
+// const Switch PF_drivingForceActive(GrainProperties.lookup("PF_drivingForceActive"));
 
-const Switch fracture(GrainProperties.lookupOrDefault<Switch>("Fracture", false));
+const Switch PF_drivingForceActive(GrainProperties.lookupOrDefault<Switch>("PF_drivingForceActive", false));
 
 /*
 lookupOrDefault<Switch>("Radial_Polar_HS", true)
