@@ -1,0 +1,60 @@
+#!/bin/bash
+# Allrun : stress_driven_shrinkage
+# 50-grain polycrystal, prescribed-stress PF mode (stressUpdate=false,
+# PerPhaseSigma=true): grain 3 carries a constant stress,
+# the other 49 grains carry zero. The sigma:C^-1:sigma mechanical driving
+# force in PF.H drives grain 3 to shrink in favour of its neighbours.
+#
+# Usage:
+#   ./Allrun              - serial, production (see controlDict)
+#   ./Allrun parallel     - MPI parallel, production
+#   ./Allrun --quick      - quick local correctness check (same 250x250
+#                           mesh, endTime=2e-3)
+# ---------------------------------------------------------------------------
+cd "$(dirname "$0")" || exit 1
+. "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+
+PARALLEL=false
+QUICK=false
+for arg in "$@"; do
+    case "$arg" in
+        parallel) PARALLEL=true ;;
+        --quick)  QUICK=true ;;
+    esac
+done
+
+cleanup_quick() {
+    [ -f system/controlDict.bak ] && mv system/controlDict.bak system/controlDict
+}
+if $QUICK; then
+    if [ ! -f system/controlDict.quick ]; then
+        echo "ERROR: system/controlDict.quick not found." >&2
+        exit 1
+    fi
+    cp system/controlDict system/controlDict.bak
+    cp system/controlDict.quick system/controlDict
+    trap cleanup_quick EXIT
+    echo "=== --quick mode: see system/controlDict.quick for timing ==="
+fi
+
+rm -rf [0-9]*/ processor*/
+cp -r initial/ 0/
+
+runApplication -append blockMesh
+
+if $PARALLEL; then
+    runApplication -append decomposePar
+    runParallel crystaldynamicsFoam
+    runApplication -append reconstructPar -newTimes
+else
+    runApplication -append crystaldynamicsFoam
+fi
+
+if command -v python3 >/dev/null 2>&1; then
+    python3 animateFields.py --phase 3 --out W_interface_n3.gif --fps 2.5
+else
+    echo "python3 not found - skipping GIF generation." >&2
+    echo "Install python3 (with numpy, matplotlib, pillow), then run:" >&2
+    echo "  python3 animateFields.py --phase 3 --out W_interface_n3.gif --fps 2.5" >&2
+    echo "from this directory to build the animation from the results above." >&2
+fi

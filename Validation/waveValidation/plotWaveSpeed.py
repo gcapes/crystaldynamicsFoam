@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-plotWaveSpeed.py -- CPFoam elastic wave-speed validation postprocessor.
+plotWaveSpeed.py -- crystaldynamicsFoam elastic wave-speed validation postprocessor.
 
 Reads the OpenFOAM `probes` function-object output of the shear- and
 pressure-wave runs, detects the first arrival of the wave front at each
@@ -239,7 +239,7 @@ def main():
         plot_case(axs[0, col], axs[1, col], name, positions, t, s, arr,
                   okp, coeffs, axis, comp, c_num, c_ana)
 
-    fig.suptitle("CPFoam elastic wave-speed validation", fontsize=13)
+    fig.suptitle("crystaldynamicsFoam elastic wave-speed validation", fontsize=13)
     fig.savefig(args.output, dpi=160)
 
     print("")

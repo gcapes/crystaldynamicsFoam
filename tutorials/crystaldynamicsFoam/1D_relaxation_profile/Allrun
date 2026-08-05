@@ -1,0 +1,65 @@
+#!/bin/bash
+# Allrun -- Case: equilibrium double-obstacle interface profile (statics)
+#
+# Runs every simulation needed for this verification case from one script:
+#   mesh2, mesh4, mesh6, mesh8, mesh10, mesh20
+#                            -- mesh-convergence study (2/4/6/8/10/20 cells
+#                               across eta), every single timestep written
+#                               so the profile-evolution figure is smooth
+#   mesh10_dthalf            -- same mesh as mesh10, half the timestep
+#                               (confirms the result is dt-independent)
+#   mesh10_ramp              -- same mesh as mesh10, started from a too-wide
+#                               linear ramp instead of a sharp step
+#                               (confirms the same attractor is reached)
+#
+# Each is a small quasi-1D case (8-80 cells) and runs in well under a
+# minute locally (even writing every timestep), so all eight are run
+# serially here.
+#
+# Usage: ./Allrun [--skip-postprocess]
+set -e
+cd "$(dirname "$0")" || exit 1
+
+if [ -z "$WM_PROJECT_DIR" ]; then
+    echo "ERROR: OpenFOAM environment not sourced (WM_PROJECT_DIR unset)." >&2
+    echo "  e.g. source /usr/lib/openfoam/openfoam2506/etc/bashrc" >&2
+    exit 1
+fi
+. "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+
+GAMMA=1.0
+ETA=1.0e-6
+MOBILITY=1.0
+
+run_case() {
+    local dir="$1"; shift
+    echo "=== generating $dir ==="
+    python3 make_case.py "$dir" --gamma "$GAMMA" --eta "$ETA" --mobility "$MOBILITY" "$@"
+
+    echo "=== running $dir ==="
+    (
+        cd "$dir" || exit 1
+        blockMesh > log.blockMesh 2>&1
+        crystaldynamicsFoam > log.crystaldynamicsFoam 2>&1
+    )
+    tail -n 3 "$dir/log.crystaldynamicsFoam"
+    echo
+}
+
+# Main mesh-convergence family -- every timestep written (default in
+# make_case.py) so profile_evolution.png shows an unbroken transition.
+for n in 2 4 6 8 10 20; do
+    run_case "mesh$n" --n-per-eta "$n"
+done
+
+# Cross-checks anchored on mesh10 -- coarser sampling is fine, only the
+# converged profile is used for comparison.
+run_case mesh10_dthalf  --n-per-eta 10 --dt-safety 0.1 --n-writes 60
+run_case mesh10_ramp    --n-per-eta 10 --ic ramp       --n-writes 60
+
+if [ "$1" != "--skip-postprocess" ]; then
+    echo "=== postprocessing ==="
+    python3 postprocess.py
+fi
+
+echo "Done."

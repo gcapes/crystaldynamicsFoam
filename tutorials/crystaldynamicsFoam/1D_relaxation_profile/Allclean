@@ -1,0 +1,6 @@
+#!/bin/bash
+# Allclean -- Case: equilibrium double-obstacle interface profile
+cd "$(dirname "$0")" || exit 1
+
+rm -rf mesh2 mesh4 mesh6 mesh8 mesh10 mesh20 mesh10_dthalf mesh10_ramp __pycache__
+rm -f profile_evolution.png profile_and_error_vs_h.png convergence_table.txt

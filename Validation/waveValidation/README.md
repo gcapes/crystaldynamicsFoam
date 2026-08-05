@@ -1,4 +1,4 @@
-# CPFoam elastic wave-speed validation
+# crystaldynamicsFoam elastic wave-speed validation
 
 Square-pulse plane-wave benchmark on a 5 um pseudo-1-D column (2400 cells,
 propagation along -y from the driven `lowerWall` patch at y = 5 um).
@@ -20,7 +20,7 @@ returns exit status 0 only if both speeds agree within 2% (configurable via
 `--tol`), so it can serve directly as an automated regression test.
 
 Requirements: OpenFOAM (openfoam.org line, tested layout OF-10), a compiled
-`CPFoam` in the PATH, python3 with numpy + matplotlib.
+`crystaldynamicsFoam` in the PATH, python3 with numpy + matplotlib.
 
 Notes
 - `setFields` sets `n.0 = 1` (the initial field file is 0) -- do not skip it.

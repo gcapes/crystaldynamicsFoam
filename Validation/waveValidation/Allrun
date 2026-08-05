@@ -1,6 +1,6 @@
 #!/bin/sh
 # =============================================================================
-#  Allrun -- CPFoam elastic wave-speed validation
+#  Allrun -- crystaldynamicsFoam elastic wave-speed validation
 #
 #  Runs the square-pulse wave case twice from the same base configuration:
 #    runs/shearWave    : 10 m/s pulse tangential to the driven patch (x)
@@ -16,11 +16,11 @@
 # =============================================================================
 cd "${0%/*}" || exit 1
 
-solver=CPFoam
+solver=crystaldynamicsFoam
 
 command -v "$solver" >/dev/null 2>&1 || {
     echo "ERROR: solver '$solver' not found in PATH."
-    echo "       Source your OpenFOAM environment and compile CPFoam first."
+    echo "       Source your OpenFOAM environment and compile crystaldynamicsFoam first."
     exit 1
 }
 

@@ -1,0 +1,67 @@
+#!/bin/sh
+# =========================================================================
+#  Planar-impact Hugoniot validation suite for crystaldynamicsFoam.
+#
+#  Usage:   ./Allrun [MieGruneisen|linearElastic|both]     (default: both)
+#           APP=/path/to/crystaldynamicsFoam ./Allrun both              (custom binary)
+#
+#  Runs six piston velocities per mode (200-1600 m/s), in
+#  parallel as independent serial jobs, then fits Us-up and validates.
+# =========================================================================
+cd "$(dirname "$0")" || exit 1
+
+APP="${APP:-crystaldynamicsFoam}"
+MODE="${1:-both}"
+UPS="200 800 1600 2400 3200 4000"
+
+command -v "$APP" >/dev/null 2>&1 || {
+    echo "Solver '$APP' not found in PATH."
+    echo "Build crystaldynamicsFoam (with the EOS extension) and re-run, or set APP=."
+    exit 1
+}
+
+run_suite() {
+    mode="$1"
+    echo "== EOSMode = $mode =="
+    for up in $UPS; do
+        d="runs/$mode/up$up"
+        rm -rf "$d"
+        mkdir -p "runs/$mode"
+        cp -r caseTemplate "$d"
+        sed -i "s/UPVAL/$up/g"              "$d/0/U"
+        sed -i "s/MODE_PLACEHOLDER/$mode/g" "$d/constant/GrainProperties"
+        (
+            cd "$d" || exit 1
+            blockMesh > log.blockMesh 2>&1 || {
+                echo "  up=$up m/s: blockMesh FAILED (see $d/log.blockMesh)"
+                exit 1
+            }
+            if "$APP" > log.crystaldynamicsFoam 2>&1; then
+                echo "  up=$up m/s: complete"
+            else
+                echo "  up=$up m/s: FAILED (see $d/log.crystaldynamicsFoam)"
+            fi
+        ) &
+    done
+    wait
+}
+
+case "$MODE" in
+    both)
+        run_suite MieGruneisen
+        run_suite linearElastic
+        ;;
+    MieGruneisen|linearElastic)
+        run_suite "$MODE"
+        ;;
+    *)
+        echo "usage: ./Allrun [MieGruneisen|linearElastic|both]"
+        exit 1
+        ;;
+esac
+
+if command -v python3 >/dev/null 2>&1; then
+    python3 validate_hugoniot.py
+else
+    echo "python3 not found: run validate_hugoniot.py manually."
+fi

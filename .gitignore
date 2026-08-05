@@ -73,4 +73,9 @@ solaris*Gcc*/
 SunOS*Gcc*/
 
 # Local-only work-in-progress benchmark, not ready to share yet
-/tutorials/CPFoam/Jamshidian2014_Benchmark/
+/tutorials/crystaldynamicsFoam/Jamshidian2014_Benchmark/
+
+# NOTE: the bare 0*-9* patterns above (for OpenFOAM time directories) also
+# match any tutorial folder that happens to start with a digit -- un-ignore
+# those specifically rather than loosening the time-directory patterns.
+!/tutorials/crystaldynamicsFoam/1D_relaxation_profile/
