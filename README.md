@@ -1,12 +1,12 @@
 # crystaldynamicsFoam
 
 ##Authors
-Tom Flint
-Pratheek Shanthraj
-Philip Cardiff
-Joao Quinta da Fonseca
-Joe Robson
-Harry Smith
+### Tom Flint
+### Pratheek Shanthraj
+### Philip Cardiff
+### Joao Quinta da Fonseca
+### Joe Robson
+### Harry Smith
 
 An open-source, cell-centred finite volume solver for the solid dynamics of
 polycrystalline, multi-material solids under extreme loading. The solver is
@@ -16,12 +16,16 @@ through it. This mean there is no mesh distortion problem when the deformation
 localise, which is the usual failure mode of Lagrangian crystal plasticity
 codes.
 
+## Installation
+
 The solver is built on top of the OpenFOAM libraries (openfoam.com, tested
 from v2506 onwards) and uses the header-only
 [Fastor](https://github.com/romeric/Fastor) library for the rank-four tensor
 algebra. It is the first solver of a more general solid-dynamics toolbox,
 updated-Lagrangian and material-point-method solvers will follow, sharing the
 same material and interface infrastructure.
+
+We like the ROUND advection schemes available at [libROUNDSchemes](https://github.com/ROUNDschemes/libROUNDSchemes). Most of the tutorials use these schemes so you should download this library and run the top-level allwmake command after sourcing the above referenced openfoam environment.
 
 The full description of the model and the numerics is in the papers (see
 [Citing](#citing--licence) below), here we give only the physics at top level.
