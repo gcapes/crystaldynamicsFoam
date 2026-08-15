@@ -1,12 +1,12 @@
 # crystaldynamicsFoam
 
 ## Authors
-#### Tom Flint
-#### Pratheek Shanthraj
-#### Philip Cardiff
-#### Joao Quinta da Fonseca
-#### Joe Robson
-#### Harry Smith
+Tom Flint (University of Manchester)
+Pratheek Shanthraj (United Kingdom Atomic Energy Authority)
+Philip Cardiff (University College Dublin)
+Joao Quinta da Fonseca (University of Manchester)
+Joe Robson (University of Manchester)
+Harry Smith (University of Manchester)
 
 An open-source, cell-centred finite volume solver for the solid dynamics of
 polycrystalline, multi-material solids under extreme loading. The solver is
