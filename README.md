@@ -38,13 +38,13 @@ form on the fixed grid,
 $$
 \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \boldsymbol{U}) = 0,
 $$
-
+ 
 $$
 \frac{\partial (\rho \boldsymbol{U})}{\partial t}
 + \nabla \cdot (\rho \boldsymbol{U} \otimes \boldsymbol{U})
 - \nabla \cdot \boldsymbol{\sigma} = 0,
 $$
-
+ 
 $$
 \frac{\partial (\rho E)}{\partial t}
 + \nabla \cdot (\rho \boldsymbol{U} E)
