@@ -1,13 +1,5 @@
 # crystaldynamicsFoam
 
-## Authors
-Tom Flint (University of Manchester)
-Pratheek Shanthraj (United Kingdom Atomic Energy Authority)
-Philip Cardiff (University College Dublin)
-Joao Quinta da Fonseca (University of Manchester)
-Joe Robson (University of Manchester)
-Harry Smith (University of Manchester)
-
 An open-source, cell-centred finite volume solver for the solid dynamics of
 polycrystalline, multi-material solids under extreme loading. The solver is
 fully Eulerian: the grid stays fixed, the material and all of its history
@@ -15,6 +7,18 @@ fully Eulerian: the grid stays fixed, the material and all of its history
 through it. This mean there is no mesh distortion problem when the deformation
 localise, which is the usual failure mode of Lagrangian crystal plasticity
 codes.
+
+
+
+## Authors
+#### Tom Flint (University of Manchester)
+#### Pratheek Shanthraj (United Kingdom Atomic Energy Authority)
+#### Philip Cardiff (University College Dublin)
+#### Joao Quinta da Fonseca (University of Manchester)
+#### Joe Robson (University of Manchester)
+#### Harry Smith (University of Manchester)
+
+
 
 ## Installation
 
