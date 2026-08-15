@@ -40,16 +40,16 @@ $$
 $$
  
 $$
-\frac{\partial (\rho \boldsymbol{U})}{\partial t}
-+ \nabla \cdot (\rho \boldsymbol{U} \otimes \boldsymbol{U})
-- \nabla \cdot \boldsymbol{\sigma} = 0,
+\frac{\partial (\rho \boldsymbol{U})}{\partial t} +
+\nabla \cdot (\rho \boldsymbol{U} \otimes \boldsymbol{U}) -
+\nabla \cdot \boldsymbol{\sigma} = 0,
 $$
- 
+
 $$
-\frac{\partial (\rho E)}{\partial t}
-+ \nabla \cdot (\rho \boldsymbol{U} E)
-- \nabla \cdot (\boldsymbol{\sigma} \cdot \boldsymbol{U})
-- \nabla \cdot (\kappa \nabla T) = 0,
+\frac{\partial (\rho E)}{\partial t} +
+\nabla \cdot (\rho \boldsymbol{U} E) -
+\nabla \cdot (\boldsymbol{\sigma} \cdot \boldsymbol{U}) -
+\nabla \cdot (\kappa \nabla T) = 0,
 $$
 
 with $E = e + \boldsymbol{U}^2/2$. All history variables are transported in
