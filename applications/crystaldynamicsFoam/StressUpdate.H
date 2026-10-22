@@ -1,17 +1,8 @@
 {
     if (!stressUpdate)
     {
-        // Prescribed-stress mode: bypass the full CP/momentum solve.
-        // TWO sub-modes, which MUST NOT be mixed:
-        //
-        //  * PerPhaseSigma true: sigma.<i> are CONSTANT per-phase, set
-        //    once in InitPrescribedStressMode.H and left untouched here.
-        //    sigmaGlobal is recomputed from them each step purely as a
-        //    diagnostic (same phase-weighted mixture as Advect.H uses
-        //    when stressUpdate=true) -- it does not feed back into
-        //    sigma[h] in this sub-mode.
-        //  * PerPhaseSigma false: sigma.<i> is broadcast from the single
-        //    shared sigmaGlobal (material 0) / zero (other materials).
+        // Prescribed-stress mode.  PerPhaseSigma true: sigma.<i> constant (set once in
+        // InitPrescribedStressMode.H), sigmaGlobal a diagnostic; false: sigma.<i> from sigmaGlobal.
         if (perPhaseSigma)
         {
             sigmaGlobal *= 0.0;
@@ -39,8 +30,7 @@
         }
         }
 
-        // Zero all flow fields so that rhoEqn, TEqn, and Advect.H see no
-        // advection.  The tensile U boundary conditions (+/-1 m/s) remain active via correctBoundaryConditions
+        // Zero the fluxes so that rhoEqn, TEqn and Advect.H see no advection
         phi    *= 0.0;
         rhoPhi *= 0.0;
     }
@@ -67,24 +57,19 @@
         const double tau_0   = mat.initial_CRSS;
         const double r_param = mat.r;
         const double dt_val  = runTime.deltaT().value();
-        const double sub_dt_val = dt_val / n_substeps;
 
         Info << "Phase " << h << " - Sub-Steps: " << n_substeps << endl;
 
-        // Diagnostic: counts flow-rule evaluations where |tau|/g exceeded
-        // overstress_cap this timestep (see guard in constitutiveKernel).
+        // Count of flow-rule evaluations at which maxSlipRate engaged this step
         label nCapped = 0;
 
-        // =============================================================
-        //  Constitutive integration kernel (shared by cells & boundary)
-        //
-        //  Inputs:  sigma_in[9], epsilon_in[9], omega_in[9],
-        //           rot_angles[3], g_in[N_Slips], gamma_in[N_Slips],
-        //           phase_active (bool)
-        //
-        //  Outputs: sigma_out[9], Dp_out[9], Wp_out[9],
-        //           gdot_out[N_Slips], gamma_dot_out[N_Slips]
-        // =============================================================
+        // Schmid-projected moduli P_s:C':P_s (adaptive sub-stepping, viscoplastic rate)
+        // and sub-step diagnostics
+        const std::vector<double>& pcp = PCPmat[Phase2Material[h]];
+        label nSubMax = 0;
+        label nSubClamped = 0;
+
+        // Constitutive integration kernel, shared by cells and boundary faces
         auto constitutiveKernel = [&](
             const double* sigma_in,
             const double* epsilon_in,
@@ -98,11 +83,15 @@
             double* Wp_out,
             double* gdot_out,
             double* gamma_dot_out,
-    Fastor::Tensor<double,3,3,3,3>* C_rot_out)
+            Fastor::Tensor<double,3,3,3,3>* C_rot_out,
+            double* lamVp_out,
+            int* nSub_out,
+            double* wp_out = nullptr)
         {
             // Passthrough if phase not active
             if (!phase_active)
             {
+                if (wp_out) *wp_out = 0.0;
                 for (int c = 0; c < 9; c++)
                 {
                     sigma_out[c] = sigma_in[c];
@@ -114,10 +103,10 @@
                     gdot_out[s] = 0.0;
                     gamma_dot_out[s] = 0.0;
                 }
-                // Keep the stored rotated stiffness defined for inactive
-                // cells so downstream consumers (the phase-field mechanical
-                // driving force) never read stale or uninitialised memory.
+                // keep the stored rotated stiffness defined for inactive cells (read by PF.H)
                 if (C_rot_out) (*C_rot_out).zeros();
+                if (lamVp_out) *lamVp_out = 0.0;
+                if (nSub_out) *nSub_out = 0;
                 return;
             }
 
@@ -224,6 +213,46 @@
                 Fsigma(2,2) -= trsEOS;
             }
 
+            // --- Linearised viscoplastic rate lambda = sum_s (dgammadot/dtau)(P_s:C':P_s);
+            //     forward Euler on the sub-steps needs sub_dt*lambda < 2 ---
+            auto viscoplasticRate =
+                [&](const Fastor::Tensor<double,3,3>& S, const double* gloc) -> double
+            {
+                double lam = 0.0;
+                for (int s = 0; s < N_Slips_h; s++)
+                {
+                    double tau = 0.0;
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 3; j++)
+                            tau += S(i,j) * P_a[s](i,j);
+
+                    const double gEff = std::max(gloc[s], tau_0);
+                    const double x = mag(tau)/gEff;
+                    // a system held at maxSlipRate has dgammadot/dtau = 0
+                    if (maxSlipRate > 0.0 && ref_shear*Foam::pow(x, k_exp) >= maxSlipRate)
+                    {
+                        continue;
+                    }
+                    lam += k_exp * ref_shear * Foam::pow(x, k_exp - 1.0) / gEff * pcp[s];
+                }
+                return lam;
+            };
+
+            // --- Number of sub-steps for this cell and phase ---
+            int nSub = n_substeps;
+            if (adaptiveSubsteps)
+            {
+                const double lam0 = viscoplasticRate(Fsigma, g_in);
+                const double nReq = std::ceil(lam0 * dt_val / substepTarget);
+                if (nReq > double(maxSubsteps)) ++nSubClamped;
+                nSub = std::max
+                (
+                    int(n_substeps),
+                    int(std::min(nReq, double(maxSubsteps)))
+                );
+            }
+            const double sub_dt = dt_val / nSub;
+
             double local_g[MAX_SLIPS], local_gamma[MAX_SLIPS];
             for (int s = 0; s < N_Slips_h; s++)
             {
@@ -235,8 +264,11 @@
             double g_dot_sum[MAX_SLIPS]     = {0.0};
             Fastor::Tensor<double,3,3> D_P_sum(0.0), Omega_P_sum(0.0);
 
+            // Plastic work rate sum_s tau_s gammadot_s (>= 0), accumulated for the energy budget
+            double wp_sum = 0.0;
+
             // --- Sub-stepping loop ---
-            for (int step = 0; step < n_substeps; step++)
+            for (int step = 0; step < nSub; step++)
             {
                 // Slip rates & plastic deformation
                 Fastor::Tensor<double,3,3> F_D_P(0.0), F_Omega_P(0.0);
@@ -249,18 +281,20 @@
                         for (int j = 0; j < 3; j++)
                             tau += Fsigma(i,j) * P_a[s](i,j);
 
-                    // Overstress ratio, limited
+                    // Power-law slip rate, bounded by maxSlipRate if set
                     const double x_raw =
                         mag(tau) / std::max(local_g[s], tau_0);
-                    if (x_raw > overstress_cap) ++nCapped;
-
-                    gdot_step[s] = ref_shear
-                                 * Foam::pow(std::min(x_raw, overstress_cap),
-                                             k_exp)
-                                 * Foam::sign(tau);
+                    double gmag = ref_shear * Foam::pow(x_raw, k_exp);
+                    if (maxSlipRate > 0.0 && gmag > maxSlipRate)
+                    {
+                        gmag = maxSlipRate;
+                        ++nCapped;
+                    }
+                    gdot_step[s] = gmag * Foam::sign(tau);
 
                     F_D_P     += P_a[s] * gdot_step[s];
                     F_Omega_P += W_a[s] * gdot_step[s];
+                    wp_sum    += tau * gdot_step[s];
                 }
 
                 for (int s = 0; s < N_Slips_h; s++)
@@ -294,7 +328,7 @@
                                   + (Fepsilon(1,1) - F_D_P(1,1))
                                   + (Fepsilon(2,2) - F_D_P(2,2));
 
-                Fsigma = Fsigma + sub_dt_val * (dsigma + WeSig - SigWe - trDe * Fsigma);
+                Fsigma = Fsigma + sub_dt * (dsigma + WeSig - SigWe - trDe * Fsigma);
 
 
                 // Hardening
@@ -323,16 +357,16 @@
                     }
 
                     g_dot = std::min(g_dot,
-                                    0.1 * local_g[sa] / sub_dt_val);
+                                    0.1 * local_g[sa] / sub_dt);
 
                     g_dot_sum[sa] += g_dot;
-                    local_g[sa]   += sub_dt_val * g_dot;
+                    local_g[sa]   += sub_dt * g_dot;
                     // local_g[sa] = std::max(local_g[sa] + sub_dt_val * g_dot, tau_0 * 0.001);
                     local_g[sa]    = std::max(local_g[sa], tau_0 * 0.001);
                 }
 
                 for (int s = 0; s < N_Slips_h; s++)
-                    local_gamma[s] += sub_dt_val * gdot_step[s];
+                    local_gamma[s] += sub_dt * gdot_step[s];
 
             } // end sub-stepping
 
@@ -343,23 +377,26 @@
                     for (int j = 0; j < 3; j++)
                     {
                         sigma_out[ci] = Fsigma(i,j);
-                        Dp_out[ci]    = D_P_sum(i,j) / n_substeps;
-                        Wp_out[ci]    = Omega_P_sum(i,j) / n_substeps;
+                        Dp_out[ci]    = D_P_sum(i,j) / nSub;
+                        Wp_out[ci]    = Omega_P_sum(i,j) / nSub;
                         ci++;
                     }
             }
 
             for (int s = 0; s < N_Slips_h; s++)
             {
-                gamma_dot_out[s] = gamma_dot_sum[s] / n_substeps;
-                gdot_out[s]      = g_dot_sum[s]     / n_substeps;
+                gamma_dot_out[s] = gamma_dot_sum[s] / nSub;
+                gdot_out[s]      = g_dot_sum[s]     / nSub;
             }
+
+            // --- End-of-step viscoplastic rate (setDeltaT.H) and sub-step count ---
+            if (lamVp_out) *lamVp_out = viscoplasticRate(Fsigma, local_g);
+            if (nSub_out)  *nSub_out  = nSub;
+            if (wp_out)    *wp_out    = wp_sum / nSub;
         }; // end constitutiveKernel
 
 
-        // =============================================================
-        //  Rotation update kernel (shared by cells & boundary)
-        // =============================================================
+        // Rotation update kernel, shared by cells and boundary faces
         auto rotationKernel = [&](
             const double* omega_in,
             const double* Wp_in,
@@ -442,9 +479,7 @@
         }; // end rotationKernel
 
 
-        // ================================================================
-        //  CELL INTERIOR  –  constitutive integration
-        // ================================================================
+        // Cell interior: constitutive integration
         forAll(mesh.C(), cell)
         {
             double sig_in[9], eps_in[9], omg_in[9], rot_ang[3];
@@ -467,11 +502,15 @@
             double sig_out[9], Dp_out[9], Wp_out[9];
             double gdot_out[MAX_SLIPS], gamma_dot_out[MAX_SLIPS];
 
-            // Only compute on cells with phase fraction of n.N less than 0.95 
+            // kernel active where the face-averaged phase fraction is positive
+            int nSubCell = 0;
             constitutiveKernel(
                 sig_in, eps_in, omg_in, rot_ang,
                 g_in, gam_in, (PopBal_av[h][cell] > SMALL),
-                sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,&C_rotated[h][cell]);
+                sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,&C_rotated[h][cell],
+                (quasiStatic ? &lamVp[h][cell] : nullptr), &nSubCell,
+                &plasticWorkRatePhase[h][cell]);
+            nSubMax = max(nSubMax, label(nSubCell));
 
             for (int ci = 0; ci < 9; ci++)
             {
@@ -487,9 +526,7 @@
         }
 
 
-        // ================================================================
-        //  BOUNDARY FACES  –  constitutive integration
-        // ================================================================
+        // Boundary faces: constitutive integration
         forAll(T.boundaryField(), patchI)
         {
             if (!T.boundaryField()[patchI].coupled()
@@ -521,7 +558,8 @@
                         sig_in, eps_in, omg_in, rot_ang,
                         g_in, gam_in,
                         (PopBal_av[h].boundaryField()[patchI][faceI] > SMALL),
-                        sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,nullptr);//nullptr as only need cell values for mechanical driving force
+                        sig_out, Dp_out, Wp_out, gdot_out, gamma_dot_out,nullptr, // no C_rot: PF.H needs cell values only
+                        nullptr, nullptr);
 
                     for (int ci = 0; ci < 9; ci++)
                     {
@@ -538,23 +576,32 @@
             }
         }
 
-         //if the overstress guard engaged
+        // report when the slip-rate bound engaged
         if (nCapped > 0)
         {
-            Pout << "StressUpdate: overstress cap (" << overstress_cap
-                 << ") engaged " << nCapped
+            Pout << "StressUpdate: slip-rate bound maxSlipRate (" << maxSlipRate
+                 << " 1/s) engaged " << nCapped
                  << " times for phase " << h << endl;
         }
 
+        if (adaptiveSubsteps)
+        {
+            const label nSubMaxAll = returnReduce(nSubMax, maxOp<label>());
+            const label nClampedAll = returnReduce(nSubClamped, sumOp<label>());
+            Info<< "Phase " << h << " adaptive sub-steps: max " << nSubMaxAll;
+            if (nClampedAll > 0)
+            {
+                Info<< ", clamped at maxSubsteps in " << nClampedAll << " cells";
+            }
+            Info<< endl;
+        }
 
-        // Orientation update: apply the exponential map ONCE per time
-        // step, on the final outer corrector 
+
+        // Orientation update: exponential map once per step, on the final outer corrector
         if (pimple.finalIter())
         {
 
-        // ================================================================
-        //  ROTATION UPDATE  –  cell interior
-        // ================================================================
+        // Rotation update: cell interior
         forAll(mesh.C(), cell)
         {
             double omg_in[9], Wp_in[9], rot_in[3], rot_out[3];
@@ -575,9 +622,7 @@
         }
 
 
-        // ================================================================
-        //  ROTATION UPDATE  –  boundary faces
-        // ================================================================
+        // Rotation update: boundary faces
         forAll(T.boundaryField(), patchI)
         {
             if (!T.boundaryField()[patchI].coupled()
@@ -615,9 +660,7 @@
 
     } // end loop over phases
 
-    // EOS mode: sigtemp/sigma hold per-phase deviatoric part.  Add the
-    // volumetric part later ....Mie-Gruneisen pressure plus
-    // artificial shock viscosity
+    // EOS mode: add the volumetric part (Mie-Gruneisen pressure + artificial viscosity)
     if (useEOS)
     {
         sigmaGlobaltemp -= (p + qAV)*I_EOS;
@@ -625,9 +668,7 @@
 
     sigmaGlobaltemp.correctBoundaryConditions();
 
-    // ==============================================================
-    //  Commit state on final PIMPLE iteration
-    // ==============================================================
+    // Commit state on the final PIMPLE iteration
     if (pimple.finalIter())
     {
         Info << "Updating committed fields on final PIMPLE iteration"
@@ -649,8 +690,7 @@
         D = D + runTime.deltaT() * U;
         D.correctBoundaryConditions();
 
-        // diagnostic only: in EOS mode p is the 
-        // pressure (and tr(sigmaGlobal)/3 = -(p + q)
+        // diagnostic only: in EOS mode p is the EOS pressure and tr(sigmaGlobal)/3 = -(p + q)
         if (!useEOS)
         {
             p = -(1.0/3.0) * tr(sigmaGlobal);

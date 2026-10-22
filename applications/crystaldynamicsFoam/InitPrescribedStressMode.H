@@ -1,4 +1,4 @@
-// Pre-populate C_rotated when stress solve is bypassed 
+// Pre-populate C_rotated when the stress solve is bypassed
 for (label h = 0; h < N_Ori; h++)
 {
     // Use cell 0 rotation angles (uniform per phase).
@@ -40,9 +40,8 @@ for (label h = 0; h < N_Ori; h++)
         C_rotated[h][cell] = C_rot;
 }
 
-// Per-phase constant prescribed stress: set sigma[h] once here and
-// never touch it again (see StressUpdate.H) so each phase keeps its
-// own constant stress label for the whole run.
+// PerPhaseSigma: set sigma[h] once from sigmaPrescribed; StressUpdate.H never
+// touches it again.
 if (perPhaseSigma)
 {
     Info<< "PerPhaseSigma=true: initialising sigma.<i> from sigmaPrescribed\n" << endl;

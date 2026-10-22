@@ -1,11 +1,11 @@
-// OLD ORIGINAL ENERGY EQUATION FROM LINEARLEASTIC 
+// Linear-elastic mode: conservative energy equation solved for T
 if (stressUpdate && !useEOS)
 {
 
 
     const surfaceScalarField rhophicv(fvc::interpolate(Cv)*rhoPhi);
 
-    // const volScalarField rhoCv(rho*Cv);// NEEDS TO NOT BE CONST OTHERWISE DROPS TIME DERVATIVE IN RHOCV!!!!!!!!!!
+    // const volScalarField rhoCv(rho*Cv); // must not be const: ddt(rhoCv) would be dropped
     rhoCv = rho*Cv;
 
     const volVectorField SigU(sigmaGlobal & U);
@@ -36,6 +36,38 @@ if (stressUpdate && !useEOS)
         // fvConstraints.constrain(TEqn);
 
         TEqn.solve();
+
+    // Boundary terms of the discrete energy balance from the same face fluxes
+    // (final outer iteration; integrated in energyBudget.H).  S_f points outward.
+    if (energyBudgetActive && pimple.finalIter())
+    {
+        ebBoundaryStressPower = 0.0;
+        ebBoundaryConvective  = 0.0;
+        ebBoundaryHeat        = 0.0;
+        ebBoundaryMassFlux    = 0.0;
+        forAll(mesh.boundary(), patchi)
+        {
+            const fvPatch& pp = mesh.boundary()[patchi];
+            if (pp.coupled() || pp.size() == 0) continue;
+            const vectorField& Sfp = mesh.Sf().boundaryField()[patchi];
+            const scalarField& rhoPhip = rhoPhi.boundaryField()[patchi];
+            ebBoundaryStressPower += sum(SigU.boundaryField()[patchi] & Sfp);
+            ebBoundaryConvective  += sum
+            (
+                rhoPhip*(Cv.boundaryField()[patchi]*T.boundaryField()[patchi] + K.boundaryField()[patchi])
+            );
+            ebBoundaryMassFlux    += sum(rhoPhip);
+            ebBoundaryHeat        += sum
+            (
+                kappa.boundaryField()[patchi]
+               *T.boundaryField()[patchi].snGrad()*pp.magSf()
+            );
+        }
+        reduce(ebBoundaryStressPower, sumOp<scalar>());
+        reduce(ebBoundaryConvective,  sumOp<scalar>());
+        reduce(ebBoundaryHeat,        sumOp<scalar>());
+        reduce(ebBoundaryMassFlux,    sumOp<scalar>());
+    }
 
 } // end if (stressUpdate)
 

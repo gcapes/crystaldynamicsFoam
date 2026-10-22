@@ -1,14 +1,6 @@
 
-//      mu   =   rho/rho0 - 1
-//      p_H  =  rho0 c0^2 mu (1+mu) / [1 - (s-1) mu]^2        (compression)
-//      e_H  =  p_H mu / (2 rho0 (1+mu))
-//      p       =    p_H + Gamma0 rho0 (e - e_H)                   (mu >= 0)
-//      p     =   rho0 c0^2 mu + Gamma0 rho0 (e - c0^2 mu^2/2)  (mu <  0)
-
-//
-//  p is the pressure; the deviatoric part lives in the
-//  per-phase crystal-plasticity fields (sigma_h).  The total
-//  stress assembled downstream is  sigma = -(p + q) I + sum_h phi_h s_h. ....... qhere q is te artificial viscosity introduced to make the solution numerically tractable
+// Mie-Gruneisen pressure p(rho, e) on the Hugoniot reference curve (compression) or its
+// linear extrapolation (tension); sigma = -(p + q) I + sum_h phi_h s_h, q the shock viscosity.
 
 
 if (useEOS)
@@ -88,7 +80,7 @@ if (useEOS)
 
             pIF[celli] = pH + G0*r0*(eIF[celli] - eRef);
 
-            // Conservative longitudinal wave-speed estimate: reference
+            // Longitudinal wave-speed estimate, stiffened by the Hugoniot slope
             const scalar stiff = Foam::sqrt(max(dpHdmu/A0, 1.0));
             cIF[celli] = max(cLIF[celli]*stiff, Foam::sqrt(A0/r0));
 
@@ -114,7 +106,7 @@ if (useEOS)
     T.correctBoundaryConditions();     // respects case-supplied T BCs
 
 
-            //Artificial (shock) viscosity: compression only.
+    // Artificial (shock) viscosity: compression only
     {
         const volScalarField trDEOS(tr(epsilon_dot));
 
@@ -143,18 +135,44 @@ if (useEOS)
     }
 
 
-    // Acoustic Courant number
+}
+else if (acousticCourantControl && stressUpdate && !quasiStatic)
+{
+    // Linear-elastic mode: c = sqrt(sum_h phi_h Gamma_max,h / rho) from the
+    // Christoffel bound of each material (createFields.H).
+    volScalarField GamMixEOS
+    (
+        IOobject("GamMixEOS", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("GamMixEOS", dimensionSet(1, -1, -2, 0, 0), 0.0)
+    );
+    for (label hEOS = 0; hEOS < N_Ori; hEOS++)
     {
-        const surfaceScalarField cfEOS(fvc::interpolate(cEOS));
-
-        acousticCoNum =
-            0.5*gMax
-            (
-                fvc::surfaceSum(mag(phi) + cfEOS*mesh.magSf())()
-                    .primitiveField()
-               /mesh.V().field()
-            )*runTime.deltaTValue();
-
-        Info<< "Acoustic Courant Number max: " << acousticCoNum << endl;
+        GamMixEOS += PopBal[hEOS]
+                    *dimensionedScalar
+                     (
+                         "GamMax",
+                         dimensionSet(1, -1, -2, 0, 0),
+                         GammaMaxMat[Phase2Material[hEOS]]
+                     );
     }
+    cEOS = sqrt(GamMixEOS/max(rho, dimensionedScalar("rhoSmall", dimDensity, SMALL)));
+    cEOS.correctBoundaryConditions();
+}
+
+// Acoustic Courant number for setDeltaT.H (linear-elastic mode: only with
+// acousticCourantControl on and a non-quasi-static coupling).
+if (useEOS || (acousticCourantControl && stressUpdate && !quasiStatic))
+{
+    const surfaceScalarField cfEOS(fvc::interpolate(cEOS));
+
+    acousticCoNum =
+        0.5*gMax
+        (
+            fvc::surfaceSum(mag(phi) + cfEOS*mesh.magSf())()
+                .primitiveField()
+           /mesh.V().field()
+        )*runTime.deltaTValue();
+
+    Info<< "Acoustic Courant Number max: " << acousticCoNum << endl;
 }

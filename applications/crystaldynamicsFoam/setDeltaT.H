@@ -32,10 +32,15 @@ Description
 if (adjustTimeStep)
 {
 
-    const scalar CoLimitingEOS =
-        useEOS ? max(CoNum, acousticCoNum) : CoNum;
+    // Acoustic Courant limit of the explicit stress coupling (both closures); off for
+    // quasiStatic, for acousticCourantControl false and in the prescribed-stress mode.
+    const bool acousticLimitActive =
+        stressUpdate && (useEOS || acousticCourantControl) && !quasiStatic;
 
-    if (useEOS)
+    const scalar CoLimitingEOS =
+        acousticLimitActive ? max(CoNum, acousticCoNum) : CoNum;
+
+    if (acousticLimitActive)
     {
         Info<< "Time-step limiting Courant number (acoustic): "
             << CoLimitingEOS << endl;
@@ -70,7 +75,7 @@ if (adjustTimeStep)
 
         const scalar maxDPhi
         (
-            GrainProperties.lookupOrDefault<scalar>("PF_maxDeltaPhi", 0.05)//MaX CHANGE IN PHI in a  GIVEN TIMESTEP
+            GrainProperties.lookupOrDefault<scalar>("PF_maxDeltaPhi", 0.05) // max change of any phi per step
         );
         scalar dpdtMax = 0.0;
         for (label h = 0; h < N_Ori; h++)
@@ -86,6 +91,88 @@ if (adjustTimeStep)
             deltaT,
             min(deltaTPFdiff, maxDPhi/max(dpdtMax, SMALL))
         );
+    }
+
+    if (quasiStatic)
+    {
+        // Strain-increment bound from the interior strain rate and the boundary-face
+        // velocity jump (active from the first step; coded BCs evaluated first).
+        if (maxDeltaEps > 0.0)
+        {
+            U.correctBoundaryConditions();
+            scalar epsDotMax = gMax(mag(epsilon_dot)().primitiveField());
+            scalar epsDotBoundary = 0.0;
+            forAll(U.boundaryField(), patchi)
+            {
+                const fvPatchVectorField& Up = U.boundaryField()[patchi];
+                if (!Up.coupled() && Up.type() != "empty" && Up.size() > 0)
+                {
+                    epsDotBoundary = max(epsDotBoundary, max(mag(Up.snGrad())()));
+                }
+            }
+            reduce(epsDotBoundary, maxOp<scalar>());
+            epsDotMax = max(epsDotMax, epsDotBoundary);
+            if (epsDotMax > SMALL)
+            {
+                deltaT = min(deltaT, maxDeltaEps/epsDotMax);
+            }
+            Info<< "quasiStatic: max strain rate " << epsDotMax
+                << " 1/s (boundary faces " << epsDotBoundary
+                << " 1/s), strain-increment dt bound "
+                << (epsDotMax > SMALL ? maxDeltaEps/epsDotMax : GREAT) << " s" << endl;
+
+            // A strain-increment bound below the acoustic step means the loading is not
+            // quasi-static: warn.
+            static scalar deltaTAcousticQS = -1.0;
+            if (deltaTAcousticQS < 0.0)
+            {
+                scalar cLmaxQS = 0.0;
+                for (label i = 0; i < N_Mats; i++)
+                {
+                    const scalar GammaQS =
+                        GammaMaxMat[i]
+                      + (
+                            useEOS
+                          ? max(0.0, MatList[i].rho_0*sqr(MatList[i].c0) - KCprimeMat[i])
+                          : 0.0
+                        );
+                    cLmaxQS = max
+                    (
+                        cLmaxQS,
+                        Foam::sqrt(GammaQS/max(MatList[i].rho_0, SMALL))
+                    );
+                }
+                deltaTAcousticQS =
+                    gMin(cellDx.primitiveField())/max(cLmaxQS, SMALL);
+            }
+            if (epsDotMax > SMALL && maxDeltaEps/epsDotMax < deltaTAcousticQS)
+            {
+                WarningInFunction
+                    << "quasiStatic: the strain-increment bound "
+                    << maxDeltaEps/epsDotMax << " s is below the acoustic time step "
+                    << deltaTAcousticQS << " s. A strain rate of " << epsDotMax
+                    << " 1/s is not quasi-static: check the velocity boundary"
+                    << " conditions in 0/U, or run with momentumCoupling explicit." << endl;
+            }
+        }
+
+        // Viscoplastic bound lambda*dt <= maxViscoplasticNumber (few sub-steps, well
+        // conditioned outer iteration)
+        if (maxViscoplasticNumber > 0.0)
+        {
+            scalar lamMax = 0.0;
+            for (label h = 0; h < N_Ori; h++)
+            {
+                lamMax = max(lamMax, gMax(lamVp[h]));
+            }
+            if (lamMax > SMALL)
+            {
+                deltaT = min(deltaT, maxViscoplasticNumber/lamMax);
+            }
+            Info<< "quasiStatic: max viscoplastic rate " << lamMax
+                << " 1/s, viscoplastic dt bound "
+                << (lamMax > SMALL ? maxViscoplasticNumber/lamMax : GREAT) << " s" << endl;
+        }
     }
 
     deltaT = min(deltaT, maxTimeStep/*fvModels.maxDeltaT()*/);

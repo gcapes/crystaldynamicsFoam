@@ -1,17 +1,5 @@
-//  Per-material entries required wih EOSMode MieGruneisen:
-//
-//      c0        3940;     // bulk sound speed at reference state   [m/s]
-//      s_UsUp    1.489;    // linear Us-up Hugoniot slope           [-]
-//      Gamma0    1.99;     // Gruneisen parameter at reference      [-]
-//
-//  Optional global entries (GrainProperties):
-//
-//      EOS_Tref     300.0;   // reference temperature: e = 0 at
-//                            // (rho = rho0, T = EOS_Tref, p = 0)   [K]
-//      EOS_qQuad    1.2;     // quadratic artificial-viscosity coeff [-]
-//      EOS_qLinear  0.06;    // linear artificial-viscosity coeff    [-]
-//      EOS_waveStabiliser 0.0;  // compact (Laplacian) momentum
-//                            // stabiliser coefficient C_w [-]. 
+// Mie-Gruneisen input: per material c0, s_UsUp, Gamma0; optional global entries
+// EOS_Tref, EOS_qQuad, EOS_qLinear, EOS_waveStabiliser (GrainProperties).
 
 const word EOSMode
 (
@@ -126,9 +114,7 @@ if (useEOS)
     Info<< endl;
 }
 
-// -------------------------------------------------------------------------
-//  Numerical parameters
-// -------------------------------------------------------------------------
+// Numerical parameters
 const scalar Tref_EOS
 (
     GrainProperties.lookupOrDefault<scalar>("EOS_Tref", 300.0)
@@ -145,10 +131,17 @@ const scalar qLinCoeff
 // Identity tensor helper for the volumetric-stress assembly
 const dimensionedTensor I_EOS("I_EOS", dimless, tensor::I);
 
-// Compact momentum-stabiliser coefficient (see header note above).
+// Compact momentum-stabiliser coefficient C_w
 const scalar waveStabCoeff
 (
     GrainProperties.lookupOrDefault<scalar>("EOS_waveStabiliser", 0.0)
+);
+
+// Acoustic Courant control in the linear-elastic mode (always on with the EOS):
+// maxCo limits max(convective, acoustic) Co and maxDeltaT is only a cap.
+const Switch acousticCourantControl
+(
+    GrainProperties.lookupOrDefault<Switch>("acousticCourantControl", true)
 );
 
 
@@ -196,8 +189,7 @@ volScalarField CvInitEOS
     }
 }
 
-// Specific internal energy, measured from  reference state
-// (rho = rho0Mix, T = Tref_EOS, p = 0):  e(t=0) = Cv (T - Tref).
+// Specific internal energy from the reference state: e(t=0) = Cv (T - Tref).
 const bool eIntFileFound
 (
     IOobject
@@ -326,5 +318,46 @@ volScalarField cellDx
     }
 }
 cellDx.correctBoundaryConditions();
+
+// Print each material's wave-speed bound and the acoustic time-step bound of the
+// mesh, and reduce the initial deltaT to it if necessary.
+{
+    scalar cLmaxAll = 0.0;
+    for (label i = 0; i < N_Mats; i++)
+    {
+        scalar cLi = Foam::sqrt(GammaMaxMat[i]/max(MatList[i].rho_0, SMALL));
+        if (useEOS)
+        {
+            cLi = max(cLi, MatList[i].cL0_bound);
+        }
+        Info<< "Material." << i << ": longitudinal wave-speed bound "
+            << cLi << " m/s" << endl;
+        cLmaxAll = max(cLmaxAll, cLi);
+    }
+    const scalar dxMinAll = gMin(cellDx.primitiveField());
+    const scalar maxCoStart
+    (
+        runTime.controlDict().lookupOrDefault<scalar>("maxCo", 1.0)
+    );
+    const scalar dtAcoustic = maxCoStart*dxMinAll/max(cLmaxAll, SMALL);
+    Info<< "Acoustic time-step bound for this mesh: dx_min = " << dxMinAll
+        << " m, c_L,max = " << cLmaxAll << " m/s, maxCo*dx_min/c_L,max = "
+        << dtAcoustic << " s" << nl << endl;
+
+    if (stressUpdate && (useEOS || acousticCourantControl) && !quasiStatic)
+    {
+        const Switch adjustStart
+        (
+            runTime.controlDict().lookupOrDefault<Switch>("adjustTimeStep", false)
+        );
+        if (adjustStart && runTime.deltaTValue() > dtAcoustic)
+        {
+            Info<< "Initial deltaT " << runTime.deltaTValue()
+                << " s exceeds the acoustic bound: reduced to "
+                << dtAcoustic << " s" << nl << endl;
+            runTime.setDeltaT(dtAcoustic);
+        }
+    }
+}
 
 // ************************************************************************* //
