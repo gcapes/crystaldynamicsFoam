@@ -2,17 +2,8 @@
 
 
 
-    // Mechanical driving-force regularisation ..... both OFF by default
-
-
-    // PF_drivingForceMax  =  cap on the
-    //   mechanical driving force. 
-    //
-    // PF_mechPhaseMin =  trace-phase nucleation guard.  The
-    //   mech term sqrt(phi_i*phi_j) amplifies spurious  third phases
-    //   at a driven boundary......requiring BOTH cell values above this floor stops spurious
-    //   decoration of moving boundaries while leaving genuinely
-    //   present neighbours untouched.
+    // Mechanical driving-force regularisation, both off by default: PF_drivingForceMax caps
+    // the mechanical term; PF_mechPhaseMin suppresses spurious third phases at driven boundaries.
 
     
 
@@ -88,7 +79,7 @@ forAll(mesh.C(), cell)
 
 
 
-    if (n_active_phases > 1)   //check if neighbour //add on neighbour active phases to active_phases list
+    if (n_active_phases > 1)   // more than one phase present
     {
         // Info<<"HERE"<<endl;
         double dfdp[n_active_phases] =
@@ -114,10 +105,9 @@ forAll(mesh.C(), cell)
 
 
             if (PopBal_av[active_phases[count_i]][cell]
-                > (stressUpdate ? SMALL : SMALL))// should be small whatever but this is nasty, clean up
+                > (stressUpdate ? SMALL : SMALL)) // presence threshold
             {
-            //
-            // get stress in fastor format
+            // stress in Fastor format
             Fastor::Tensor<double,3,3> Fsigma_i(0.0);
             {
                 int index_S = 0;
@@ -132,41 +122,27 @@ forAll(mesh.C(), cell)
                 }
             }
 
-            // ---------------------------------------------------------
-            // Zero-stiffness phases store no elastic
-            // energy -    so inverting C_rotated would produce warnings.  The
-            // crack grows by releasing the intact phase's energy; its
-            // own dfdp_mech is exactly zero. . . . . .This also removes the invertrank4 warning
-            // ---------------------------------------------------------
-            const double CdiagPF = // CHECK IF THERE ARE ANY STIFFNESS , these compinents should always exist (at least one right?!?!)
+            // Zero-stiffness phases store no elastic energy: skip the inversion
+            // (dfdp_mech stays 0)
+            const double CdiagPF =
                 C_rotated[active_phases[count_i]][cell](0,0,0,0)
               + C_rotated[active_phases[count_i]][cell](1,1,1,1)
               + C_rotated[active_phases[count_i]][cell](2,2,2,2);
 
             if (CdiagPF > SMALL)
             {
-            //need inverse of stiffness
+            // compliance
             Fastor::Tensor<double,3,3,3,3> C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
             // C_rot_inverse = Material::invertRankFour(C_rotated[active_phases[count_i]][cell]);
-            //
-            // !!! Negative sign: dfdp_mech = -(dF/dn)_mech (accumulated with -= not +=) !!!
-            //
-            // DEVIATORIC stored energy.  Under MieGruneisen the
-            // per-phase sigma fields hold DEVIATORS because we use EOS for the hydrostatic buts there.  
-            // For cubic C the compliance maps deviators to deviators and this contraction
-            // is EXACT the deviatoric energy
-            
-
-            //TO DO THIS FULLY PROPERLY WE'LL NEED a finite strain formulation so its the deformation gradient were dealing with rether than stress - for future work - - 
-            // for now this is only an issue with very anisotropic materials like Zn, i think this is the same approach other codes take, but we'll do better in future to get the pressure - shear coupling through F^e
+            // dfdp_mech = -(dF/dphi)_mech (note the sign).  Under the EOS sigma holds deviators,
+            // so this is the deviatoric energy; a finite-strain form is future work.
 
 
 
            
             if (!useEOS && PF_amorSplit)
             {
-                // Deviatoric energy always
-                // drives; volumetric drives in tension only,
+                // deviatoric energy always drives; volumetric in tension only
                 double sigm = (Fsigma_i(0,0) + Fsigma_i(1,1)
                              + Fsigma_i(2,2))/3.0;
                 Fastor::Tensor<double,3,3> s_dev = Fsigma_i;
@@ -194,9 +170,9 @@ forAll(mesh.C(), cell)
             }
             else
             {
-                //linearelastic but with compression driving too
+                // linear-elastic: full stored energy, compression drives too
 
-            dfdp_mech [count_i] = -0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse);//SIGN IS RIGHT TOM YOU IDIOT.... SHOULD BE -ve, credit Harry Smith, anti-credit Tom Flint for the wrong sign
+            dfdp_mech [count_i] = -0.5*Material::doubleContractionTwice(Fsigma_i,C_rot_inverse); // negative by convention (see above)
             }
 
             if (useEOS)
@@ -204,20 +180,19 @@ forAll(mesh.C(), cell)
                 const Material& matPF =
                     MatList[Phase2Material[active_phases[count_i]]];
                 const double A0PF = matPF.rho_0*matPF.c0*matPF.c0;
-                const double pTens = max(-p[cell], 0.0);//ONLY TENSION
+                const double pTens = max(-p[cell], 0.0); // tension only
                 if (A0PF > SMALL)
                 {
                     dfdp_mech[count_i] -= 0.5*pTens*pTens/A0PF;
                 }
             }
 
-            } // end if (CdiagPF > SMALL): zero-stiffness phases keep
-              // dfdp_mech = 0.0 from initialisation
+            } // end if (CdiagPF > SMALL)
 
 
 
 
-        }//enf of PF_drivingForceActive conditional
+        } // end presence check
 
 
 
@@ -231,10 +206,7 @@ forAll(mesh.C(), cell)
                 // Info<<"HERE2"<<endl;
                 double int_energy = PF_Energy0_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
 
-                /*
-                
-                dfdp[count_i] accumulates terms involving phase j's field and Laplacian, and dfdp[count_j] accumulates terms involving phase i's.
-                */
+                // dfdp[i] accumulates phase j's terms and vice versa
 
                 dfdp[count_i] -= 4.0 * int_energy * PopBal[active_phases[count_j]][cell] / (interface_width.value()) +
                                  4.0 * int_energy * Laplacian_n[active_phases[count_j]][cell] * (interface_width.value()) / (pi.value() * pi.value());
@@ -308,19 +280,18 @@ forAll(mesh.C(), cell)
 
                 double int_mobility = PF_Mobility0_array[Phase2Material[active_phases[count_i]]][Phase2Material[active_phases[count_j]]];
 
-                double driving_force_cut_off = 0.0;// PLACEHOLDER for chemistry from CIPHERFOMA
+                double driving_force_cut_off = 0.0; // placeholder for a chemical driving force
 
                 // if(PopBal[active_phases[count_i]][cell]>0.1&&PopBal[active_phases[count_j]][cell]>0.1){
                     driving_force_cut_off= (dfdp_G[count_i] - dfdp_G[count_j]) * ((8.0) / pi.value()) * Foam::sqrt(PopBal[active_phases[count_i]][cell] * PopBal[active_phases[count_j]][cell]);//ORIGINAL
 
                 
                     
-                    // Pairwise mechanical driving force, regularised:
-                    // (i) trace-phase guard, (ii) magnitude limiter.
+                    // pairwise mechanical driving force: trace-phase guard, then magnitude limiter
                     double dMech =
                         dfdp_mech[count_i] - dfdp_mech[count_j];
 
-                    if// NOT SURE IF NEEDED BECAUSE THE FIX WEAS DECREASING THE TIMESTEP FOR THE BLIPPING ON THE INTERFACE
+                    if // trace-phase guard
                     (
                         PopBal[active_phases[count_i]][cell]
                             <= PF_mechPhaseMin
@@ -359,16 +330,14 @@ forAll(mesh.C(), cell)
             }
             dpdt[active_phases[count_i]][cell] /= n_active_phases;
 
-            // Accumulate  diagnostics 
-            // W_mech: phase-weighted elastic energy density 
+            // diagnostics: W_mech, phase-weighted elastic energy density
             double ni_val = PopBal[active_phases[count_i]][cell];
             W_mech[cell]      += ni_val * (-dfdp_mech[count_i]);
-            // W_interface: phase-weighted interfacial energy.
-            // dfdp is negative for phases that want to shrink
+            // W_interface: phase-weighted interfacial energy (dfdp < 0 for shrinking phases)
             W_interface[cell] += ni_val * (-dfdp[count_i]);
         }
 
-        // dpdt_crack: ROC of phase fields
+        // dpdt_crack: summed rate of change of the phases not mapped to Material.0
         for (label count_i = 0; count_i < n_active_phases; count_i++)
         {
             if (Phase2Material[active_phases[count_i]] != 0)
@@ -431,11 +400,8 @@ forAll(mesh.C(), cell)
     Sum_Phases.correctBoundaryConditions();
 
 
-    // Remember each cell's dominant phase BEFORE clipping: if a cell's
-    // solve undershoots EVERY phase to <= 0, clipping leaves Sum = 0 and
-    // the normalisation below would skip it -- a permanent vacuum cell
-    // nothing can regrow (nonzero phi is required for every pairwise
-    // term).  Restore such cells to their pre-clip dominant phase.
+    // Remember each cell's dominant phase before clipping: a cell where every phase
+    // undershoots would become permanent vacuum, so restore it to that phase.
     labelList domPhasePF(mesh.nCells(), label(0));
     {
         scalarField domValPF(mesh.nCells(), -GREAT);

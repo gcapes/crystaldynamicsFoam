@@ -1,26 +1,5 @@
 #!/usr/bin/env python3
-"""
-plotWaveSpeed.py -- crystaldynamicsFoam elastic wave-speed validation postprocessor.
-
-Reads the OpenFOAM `probes` function-object output of the shear- and
-pressure-wave runs, detects the first arrival of the wave front at each
-probe, fits arrival time against probe position to obtain the numerical
-propagation speed, and compares it with the analytical value derived from
-constant/GrainProperties:
-
-    shear        c_s = sqrt(C44 / rho)   [C44 read from keyword C0101]
-    longitudinal c_p = sqrt(C11 / rho)   [C11 read from keyword C0000]
-
-(uniaxial-strain plane waves along a <100> direction of the crystal frame,
-which for the distributed isotropic material holds in every direction).
-
-Usage:
-    plotWaveSpeed.py SHEAR_CASE PRESSURE_CASE [-o waveSpeed.png] [--tol 0.02]
-
-Exit status 0 if both measured speeds are within `tol` (relative) of the
-analytical values, 1 otherwise -- so the script doubles as a regression
-test inside Allrun.
-"""
+"""Elastic wave-speed validation: first-arrival fit of the probe signals against c_s = sqrt(C44/rho) and c_p = sqrt(C11/rho); usage: plotWaveSpeed.py SHEAR_CASE PRESSURE_CASE [-o FILE] [--tol 0.02]; exit 1 outside tol."""
 
 import argparse
 import glob
@@ -34,9 +13,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-# ----------------------------------------------------------------------------
 # GrainProperties parsing
-# ----------------------------------------------------------------------------
 def read_grain_properties(case):
     """Return (C11, C44, rho0) from constant/GrainProperties."""
     path = os.path.join(case, "constant", "GrainProperties")
@@ -64,9 +41,7 @@ def read_grain_properties(case):
     return C11, C44, rho0
 
 
-# ----------------------------------------------------------------------------
 # Probe file parsing
-# ----------------------------------------------------------------------------
 def read_probes(case, field="U"):
     """Return (positions[nP,3], t[nT], data[nT,nP,3]) from the probes FO."""
     pattern = os.path.join(case, "postProcessing", "probes", "*", field)
@@ -105,14 +80,9 @@ def read_probes(case, field="U"):
     return positions, t, data
 
 
-# ----------------------------------------------------------------------------
 # Wave-speed measurement
-# ----------------------------------------------------------------------------
 def measure_speed(positions, t, data, frac=0.10):
-    """First-arrival regression.
-
-    Returns (speed, axis, comp, s[nT,nP], arrivals, used_pos, fit_coeffs).
-    """
+    """First-arrival regression; returns (speed, axis, comp, s[nT,nP], arrivals, used_pos, fit_coeffs)."""
     # propagation axis: the coordinate with the largest spread across probes
     axis = int(np.argmax(positions.max(axis=0) - positions.min(axis=0)))
     x = positions[:, axis]
@@ -146,9 +116,7 @@ def measure_speed(positions, t, data, frac=0.10):
     return speed, axis, comp, s, arrivals, ok, coeffs
 
 
-# ----------------------------------------------------------------------------
 # Plotting
-# ----------------------------------------------------------------------------
 def plot_case(axXT, axWF, name, positions, t, s, arrivals, ok, coeffs,
               axis, comp, c_num, c_ana):
     x = positions[:, axis]
@@ -188,7 +156,7 @@ def plot_case(axXT, axWF, name, positions, t, s, arrivals, ok, coeffs,
     axWF.grid(alpha=0.3)
 
 
-# ----------------------------------------------------------------------------
+# main
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -213,12 +181,7 @@ def main():
         c_num, axis, comp, s, arr, okp, coeffs = measure_speed(
             positions, t, data, args.frac)
 
-        # polarisation cross-check: the shear run must carry a TRANSVERSE
-        # signal (component != propagation axis), the pressure run a
-        # LONGITUDINAL one.  A mismatch means the intended wave was never
-        # launched (e.g. a pulse polarised along an 'empty' mesh direction,
-        # whose velocity component OpenFOAM excludes from the solve) and the
-        # fit has locked onto the wrong wave -- fail loudly.
+        # polarisation check: the shear run must carry a transverse signal and the pressure run a longitudinal one, else the fit locked onto the wrong wave
         want_longitudinal = (name == "pressure")
         is_longitudinal = (comp == axis)
         if is_longitudinal != want_longitudinal:

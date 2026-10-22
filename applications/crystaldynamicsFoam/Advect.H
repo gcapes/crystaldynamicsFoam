@@ -1,4 +1,4 @@
-// Advection of plastic slip/hardening fields: only meaningful when the CP solve is active.
+// Lie-split transport of the history fields (active only with the CP solve).
 if (stressUpdate)
 {
 
@@ -47,7 +47,7 @@ if (stressUpdate)
                 fvm::ddt(rho, gam_a) + fvm::div(rhoPhi, gam_a) ==
                 (rho * gamma_alpha_dots[i][countS])
             );
-            gam_a.correctBoundaryConditions();  // <-- was commented out
+            gam_a.correctBoundaryConditions();
         }
     }
 
@@ -119,13 +119,8 @@ for (label h = 0; h < N_Ori; h++)
     sigmaGlobal += PopBal[h] * sigma[h];
 }
 
-// EOS mode: the transported sigma[h] are per-phase DEVIATORS.  Refresh
-// the EOS on the end-of-step state (post-PF phase fields, solved rho
-// and e -- both conservatively transported, so p needs no advection of
-// its own) and add the volumetric channel.  This makes the committed
-// sigmaGlobal, which seeds sigmaGlobaltemp for the next step's first
-// momentum predictor, consistent with the state it will act on.
-// (EOS.H is self-guarded: a no-op when EOSMode is linearElastic.)
+// EOS mode: sigma[h] are deviators.  Refresh the EOS on the end-of-step state and
+// add the volumetric part, so the committed sigmaGlobal matches the state it acts on.
 #include "EOS.H"
 if (useEOS)
 {

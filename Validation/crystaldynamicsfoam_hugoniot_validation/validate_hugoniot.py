@@ -1,31 +1,12 @@
 #!/usr/bin/env python3
-# =========================================================================
-#  validate_hugoniot.py
-#
-#  Planar-impact Hugoniot validation for crystaldynamicsFoam's Mie-Gruneisen EOS mode.
-#
-#  For every run under runs/<mode>/up<value>/ this script:
-#    1. parses U (x-component) at each written time,
-#    2. tracks the shock-front position x_f(t) by half-amplitude crossing,
-#    3. fits Us from the x-t trajectory (late-time window, formation
-#       transient excluded),
-#    4. measures the post-shock particle-velocity plateau and pressure.
-#
-#  It then fits Us = c0_fit + s_fit * up per mode and compares:
-#    - MieGruneisen : must recover the DICTIONARY INPUT (c0, s),
-#    - linearElastic: must land on the closure implied by the legacy
-#      stress rate, p = K*mu  =>  Us = cK*sqrt(1+mu), up = cK*mu/sqrt(1+mu)
-#      (effective slope ~0.5) -- demonstrating the missing physics.
-#
-#  Pure standard library; matplotlib used for figures if importable.
-# =========================================================================
+# Planar-impact Hugoniot validation: fits Us(up) of every run under runs/<mode>/up<value>/ and compares the Mie-Gruneisen mode with the input (c0, s) and the linear-elastic mode with p = K*mu.
 
 import os
 import re
 import math
 import sys
 
-# ----------------------- case constants (must match caseTemplate) --------
+# case constants (must match caseTemplate)
 L_BAR   = 16.0e-3        # bar length [m]
 N_CELLS = 800           # cells along x
 DX      = L_BAR / N_CELLS
@@ -36,10 +17,9 @@ C0_IN   = 3940.0        # dictionary c0        [m/s]
 S_IN    = 1.489         # dictionary s_UsUp    [-]
 C11, C12 = 168.4e9, 121.4e9
 K_BULK  = (C11 + 2.0 * C12) / 3.0          # 137.07 GPa
-CK      = math.sqrt(K_BULK / RHO0)          # legacy closure sound speed
+CK      = math.sqrt(K_BULK / RHO0)          # linear-elastic closure sound speed
 
-FIT_T_MIN_FRAC = 0.35   # discard formation transient before this fraction
-                        # of the latest analysed time
+FIT_T_MIN_FRAC = 0.35   # discard the formation transient before this fraction of the latest time
 PLATEAU_LO, PLATEAU_HI = 0.15, 0.50         # plateau window (fraction of x_f)
 
 TOL_S  = 0.12           # PASS tolerance on fitted s   (MieGruneisen)
@@ -47,7 +27,7 @@ TOL_C0 = 80.0           # PASS tolerance on fitted c0  [m/s]
 
 RUNS_DIR = "runs"
 
-# ----------------------- OpenFOAM ASCII field parsing --------------------
+# OpenFOAM ASCII field parsing
 
 def _matched_block(text, start):
     """Return substring inside the parenthesis block opening at text[start]=='('."""
@@ -63,10 +43,7 @@ def _matched_block(text, start):
 
 
 def read_internal_field(fname, ncomp):
-    """Parse internalField of an ASCII OpenFOAM volScalar/volVectorField.
-
-    Returns a list of floats (scalar) or list of [x,y,z] (vector).
-    """
+    """Parse the internalField of an ASCII volScalar/volVectorField into floats or [x,y,z] lists."""
     with open(fname) as fh:
         txt = fh.read()
 
@@ -109,7 +86,7 @@ def read_internal_field(fname, ncomp):
     return [[float(t) for t in tup.split()] for tup in tuples]
 
 
-# ----------------------- analysis helpers --------------------------------
+# analysis helpers
 
 def front_position(ux, threshold):
     """Frontmost half-amplitude crossing of the u_x profile, or None."""
@@ -139,8 +116,7 @@ def lstsq_line(xs, ys):
 
 
 def us_legacy(up):
-    """Shock speed of the legacy closure p = K*mu (exact, parametric):
-       Us = cK*sqrt(1+mu),  up = cK*mu/sqrt(1+mu).  Solved by bisection."""
+    """Shock speed of the linear-elastic closure p = K*mu: Us = cK sqrt(1+mu), up = cK mu/sqrt(1+mu) (bisection)."""
     f = lambda mu: CK * mu / math.sqrt(1.0 + mu) - up
     lo, hi = 0.0, 2.0
     for _ in range(200):
@@ -156,8 +132,7 @@ def us_legacy(up):
 EXP_DATA_FILE = "cu_hugoniot_experimental.dat"
 
 def read_experimental(path):
-    """Parse (up, Us, source) rows.  Values < 20 are treated as km/s
-    (= mm/us, the usual table units) and converted to m/s."""
+    """Parse (up, Us, source) rows; values < 20 are km/s and are converted to m/s."""
     pts = []
     if not os.path.isfile(path):
         return pts
@@ -232,7 +207,7 @@ def analyse_case(case, up_nominal):
     return dict(Us=Us, up=up_meas, p=p_meas, traj=traj, up_nominal=up_nominal)
 
 
-# ----------------------- main --------------------------------------------
+# main
 
 def main():
     if not os.path.isdir(RUNS_DIR):
@@ -284,9 +259,9 @@ def main():
         mean = lambda r: sum(r) / len(r)
         print(f"  residuals vs MG input line : rms = {rms(r_mg):6.1f} m/s, "
               f"bias = {mean(r_mg):+6.1f} m/s")
-        print(f"  residuals vs legacy p=K*mu : rms = {rms(r_lg):6.1f} m/s, "
+        print(f"  residuals vs linear-elastic p=K*mu : rms = {rms(r_lg):6.1f} m/s, "
               f"bias = {mean(r_lg):+6.1f} m/s")
-        print("  (the data confirming MG and rejecting the legacy closure "
+        print("  (the data confirming MG and rejecting the linear-elastic closure "
               "is the validation claim)")
     else:
         print("\n(no experimental overlay: populate "
@@ -297,7 +272,7 @@ def main():
     print("Fitted Hugoniots:  Us = c0_fit + s_fit * up")
     print("=" * 66)
     print(f"  dictionary input      : c0 = {C0_IN:7.1f} m/s   s = {S_IN:6.3f}")
-    print(f"  legacy closure p=K*mu : c0 = {CK:7.1f} m/s   s ~ 0.5 "
+    print(f"  linear-elastic closure p=K*mu : c0 = {CK:7.1f} m/s   s ~ 0.5 "
           "(exact curve, not a line)")
     print("-" * 66)
 
@@ -322,7 +297,7 @@ def main():
             print("    -> effective slope ~0.5 is the DEFECT the EOS "
                   "extension repairs (real Cu: s = 1.489)")
 
-    # ------------------------- optional figures --------------------------
+    # optional figures
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -335,9 +310,7 @@ def main():
             + [up for up, _, _ in exp_pts])
         ups = [i * up_hi / 180.0 for i in range(181)]
         mg_line = [C0_IN + S_IN * u for u in ups]
-        # Published experimental scatter about linear Us-up fits:
-        # Mitchell & Nellis (JAP 52, 3363, 1981) report fractional
-        # standard deviations of 0.6-0.9% for Cu/Al/Ta gas-gun data.
+        # +/-0.9% band: fractional scatter of the gas-gun data about linear fits (Mitchell & Nellis 1981)
         ax.fill_between(ups, [v * 0.991 for v in mg_line],
                         [v * 1.009 for v in mg_line],
                         color="0.85", zorder=0,

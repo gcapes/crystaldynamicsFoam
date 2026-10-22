@@ -8,11 +8,11 @@
   // gradU.correctBoundaryConditions();
 
   volTensorField TgradU(fvc::grad(U)().T());
-  TgradU.correctBoundaryConditions(); // already called by line above
+  TgradU.correctBoundaryConditions();
 
   omega_dot = 0.5 * (TgradU - fvc::grad(U));   
 omega_dot.correctBoundaryConditions();
-  //NOTE!!! Openfoam defines grad in the opposite manner to solid mechanics textbooks, it's actually grad transpose that we want so this has to be transposed again or just ahev a - sign
+  // OpenFOAM's grad is the transpose of the solid-mechanics convention, hence TgradU
 
   epsilon_dot = 0.5 * (TgradU + fvc::grad(U));
 epsilon_dot.correctBoundaryConditions();
@@ -38,7 +38,7 @@ GBREF*=0.0;
 
     GBREF+=ni*ni;
 
-    PopBal_av[h] = fvc::average(ni); //takes the average from all cells sharing a face - this way the information about phases in adjacent cells is shared with the local cell
+    PopBal_av[h] = fvc::average(ni); // face average: shares phase presence with neighbouring cells
     PopBal_av[h].correctBoundaryConditions();
 
     dpdt[h] *= 0.0;

@@ -9,10 +9,8 @@ Application
     diffuseHardBoundaries
 
 Description
-    Diffuses hard boundaries in phase fields by applying face averaging
-    to create smooth transitions between grains.
-    
-    Reads all n.* fields and applies iterative smoothing to boundaries.
+    Smooths the hard grain boundaries of the n.* fields by iterated face averaging
+    and renormalises the phase sum.
 
 Author
     Generated for CP phase field simulations
@@ -48,9 +46,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     
-    // =========================================================================
     // Read parameters
-    // =========================================================================
     
     label nIterations = 3;
     if (args.optionFound("nIterations"))
@@ -69,9 +65,7 @@ int main(int argc, char *argv[])
         << "  Relaxation factor: " << relaxation << nl
         << endl;
     
-    // =========================================================================
-    // Read grain properties to determine number of phases
-    // =========================================================================
+    // Number of phases from GrainProperties
     
     IOdictionary grainProperties
     (
@@ -88,9 +82,7 @@ int main(int argc, char *argv[])
     label N_Phases = readLabel(grainProperties.lookup("N_Phases"));
     Info<< "Number of phases: " << N_Phases << endl;
     
-    // =========================================================================
-    // Read all phase fields
-    // =========================================================================
+    // Read the phase fields
     
     Info<< "\nReading phase fields..." << endl;
     
@@ -120,9 +112,7 @@ int main(int argc, char *argv[])
         );
     }
     
-    // =========================================================================
-    // Apply boundary diffusion
-    // =========================================================================
+    // Boundary diffusion
     
     Info<< "\nApplying boundary diffusion..." << endl;
     
@@ -160,8 +150,7 @@ int main(int argc, char *argv[])
             volScalarField& phi = phaseFields[i];
             volScalarField& smoothed = smoothedFields[i];
             
-            // Apply face averaging using fvc::average
-            // This calculates the average of face values from neighboring cells
+            // face average of the interpolated field
             surfaceScalarField phiF = fvc::interpolate(phi);
             smoothed = fvc::average(phiF);
             
@@ -224,9 +213,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    // =========================================================================
-    // Calculate grain boundary indicator
-    // =========================================================================
+    // Grain-boundary indicator
     
     Info<< "\nCalculating grain boundary indicator..." << endl;
     
@@ -244,8 +231,7 @@ int main(int argc, char *argv[])
         dimensionedScalar("zero", dimless, 0.0)
     );
     
-    // GBREF = sum of (phi_i * phi_j) for all i != j
-    // This gives high values at grain boundaries where multiple phases coexist
+    // GBREF = sum_{i<j} phi_i phi_j: large where phases coexist
     forAll(mesh.C(), cellI)
     {
         scalar gb = 0.0;
@@ -261,9 +247,7 @@ int main(int argc, char *argv[])
     
     GBREF.correctBoundaryConditions();
     
-    // =========================================================================
-    // Write results
-    // =========================================================================
+    // Write
     
     Info<< "\nWriting diffused phase fields..." << endl;
     
@@ -276,9 +260,7 @@ int main(int argc, char *argv[])
     GBREF.write();
     Info<< "  Written GBREF (grain boundary indicator)" << endl;
     
-    // =========================================================================
-    // Report statistics
-    // =========================================================================
+    // Statistics
     
     Info<< "\nPhase field statistics:" << endl;
     
