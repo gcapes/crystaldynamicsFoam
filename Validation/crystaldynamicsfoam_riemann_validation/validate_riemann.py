@@ -1,47 +1,12 @@
 #!/usr/bin/env python3
-# =========================================================================
-#  validate_riemann.py
-#
-#  Solid Riemann (Sod-type) problem for crystaldynamicsFoam's Mie-Gruneisen EOS mode.
-#
-#  Initial data (both halves AT REST, diaphragm at x0 = 5 mm):
-#    left  : the principal-Hugoniot state of up_L = 800 m/s, at rest --
-#            rho_L = rho0(1+mu_L), e_L = up_L^2/2, p_L = 36.66 GPa, HOT
-#    right : ambient (rho0, e = 0, p = 0)
-#
-#  Exact solution: a right-running SHOCK into the ambient material, a
-#  left-running RELEASE FAN into the hot compressed material, and between
-#  them a CONTACT where p and u are continuous but rho and T jump --
-#  because the two sides reach the same (p*, u*) along different
-#  thermodynamic paths (single shock vs shock-then-release).  That
-#  entropy contact is the observable that uniquely certifies the energy
-#  bookkeeping: neither the Hugoniot suite nor the release benchmark
-#  tests T directly.
-#
-#  Star state from impedance matching:
-#      right shock locus : p_s(u) = rho0 (c0 + s u) u
-#      left release locus: p_r(u) from the isentrope through the left
-#          state, with du/dmu = -c/(1+mu) (left-facing fan: u rises as
-#          the material expands toward the low-pressure side)
-#      p_r(u*) = p_s(u*)  ->  (u*, p*)
-#
-#  The legacy closure (p = K mu, c = const) is solved with the same
-#  structure for comparison; note it predicts NO density jump at the
-#  contact (same p -> same mu -> same rho on both sides).
-#
-#  Temperature convention: the exact T uses the SAME leading-order
-#  recovery as the solver, T = Tref + (e - e_H(mu))/Cv, so this is
-#  verification against the model's own exact solution.
-#
-#  Pure standard library; matplotlib used for figures if importable.
-# =========================================================================
+# Solid Riemann problem (Hugoniot state of up = 800 m/s at rest | ambient): exact star state by impedance matching for the Mie-Gruneisen and linear-elastic closures, compared with the runs under runs/<mode>/riemann/.
 
 import os
 import re
 import math
 import sys
 
-# ----------------------- case constants (must match caseTemplate) --------
+# case constants (must match caseTemplate)
 L_BAR   = 1.0e-2
 N_CELLS = 1000
 DX      = L_BAR / N_CELLS
@@ -62,10 +27,7 @@ def _set_mesh(n_cells, l_bar):
 
 
 def configure_mesh(case):
-    """Read L and the x cell count from the run's own blockMeshDict, so
-    the validator follows any resolution/length change automatically.
-    Falls back to the current values (plus the self-healing length check
-    in read_internal_field) if parsing fails."""
+    """Read L and the x cell count from the run's blockMeshDict; keeps the current values if parsing fails."""
     bmd = os.path.join(case, "system", "blockMeshDict")
     if not os.path.isfile(bmd):
         return
@@ -100,7 +62,7 @@ TOL_CONT_P = 0.02         # contact continuity, fraction of p*
 
 RUNS_DIR = "runs"
 
-# ----------------------- Mie-Gruneisen algebra ---------------------------
+# Mie-Gruneisen algebra
 
 A0 = RHO0 * C0 * C0
 
@@ -144,8 +106,7 @@ def hugoniot_state(up):
     return Us, mu, RHO0 * Us * up, 0.5 * up * up
 
 def left_release_path(mu_L, e_L, nstep=6000):
-    """Isentrope through the left state, LEFT-facing fan: u rises as mu
-    falls.  Returns samples [(u, p, c, mu, e, T)], u ascending from 0."""
+    """Isentrope through the left state (left-facing fan, u rises as mu falls): samples [(u, p, c, mu, e, T)]."""
     dmu = mu_L / nstep
 
     def rhs(mu, e):
@@ -200,7 +161,7 @@ def solve_star_mg():
         rhoL=RHO0 * (1.0 + st[3]), TL=st[5], cLs=st[2],
     )
 
-# ----------------------- legacy closure exact -----------------------------
+# linear-elastic closure, exact
 
 def solve_star_legacy():
     """p = K mu, c = CK constant.  Left state: p_L = K mu_L at rest."""
@@ -228,7 +189,7 @@ def solve_star_legacy():
         rhoR=RHO0 * (1.0 + mu_star), rhoL=RHO0 * (1.0 + mu_star),  # NO jump
     )
 
-# ----------------------- exact profiles -----------------------------------
+# exact profiles
 
 def exact_profile_mg(sol, t):
     """(u, p, rho, T)(x) at time t for the MG solution."""
@@ -288,10 +249,7 @@ def exact_profile_legacy(sol, t):
         u.append(uu)
         p.append(K_BULK * mm if x <= xc_shock else 0.0)
         rho.append(RHO0 * (1.0 + mm))
-        # exact legacy T: total-energy balance with the athermal closure.
-        # Release extracts the expansion work from Cv*T (work integral has
-        # the closed form below -> NEGATIVE T in the released region);
-        # the shock books ALL Hugoniot energy as heat.
+        # exact T of the athermal closure: release takes the expansion work from Cv*T (T < 0 possible), the shock books all Hugoniot energy as heat
         def _W(m):
             return (K_BULK / RHO0) * (math.log(1.0 + m) + 1.0 / (1.0 + m))
         if xi <= head:
@@ -304,7 +262,7 @@ def exact_profile_legacy(sol, t):
             T.append(TREF)
     return u, p, rho, T
 
-# ----------------------- OpenFOAM ASCII field parsing ---------------------
+# OpenFOAM ASCII field parsing
 
 def _matched_block(text, start):
     depth = 0
@@ -332,8 +290,7 @@ def read_internal_field(fname, ncomp):
     mn = re.match(r"internalField\s+nonuniform\s+List<\w+>\s*(\d+)\s*", sub)
     n_file = int(mn.group(1))
     if n_file != N_CELLS:
-        # resolution changed and blockMeshDict parsing did not catch it:
-        # trust the field file (bar length assumed unchanged)
+        # resolution changed without blockMeshDict parsing catching it: trust the field file
         _set_mesh(n_file, L_BAR)
     body = _matched_block(sub, sub.find("(", mn.end()))
     if ncomp == 1:
@@ -380,7 +337,7 @@ def front_fit(case, threshold, t_min_frac=0.3):
     sxy = sum(t * x for t, x in sel)
     return (n * sxy - sx * sy) / (n * sxx - sx * sx)
 
-# ----------------------- main ---------------------------------------------
+# main
 
 def main():
     mg = solve_star_mg()
@@ -484,7 +441,7 @@ def main():
                   f"{100*(meas['uR']/mg['u']-1):+.0f}% -- and no physical "
                   "contact density/temperature jump: the missing physics")
 
-    # ------------------------- figures -----------------------------------
+    # figures
     try:
         import matplotlib
         matplotlib.use("Agg")

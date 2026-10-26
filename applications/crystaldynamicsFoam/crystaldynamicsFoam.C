@@ -54,6 +54,7 @@ Authors
 
 
 #include "Fastor.h" 
+#include <fstream>
 #include <random>
 #include <math.h>
 
@@ -86,11 +87,10 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    // Pre-populate C_rotated when stress solve is bypassed (stressUpdate=false).
+    // Prescribed-stress mode set-up (stressUpdate false)
     if (!stressUpdate)
     {
         Info<< "stressUpdate=false: initialising prescribed-stress mode\n" << endl;
-        // C_rotated pre-population AND the perPhaseSigma feature.
         #include "InitPrescribedStressMode.H"
 
     }
@@ -155,6 +155,8 @@ int main(int argc, char *argv[])
             
 
         #include "Advect.H"
+
+        #include "energyBudget.H"
         
 
 

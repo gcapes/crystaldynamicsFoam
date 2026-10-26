@@ -201,7 +201,7 @@ velocityProfiletopFixedValueFvPatchVectorField::updateCoeffs()
     }
 
 //{{{ begin code
-    #line 114 "/home/mbcx7tf3/Custom_OpenFoam/Eulerian_Mechanics/tutorials/CPFoam/Fifty_Grain_Cases/poly_compression/0/U/boundaryField/atmosphere"
+    #line 114 "/home/mbcx7tf3/Custom_OpenFoam/crystaldynamicsFoam/tutorials/crystaldynamicsFoam/Fifty_Grain_Cases/poly_compression/0/U/boundaryField/atmosphere"
 vectorField veloc(patch().size(), vector(0, 0, 0));
 scalar radius=0.05e-3;
 scalar Peak=50.0;

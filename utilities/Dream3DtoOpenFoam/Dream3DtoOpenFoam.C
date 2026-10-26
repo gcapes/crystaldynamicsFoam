@@ -9,21 +9,8 @@ Application
     generateFromDREAM3D
 
 Description
-    Reads DREAM3D microstructure files and initializes Eulerian CP simulation:
-    
-    1. Reads .dream3d (HDF5) file from constant/ directory
-    2. Extracts domain geometry, grain IDs, Euler angles, and phases
-    3. Updates system/blockMeshDict to match DREAM3D domain
-    4. Initializes PopBal[h] fields (n.0, n.1, ...) with grain assignment
-    5. Writes constant/GrainProperties with Euler angles and materials
-    
-    Input:
-    - constant/microstructure.dream3d (or specified filename)
-    
-    Output:
-    - system/blockMeshDict (updated vertices and blocks)
-    - 0/n.* (PopBal fields initialized)
-    - constant/GrainProperties (grain orientations and materials)
+    Reads a DREAM3D (HDF5) microstructure from constant/ and writes a matching system/blockMeshDict,
+    constant/GrainProperties (orientations, materials) and, once the mesh exists, the n.* fields.
 
 Author
     Tom Flint
@@ -51,7 +38,7 @@ struct GrainData
     label cellCount;  // Number of cells in this grain
 };
 
-// Function to read HDF5 dataset
+// Read an HDF5 dataset
 template<typename T>
 std::vector<T> readHDF5Dataset(hid_t file_id, const std::string& dataset_path, std::vector<hsize_t>& dims)
 {
@@ -92,7 +79,7 @@ std::vector<T> readHDF5Dataset(hid_t file_id, const std::string& dataset_path, s
     return data;
 }
 
-// Function to read geometry information
+// Read the image geometry
 void readGeometry(hid_t file_id, const std::string& container_name, 
                   vector& origin, vector& spacing, labelList& dimensions)
 {
@@ -144,9 +131,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     
-    // =========================================================================
     // Read parameters
-    // =========================================================================
     
     word dream3dFile = args.optionLookupOrDefault<word>("file", "microstructure.dream3d");
     word containerName = args.optionLookupOrDefault<word>("container", "SyntheticVolumeDataContainer");
@@ -164,9 +149,7 @@ int main(int argc, char *argv[])
             << exit(FatalError);
     }
     
-    // =========================================================================
-    // Open HDF5 file
-    // =========================================================================
+    // Open the HDF5 file
     
     hid_t file_id = H5Fopen(dream3dPath.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
     if (file_id < 0)
@@ -178,9 +161,7 @@ int main(int argc, char *argv[])
     
     Info<< "Successfully opened HDF5 file" << endl;
     
-    // =========================================================================
     // Read geometry
-    // =========================================================================
     
     Info<< "\nReading geometry..." << endl;
     
@@ -210,9 +191,7 @@ int main(int argc, char *argv[])
     
     Info<< "  Domain: " << minPoint << " to " << maxPoint << endl;
     
-    // =========================================================================
     // Read cell data
-    // =========================================================================
     
     Info<< "\nReading cell data..." << endl;
     
@@ -240,9 +219,7 @@ int main(int argc, char *argv[])
     
     Info<< "Successfully read DREAM3D data" << endl;
     
-    // =========================================================================
-    // Analyze grain structure
-    // =========================================================================
+    // Grain structure
     
     Info<< "\nAnalyzing grain structure..." << endl;
     
@@ -303,9 +280,7 @@ int main(int argc, char *argv[])
             << endl;
     }
     
-    // =========================================================================
     // Update blockMeshDict
-    // =========================================================================
     
     Info<< "\nUpdating system/blockMeshDict..." << endl;
     
@@ -442,9 +417,7 @@ int main(int argc, char *argv[])
     Info<< "  Updated blockMeshDict with domain: " << minPoint << " to " << maxPoint << endl;
     Info<< "  Grid cells: " << nx << " x " << ny << " x " << nz << endl;
     
-    // =========================================================================
     // Write GrainProperties
-    // =========================================================================
     
     Info<< "\nWriting constant/GrainProperties..." << endl;
     
@@ -475,8 +448,7 @@ int main(int argc, char *argv[])
         << "N_Materials\t" << nPhases << ";" << nl
         << nl;
     
-    // Build Phase2Material array (maps grain index to material/phase ID)
-    // Note: DREAM3D grain IDs may not be sequential, so we need to map them
+    // Phase2Material: DREAM3D grain IDs need not be sequential, so map the sorted IDs to indices
     std::vector<label> grainIndices;
     for (const auto& pair : grainMap)
     {
@@ -535,9 +507,7 @@ int main(int argc, char *argv[])
     
     Info<< "  Wrote " << nGrains << " grain orientations" << endl;
     
-    // =========================================================================
-    // Initialize PopBal fields
-    // =========================================================================
+    // Initialise the n.* fields
     
     Info<< "\nInitializing PopBal fields..." << endl;
     Info<< "  NOTE: You must run 'blockMesh' first to create the mesh!" << endl;
@@ -625,9 +595,7 @@ int main(int argc, char *argv[])
         Info<< "  Successfully initialized " << nGrains << " PopBal fields" << endl;
     }
     
-    // =========================================================================
     // Summary
-    // =========================================================================
     
     Info<< "\n========================================" << endl;
     Info<< "DREAM3D import complete!" << endl;

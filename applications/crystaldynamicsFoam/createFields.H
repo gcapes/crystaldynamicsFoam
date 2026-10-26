@@ -205,7 +205,7 @@ surfaceScalarField rhoPhi(
         runTime.timeName(),
         mesh),
     mesh,
-    dimensionedScalar(dimMass / dimTime, 0));
+    dimensionedScalar("rhoPhi", dimMass / dimTime, 0.0));
 
 // volScalarField divU
 // (
@@ -273,8 +273,27 @@ label n_substeps(readLabel(GrainProperties.lookup("n_constitutive_substeps")));
 Info << "Number of Constitutive Sub-cycling steps: " << n_substeps << endl;
 
 
-scalar overstress_cap(GrainProperties.lookupOrDefault<scalar>("overstress_cap", 3.0));
-Info << "Flow-rule overstress cap |tau|/g: " << overstress_cap << endl;
+// Optional slip-rate bound |gammadot| <= maxSlipRate (1/s): the drag-limited regime the
+// power law does not describe.  0 = none.  overstress_cap is obsolete and ignored.
+const scalar maxSlipRate
+(
+    GrainProperties.lookupOrDefault<scalar>("maxSlipRate", 0.0)
+);
+if (maxSlipRate > 0.0)
+{
+    Info << "Slip-rate bound maxSlipRate: " << maxSlipRate << " 1/s" << endl;
+}
+else
+{
+    Info << "Slip-rate bound maxSlipRate: none" << endl;
+}
+if (GrainProperties.found("overstress_cap"))
+{
+    WarningInFunction
+        << "overstress_cap is no longer used (it bounded |tau|/g, i.e. the slip rate at "
+        << "gammadot_0*cap^k, which depends on k); use maxSlipRate (1/s) instead."
+        << endl;
+}
 
 
 
@@ -339,16 +358,13 @@ for (label i = 0; i < N_Mats; i++)
         }
     }
 
-    // Enforce full minor and major symmetry via Mandel pair enumeration.
-    //  overwrites any asymmetry in the user's GrainProperties input
-    // (already warned about above) so that the tensor is bitwise symmetric
-    // before rotation and inversion.
+    // Enforce minor and major symmetry (Mandel projection) before rotation and inversion
     Cprime2[i] = Foam::Material::castSymmetry(Cprime_temp_Read);
 
-    // Verify the symmetrised tensor passes strict checks before the solve begins.
+    // Strict symmetry check of the result
     Foam::Material::assertSymmetry(Cprime2[i]);
 
-    // Inversion self-test: enabled by setting "verbose true;" in GrainProperties. -> Harry Smith
+    // Inversion self-test, enabled by "verbose true;" in GrainProperties (Harry Smith)
 
     if (GrainProperties.lookupOrDefault<Switch>("verbose", false))//Harry Smith
     {
@@ -401,8 +417,7 @@ for (label i = 0; i < N_Mats; i++)
 
     label N_slips_Temp(readLabel(Mat.lookup("N_slips")));
 
-    // Guard the fixed-size stack arrays in the constitutive kernel
-    // (MAX_SLIPS = 48 in StressUpdate.H)
+    // Guard the fixed-size stack arrays of the constitutive kernel (MAX_SLIPS = 48)
     if (N_slips_Temp < 0 || N_slips_Temp > 48)
     {
         FatalErrorInFunction
@@ -424,8 +439,7 @@ for (label i = 0; i < N_Mats; i++)
         vector temp_n(Mat.lookup(Slip_normal_name));
 
 
-        // normalise slip systems and ensure orthogonality
-        // -----------------------------------------------------------
+        // Normalise the slip systems and check orthogonality
         const scalar magM = mag(temp_m);
         const scalar magN = mag(temp_n);
         if (magM < SMALL || magN < SMALL)
@@ -473,7 +487,7 @@ for (label i = 0; i < N_Mats; i++)
     MatList[i].ref_shear_rate = gammadot_0_temp;
 }
 
-// Exit cleanly so the inversion-tests log checker can validate
+// Exit cleanly after the self-tests
 if (GrainProperties.lookupOrDefault<Switch>("verbose", false))
 {
     Info << "All material inversion self-tests complete. Exiting.\n" << endl;
@@ -894,7 +908,255 @@ for (label count = 0; count < N_Ori; count++)
 }
 
 
+// momentumCoupling: explicit (default) | stabilised (Jasak-Weller implicit-stiffness
+// split, UEqn.H) | quasiStatic (the split without the acoustic limit).  Legacy switches mapped.
+word momentumCoupling
+(
+    GrainProperties.lookupOrDefault<word>("momentumCoupling", "explicit")
+);
+if (GrainProperties.lookupOrDefault<Switch>("quasiStatic", false))
+{
+    momentumCoupling = "quasiStatic";
+}
+else if
+(
+    GrainProperties.lookupOrDefault<Switch>("compactStabiliser", false)
+ && momentumCoupling == "explicit"
+)
+{
+    momentumCoupling = "stabilised";
+}
+if
+(
+    momentumCoupling != "explicit"
+ && momentumCoupling != "stabilised"
+ && momentumCoupling != "quasiStatic"
+)
+{
+    FatalErrorInFunction
+        << "Unknown momentumCoupling '" << momentumCoupling
+        << "'. Allowed: explicit (default), stabilised, quasiStatic."
+        << exit(FatalError);
+}
+Info<< "Momentum coupling: " << momentumCoupling << endl;
 
+// quasiStatic: acoustic limit off; compactStabiliser: the split is assembled in UEqn.H
+const Switch quasiStatic(momentumCoupling == "quasiStatic");
+const Switch compactStabiliser(momentumCoupling != "explicit");
+
+// Implicit stiffness = impKFactor * (phase-weighted longitudinal modulus bound);
+// the outer iteration converges for impKFactor > 0.5 (0.6 suits cubic metals).
+const scalar impKFactor
+(
+    GrainProperties.lookupOrDefault<scalar>("impKFactor", 0.6)
+);
+
+// Time-step controls applied when quasiStatic is true (a non-positive value disables one)
+const scalar maxDeltaEps
+(
+    GrainProperties.lookupOrDefault<scalar>("maxDeltaEps", 1e-4)
+);
+const scalar maxViscoplasticNumber
+(
+    GrainProperties.lookupOrDefault<scalar>("maxViscoplasticNumber", 2.0)
+);
+
+// Adaptive sub-stepping: raise N per cell and phase so that sub_dt*lambda <= substepTarget
+// (forward Euler needs < 2); n_constitutive_substeps is the minimum, maxSubsteps the cap.
+const Switch adaptiveSubsteps
+(
+    GrainProperties.lookupOrDefault<Switch>("adaptiveSubsteps", quasiStatic)
+);
+const scalar substepTarget
+(
+    GrainProperties.lookupOrDefault<scalar>("substepTarget", 0.5)
+);
+const label maxSubsteps
+(
+    GrainProperties.lookupOrDefault<label>("maxSubsteps", 2000)
+);
+
+if (compactStabiliser && !quasiStatic)
+{
+    Info<< "momentumCoupling stabilised: implicit-stiffness split in the momentum "
+        << "equation at the acoustic time step (impKFactor " << impKFactor << ")" << nl << endl;
+}
+if (compactStabiliser && impKFactor <= 0.5)
+{
+    FatalErrorInFunction
+        << "impKFactor = " << impKFactor
+        << " must exceed 0.5 for the implicit-stiffness outer iteration to converge."
+        << exit(FatalError);
+}
+if (adaptiveSubsteps && (substepTarget <= 0.0 || maxSubsteps < n_substeps))
+{
+    FatalErrorInFunction
+        << "adaptiveSubsteps requires substepTarget > 0 and "
+        << "maxSubsteps >= n_constitutive_substeps."
+        << exit(FatalError);
+}
+
+// Longitudinal modulus bound per material: largest acoustic-tensor eigenvalue over directions
+scalarList GammaMaxMat(N_Mats, 0.0);
+
+// Bulk modulus of C' per material (C'_aabb/9); in EOS mode UEqn.H raises the implicit
+// stiffness by max(0, rho_0 c0^2 - KCprime).
+scalarList KCprimeMat(N_Mats, 0.0);
+
+// Schmid-projected moduli P_s : C' : P_s per material and slip system (crystal frame)
+std::vector<std::vector<double>> PCPmat(N_Mats);
+
+for (label i = 0; i < N_Mats; i++)
+{
+    const Fastor::Tensor<double,3,3,3,3>& Cm = Cprime2[i];
+
+    const int nDirsQS = 800;
+    scalar GamMaxQS = 0.0;
+    for (int d = 0; d < nDirsQS; d++)
+    {
+        const scalar zf = 1.0 - 2.0*(d + 0.5)/nDirsQS;
+        const scalar rf = Foam::sqrt(max(1.0 - zf*zf, 0.0));
+        const scalar th = M_PI*(3.0 - Foam::sqrt(5.0))*d;
+        const scalar nv[3] = {rf*Foam::cos(th), rf*Foam::sin(th), zf};
+
+        double Gam[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
+        for (int a = 0; a < 3; a++)
+            for (int b = 0; b < 3; b++)
+                for (int jj = 0; jj < 3; jj++)
+                    for (int ll = 0; ll < 3; ll++)
+                        Gam[a][b] += Cm(a,jj,b,ll)*nv[jj]*nv[ll];
+
+        double v[3] = {0.577, 0.577, 0.577};
+        double lam = 0.0;
+        for (int it = 0; it < 60; it++)
+        {
+            double w[3] =
+            {
+                Gam[0][0]*v[0] + Gam[0][1]*v[1] + Gam[0][2]*v[2],
+                Gam[1][0]*v[0] + Gam[1][1]*v[1] + Gam[1][2]*v[2],
+                Gam[2][0]*v[0] + Gam[2][1]*v[1] + Gam[2][2]*v[2]
+            };
+            lam = Foam::sqrt(w[0]*w[0] + w[1]*w[1] + w[2]*w[2]);
+            if (lam < VSMALL) break;
+            v[0] = w[0]/lam; v[1] = w[1]/lam; v[2] = w[2]/lam;
+        }
+        GamMaxQS = max(GamMaxQS, scalar(lam));
+    }
+    GammaMaxMat[i] = 1.02*GamMaxQS;
+
+    for (int a = 0; a < 3; a++)
+        for (int b = 0; b < 3; b++)
+            KCprimeMat[i] += Cm(a,a,b,b)/9.0;
+
+    PCPmat[i].assign(MatList[i].N_Slips, 0.0);
+    double pcpMin = GREAT, pcpMax = 0.0;
+    for (int s = 0; s < MatList[i].N_Slips; s++)
+    {
+        const vector& mS = MatList[i].SP_direction[s];
+        const vector& nS = MatList[i].SP_norm[s];
+        double P[3][3];
+        for (int a = 0; a < 3; a++)
+            for (int b = 0; b < 3; b++)
+                P[a][b] = 0.5*(mS[a]*nS[b] + nS[a]*mS[b]);
+
+        double pcp = 0.0;
+        for (int a = 0; a < 3; a++)
+            for (int b = 0; b < 3; b++)
+                for (int c = 0; c < 3; c++)
+                    for (int d = 0; d < 3; d++)
+                        pcp += P[a][b]*Cm(a,b,c,d)*P[c][d];
+
+        PCPmat[i][s] = pcp;
+        pcpMin = min(pcpMin, pcp);
+        pcpMax = max(pcpMax, pcp);
+    }
+
+    Info<< "Material." << i << ": longitudinal modulus bound "
+        << GammaMaxMat[i]/1e9 << " GPa, bulk modulus of C' "
+        << KCprimeMat[i]/1e9 << " GPa";
+    if (MatList[i].N_Slips > 0)
+    {
+        Info<< ", Schmid-projected moduli " << pcpMin/1e9 << " - " << pcpMax/1e9 << " GPa";
+    }
+    Info<< endl;
+}
+
+// Implicit stiffness coefficient of the momentum equation (assembled in UEqn.H)
+volScalarField impK
+(
+    IOobject
+    (
+        "impK",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("impK", dimensionSet(1, -1, -2, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+// Viscoplastic relaxation rate per phase and cell (StressUpdate.H -> setDeltaT.H);
+// allocated in quasi-static mode only.
+List<scalarField> lamVp(N_Ori);
+forAll(lamVp, h)
+{
+    lamVp[h].setSize(quasiStatic ? mesh.nCells() : 0, 0.0);
+}
+
+// Energy budget (energyBudget.H): per-phase plastic work rate, its mixture field and
+// the running integrals of the domain energy balance.
+List<scalarField> plasticWorkRatePhase(N_Ori);
+forAll(plasticWorkRatePhase, h)
+{
+    plasticWorkRatePhase[h].setSize(mesh.nCells(), 0.0);
+}
+
+volScalarField plasticWorkRate
+(
+    IOobject
+    (
+        "plasticWorkRate",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("plasticWorkRate", dimensionSet(1, -1, -3, 0, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
+);
+
+const Switch energyBudgetActive
+(
+    GrainProperties.lookupOrDefault<Switch>("energyBudget", false)
+);
+
+// Boundary power terms from TEqn.H / EEqn.H on the final outer iteration
+scalar ebBoundaryStressPower = 0.0;   // sum_b (sigma.U).S_f           [W]
+scalar ebBoundaryConvective  = 0.0;   // sum_b rhoPhi_b (e_b + K_b)   [W]
+scalar ebBoundaryHeat        = 0.0;   // sum_b kappa_b snGrad(T)|S_f| [W]
+scalar ebBoundaryMassFlux    = 0.0;   // sum_b rhoPhi_b               [kg/s]
+
+// Running integrals (J, kg) and reference values at the first step
+scalar ebWork = 0.0, ebConv = 0.0, ebHeat = 0.0, ebDq = 0.0, ebDp = 0.0;
+scalar ebMassIn = 0.0;
+scalar ebE0 = 0.0, ebM0 = 0.0;
+bool   ebInitialised = false;
+
+if (quasiStatic)
+{
+    Info<< "momentumCoupling quasiStatic: implicit-stiffness coupling, acoustic limit off (impKFactor "
+        << impKFactor << "); dt limited by maxDeltaEps " << maxDeltaEps
+        << " and maxViscoplasticNumber " << maxViscoplasticNumber << nl << endl;
+}
+if (adaptiveSubsteps)
+{
+    Info<< "adaptiveSubsteps=true: constitutive sub-steps between " << n_substeps
+        << " and " << maxSubsteps << " (target sub_dt*lambda = " << substepTarget << ")"
+        << nl << endl;
+}
 
 
 volScalarField rhotemp(
@@ -1471,7 +1733,7 @@ dummy.Assign_Mobilities(PF_Mobility0_array);
 
 
 
-// NEED TO STORE THE ROTATED STIFFNESS TENSOR FOR ALL PHASES FOR ALL CELLS
+// Rotated stiffness tensor per phase and cell
 std::vector<std::vector<Fastor::Tensor<double,3,3,3,3>>> C_rotated(
     N_Ori,
     std::vector<Fastor::Tensor<double,3,3,3,3>>(mesh.nCells())
@@ -1550,7 +1812,7 @@ if (!stressUpdate)
     Info << "stressUpdate=false: prescribed-stress PF mode\n" << endl;
 }
 
-// Per-phase constant prescribed stress - only meaningful alongside stressUpdate=false 
+// Per-phase constant prescribed stress (with stressUpdate false only)
 const bool perPhaseSigma =
     GrainProperties.lookupOrDefault<Switch>("PerPhaseSigma", false);
 
@@ -1571,8 +1833,7 @@ if (perPhaseSigma)
     Info << "PerPhaseSigma=true: per-phase constant prescribed stress\n" << endl;
 }
 
-// Diagnostic only: which single phase dpdt_crack (PF.H) should report the
-// raw rate-of-change of. Default = -1
+// Diagnostic: phase whose raw rate of change dpdt_crack (PF.H) reports; -1 = none
 const label trackedPhase =
     GrainProperties.lookupOrDefault<label>("TrackedPhase", -1);
 

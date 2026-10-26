@@ -1,0 +1,4 @@
+# crystaldynamicsFoam energy budget (SI units; S_f outward)
+# E = KE + IE; identity E - E0 = Wb - Fb + Qb
+# 1:time 2:KE 3:IE 4:E 5:Wb(boundary stress work) 6:Fb(convective energy outflow) 7:Qb(conductive inflow) 8:Dq(artificial-viscosity work) 9:Dp(plastic work) 10:residual(normalised) 11:mass 12:massInflow 13:massResidual(normalised) 14:DqRate 15:DpRate
+1.555209953e-11 4.0528039464e-11 0.00467999875497 0.0046799987955 1.03872871239e-08 -4.47415340747e-11 0 0 9.52308601659e-10 -8.29324860307e-17 3.12000002941e-08 2.94070841651e-16 -3.36031594958e-17 0 61.2334430867
